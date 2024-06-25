@@ -1,12 +1,31 @@
-library colorfilter_generator;
-
 import 'package:flutter/material.dart';
 import 'package:matrix2d/matrix2d.dart';
 
 class ColorFilterGenerator {
   String name;
   List<List<double>> filters;
-  List<double> matrix = [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0];
+  List<double> matrix = <double>[
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+  ];
 
   ColorFilterGenerator({
     required this.name,
@@ -26,12 +45,12 @@ class ColorFilterGenerator {
       return;
     }
 
-    Matrix2d m2d = const Matrix2d();
+    const Matrix2d m2d = Matrix2d();
 
     List result = m2d.reshape([filters[0]], 4, 5);
 
     for (int i = 1; i < filters.length; i++) {
-      List listB = [
+      final List listB = [
         ...(filters[i] is ColorFilterGenerator
             ? (filters[i] as ColorFilterGenerator).matrix
             : filters[i]),
@@ -55,9 +74,9 @@ class ColorFilterGenerator {
   ColorFilterGenerator opacity(double value) {
     return ColorFilterGenerator(
       name: name,
-      filters: [
+      filters: <List<double>>[
         ...filters,
-        [
+        <double>[
           value,
           0,
           0,
@@ -87,7 +106,7 @@ class ColorFilterGenerator {
   Widget build(Widget child) {
     Widget tree = child;
 
-    for (final filter in filters) {
+    for (final List<double> filter in filters) {
       tree = ColorFiltered(
         colorFilter: ColorFilter.matrix(filter),
         child: tree,

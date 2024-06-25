@@ -11,7 +11,8 @@ class OverlayBuilder extends StatefulWidget {
   _OverlayBuilderState createState() => _OverlayBuilderState();
 }
 
-class _OverlayBuilderState extends State<OverlayBuilder> with SingleTickerProviderStateMixin {
+class _OverlayBuilderState extends State<OverlayBuilder>
+    with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -70,7 +71,8 @@ Future<void> showTextOverlay({
       return AnimatedBuilder(
         animation: _overlayAnimationController!,
         builder: (BuildContext context, Widget? child) {
-          final double animationValue = curve.transform(_overlayAnimationController!.value);
+          final double animationValue =
+              curve.transform(_overlayAnimationController!.value);
 
           return Opacity(
             opacity: animationValue,

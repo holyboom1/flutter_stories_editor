@@ -12,7 +12,8 @@ class FiltersSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ColorFilterGenerator>(
       valueListenable: _editorController._selectedFilter,
-      builder: (BuildContext context, ColorFilterGenerator value, Widget? child) {
+      builder:
+          (BuildContext context, ColorFilterGenerator value, Widget? child) {
         return SizedBox(
           height: 120,
           child: ListView.builder(

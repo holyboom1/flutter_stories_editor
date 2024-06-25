@@ -11,7 +11,8 @@ enum CustomAssetType {
 final class EditorController {
   final ValueNotifier<List<StoryElement>> _assets =
       ValueNotifier<List<StoryElement>>(<StoryElement>[]);
-  final ValueNotifier<StoryElement?> _selectedItem = ValueNotifier<StoryElement?>(null);
+  final ValueNotifier<StoryElement?> _selectedItem =
+      ValueNotifier<StoryElement?>(null);
   final ValueNotifier<ColorFilterGenerator> _selectedFilter =
       ValueNotifier<ColorFilterGenerator>(PresetFilters.none);
   final ValueNotifier<bool> _isShowFilters = ValueNotifier<bool>(false);

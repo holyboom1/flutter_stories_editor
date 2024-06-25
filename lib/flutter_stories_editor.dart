@@ -108,8 +108,8 @@ class _FlutterStoriesEditorState extends State<FlutterStoriesEditor> {
                       ),
                       ValueListenableBuilder<ColorFilterGenerator>(
                           valueListenable: _editorController._selectedFilter,
-                          builder:
-                              (BuildContext context, ColorFilterGenerator value, Widget? child) {
+                          builder: (BuildContext context,
+                              ColorFilterGenerator value, Widget? child) {
                             return ColorFiltered(
                               colorFilter: ColorFilter.matrix(value.matrix),
                               child: child,
@@ -130,7 +130,8 @@ class _FlutterStoriesEditorState extends State<FlutterStoriesEditor> {
                           )),
                       ValueListenableBuilder<bool>(
                         valueListenable: isShowingOverlay,
-                        builder: (BuildContext context, bool value, Widget? child) {
+                        builder:
+                            (BuildContext context, bool value, Widget? child) {
                           return Positioned(
                             top: 0,
                             width: MediaQuery.of(context).size.width,
@@ -149,7 +150,8 @@ class _FlutterStoriesEditorState extends State<FlutterStoriesEditor> {
                       ),
                       ValueListenableBuilder<bool>(
                         valueListenable: isShowingOverlay,
-                        builder: (BuildContext context, bool isShowingOverlay, Widget? child) {
+                        builder: (BuildContext context, bool isShowingOverlay,
+                            Widget? child) {
                           return Positioned(
                             bottom: 0,
                             width: MediaQuery.of(context).size.width,
@@ -158,16 +160,22 @@ class _FlutterStoriesEditorState extends State<FlutterStoriesEditor> {
                               child: isShowingOverlay
                                   ? const SizedBox()
                                   : ValueListenableBuilder<bool>(
-                                      valueListenable: _editorController._isShowFilters,
-                                      builder: (BuildContext context, bool value, Widget? child) {
+                                      valueListenable:
+                                          _editorController._isShowFilters,
+                                      builder: (BuildContext context,
+                                          bool value, Widget? child) {
                                         return AnimatedSwitcher(
-                                          duration: const Duration(milliseconds: 300),
+                                          duration:
+                                              const Duration(milliseconds: 300),
                                           child: !value
                                               ? const SizedBox()
                                               : FiltersSelector(
-                                                  onFilterSelected: (ColorFilterGenerator filter) {
-                                                    _editorController._selectedFilter.value =
-                                                        filter;
+                                                  onFilterSelected:
+                                                      (ColorFilterGenerator
+                                                          filter) {
+                                                    _editorController
+                                                        ._selectedFilter
+                                                        .value = filter;
                                                   },
                                                 ),
                                         );

@@ -2,8 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 
-typedef MatrixGestureDetectorCallback = void Function(Matrix4 matrix,
-    Matrix4 translationDeltaMatrix, Matrix4 scaleDeltaMatrix, Matrix4 rotationDeltaMatrix);
+typedef MatrixGestureDetectorCallback = void Function(
+    Matrix4 matrix,
+    Matrix4 translationDeltaMatrix,
+    Matrix4 scaleDeltaMatrix,
+    Matrix4 rotationDeltaMatrix);
 
 /// [MatrixGestureDetector] detects translation, scale and rotation gestures
 /// and combines them into [Matrix4] object that can be used by [Transform] widget
@@ -71,9 +74,9 @@ class MatrixGestureDetector extends StatefulWidget {
   /// If [matrix] is not null the result of the composing will be concatenated
   /// to that [matrix], otherwise the identity matrix will be used.
   ///
-  static Matrix4 compose(
-      Matrix4? matrix, Matrix4? translationMatrix, Matrix4? scaleMatrix, Matrix4? rotationMatrix) {
-    if (matrix == null) matrix = Matrix4.identity();
+  static Matrix4 compose(Matrix4? matrix, Matrix4? translationMatrix,
+      Matrix4? scaleMatrix, Matrix4? rotationMatrix) {
+    matrix ??= Matrix4.identity();
     if (translationMatrix != null) matrix = translationMatrix * matrix;
     if (scaleMatrix != null) matrix = scaleMatrix * matrix;
     if (rotationMatrix != null) matrix = rotationMatrix * matrix;
@@ -85,11 +88,12 @@ class MatrixGestureDetector extends StatefulWidget {
   /// [MatrixDecomposedValues.scale] and [MatrixDecomposedValues.rotation] components.
   ///
   static MatrixDecomposedValues decomposeToValues(Matrix4 matrix) {
-    var array = matrix.applyToVector3Array([0, 0, 0, 1, 0, 0]);
-    Offset translation = Offset(array[0], array[1]);
-    Offset delta = Offset(array[3] - array[0], array[4] - array[1]);
-    double scale = delta.distance;
-    double rotation = delta.direction;
+    final List<double> array =
+        matrix.applyToVector3Array(<double>[0, 0, 0, 1, 0, 0]);
+    final Offset translation = Offset(array[0], array[1]);
+    final Offset delta = Offset(array[3] - array[0], array[4] - array[1]);
+    final double scale = delta.distance;
+    final double rotation = delta.direction;
     return MatrixDecomposedValues(translation, scale, rotation);
   }
 }
@@ -102,7 +106,8 @@ class _MatrixGestureDetectorState extends State<MatrixGestureDetector> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = widget.clipChild ? ClipRect(child: widget.child) : widget.child;
+    final Widget child =
+        widget.clipChild ? ClipRect(child: widget.child) : widget.child;
     return GestureDetector(
       onScaleStart: onScaleStart,
       onScaleUpdate: onScaleUpdate,
@@ -112,15 +117,15 @@ class _MatrixGestureDetectorState extends State<MatrixGestureDetector> {
 
   _ValueUpdater<Offset> translationUpdater = _ValueUpdater(
     value: Offset.zero,
-    onUpdate: (oldVal, newVal) => newVal - oldVal,
+    onUpdate: (Offset oldVal, Offset newVal) => newVal - oldVal,
   );
   _ValueUpdater<double> scaleUpdater = _ValueUpdater(
     value: 1.0,
-    onUpdate: (oldVal, newVal) => newVal / oldVal,
+    onUpdate: (double oldVal, double newVal) => newVal / oldVal,
   );
   _ValueUpdater<double> rotationUpdater = _ValueUpdater(
     value: 0.0,
-    onUpdate: (oldVal, newVal) => newVal - oldVal,
+    onUpdate: (double oldVal, double newVal) => newVal - oldVal,
   );
 
   void onScaleStart(ScaleStartDetails details) {
@@ -136,36 +141,38 @@ class _MatrixGestureDetectorState extends State<MatrixGestureDetector> {
 
     // handle matrix translating
     if (widget.shouldTranslate) {
-      Offset translationDelta = translationUpdater.update(details.focalPoint);
+      final Offset translationDelta =
+          translationUpdater.update(details.focalPoint);
       translationDeltaMatrix = _translate(translationDelta);
       matrix = translationDeltaMatrix * matrix;
     }
 
-    final focalPointAlignment = widget.focalPointAlignment;
-    final focalPoint = focalPointAlignment == null
+    final Alignment? focalPointAlignment = widget.focalPointAlignment;
+    final Offset focalPoint = focalPointAlignment == null
         ? details.localFocalPoint
         : focalPointAlignment.alongSize(context.size!);
 
     // handle matrix scaling
     if (widget.shouldScale && details.scale != 1.0) {
-      double scaleDelta = scaleUpdater.update(details.scale);
+      final double scaleDelta = scaleUpdater.update(details.scale);
       scaleDeltaMatrix = _scale(scaleDelta, focalPoint);
       matrix = scaleDeltaMatrix * matrix;
     }
 
     // handle matrix rotating
     if (widget.shouldRotate && details.rotation != 0.0) {
-      double rotationDelta = rotationUpdater.update(details.rotation);
+      final double rotationDelta = rotationUpdater.update(details.rotation);
       rotationDeltaMatrix = _rotate(rotationDelta, focalPoint);
       matrix = rotationDeltaMatrix * matrix;
     }
 
-    widget.onMatrixUpdate(matrix, translationDeltaMatrix, scaleDeltaMatrix, rotationDeltaMatrix);
+    widget.onMatrixUpdate(
+        matrix, translationDeltaMatrix, scaleDeltaMatrix, rotationDeltaMatrix);
   }
 
   Matrix4 _translate(Offset translation) {
-    var dx = translation.dx;
-    var dy = translation.dy;
+    final double dx = translation.dx;
+    final double dy = translation.dy;
 
     //  ..[0]  = 1       # x scale
     //  ..[5]  = 1       # y scale
@@ -177,8 +184,8 @@ class _MatrixGestureDetectorState extends State<MatrixGestureDetector> {
   }
 
   Matrix4 _scale(double scale, Offset focalPoint) {
-    var dx = (1 - scale) * focalPoint.dx;
-    var dy = (1 - scale) * focalPoint.dy;
+    final double dx = (1 - scale) * focalPoint.dx;
+    final double dy = (1 - scale) * focalPoint.dy;
 
     //  ..[0]  = scale   # x scale
     //  ..[5]  = scale   # y scale
@@ -190,10 +197,10 @@ class _MatrixGestureDetectorState extends State<MatrixGestureDetector> {
   }
 
   Matrix4 _rotate(double angle, Offset focalPoint) {
-    var c = cos(angle);
-    var s = sin(angle);
-    var dx = (1 - c) * focalPoint.dx + s * focalPoint.dy;
-    var dy = (1 - c) * focalPoint.dy - s * focalPoint.dx;
+    final double c = cos(angle);
+    final double s = sin(angle);
+    final double dx = (1 - c) * focalPoint.dx + s * focalPoint.dy;
+    final double dy = (1 - c) * focalPoint.dy - s * focalPoint.dx;
 
     //  ..[0]  = c       # x scale
     //  ..[1]  = s       # y skew
@@ -219,7 +226,7 @@ class _ValueUpdater<T> {
   });
 
   T update(T newValue) {
-    T updated = onUpdate(value, newValue);
+    final T updated = onUpdate(value, newValue);
     value = newValue;
     return updated;
   }

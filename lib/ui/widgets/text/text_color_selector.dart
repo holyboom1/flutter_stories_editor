@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_stories_editor/constants.dart';
+import '../../../constants.dart';
 
 class TextColorSelector extends StatelessWidget {
   final Size screen;
-  final Function({required Color background, required Color text}) changeContainerColor;
+  final Function({required Color background, required Color text})
+      changeContainerColor;
 
   const TextColorSelector({
     super.key,
@@ -35,7 +36,8 @@ class TextColorSelector extends StatelessWidget {
               return const SizedBox(width: 8);
             }
 
-            final Color backgroundColor = Constants.textColors[index - 1].background;
+            final Color backgroundColor =
+                Constants.textColors[index - 1].background;
             final Color textColor = Constants.textColors[index - 1].text;
 
             return InkWell(

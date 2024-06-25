@@ -45,7 +45,8 @@ class _BaseStoryElementState extends State<_BaseStoryElement> {
             angle: widget.storyElement.rotation,
             child: GestureDetector(
               onTap: () {
-                _editorController._assets.changeZIndex(asset: widget.storyElement);
+                _editorController._assets
+                    .changeZIndex(asset: widget.storyElement);
                 switch (widget.storyElement.type) {
                   case ItemType.text:
                     _editorController.editText(widget.storyElement);
@@ -71,12 +72,15 @@ class _BaseStoryElementState extends State<_BaseStoryElement> {
               },
               onScaleUpdate: (ScaleUpdateDetails details) {
                 final Offset delta = details.focalPoint - initPos;
-                final double left = (delta.dx / widget.screen.width) + currentPos.dx;
-                final double top = (delta.dy / widget.screen.height) + currentPos.dy;
+                final double left =
+                    (delta.dx / widget.screen.width) + currentPos.dx;
+                final double top =
+                    (delta.dy / widget.screen.height) + currentPos.dy;
 
                 setState(() {
                   widget.storyElement.position = Offset(left, top);
-                  widget.storyElement.rotation = details.rotation + currentRotation;
+                  widget.storyElement.rotation =
+                      details.rotation + currentRotation;
                   widget.storyElement.scale = details.scale * currentScale;
                 });
                 _editorController._selectedItem.value = widget.storyElement;

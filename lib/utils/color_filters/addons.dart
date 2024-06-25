@@ -7,8 +7,9 @@ import 'dart:math';
 // | 1  |   |  0   0   0   0   1  |   | 1 |
 class ColorFilterAddons {
   /// color(1 - scale) - color * scale
-  static List<double> colorOverlay(double red, double green, double blue, double scale) {
-    return [
+  static List<double> colorOverlay(
+      double red, double green, double blue, double scale) {
+    return <double>[
       (1 - scale),
       0,
       0,
@@ -33,7 +34,7 @@ class ColorFilterAddons {
   }
 
   static List<double> rgbScale(double r, double g, double b) {
-    return [
+    return <double>[
       r,
       0,
       0,
@@ -58,7 +59,7 @@ class ColorFilterAddons {
   }
 
   static List<double> addictiveColor(double r, double g, double b) {
-    return [
+    return <double>[
       1,
       0,
       0,
@@ -84,7 +85,7 @@ class ColorFilterAddons {
 
   /// (0.2126 * color.red + 0.7152 * color.green + 0.0722 * color.blue)
   static List<double> grayscale() {
-    return [
+    return <double>[
       0.2126,
       0.7152,
       0.0722,
@@ -109,7 +110,7 @@ class ColorFilterAddons {
   }
 
   static List<double> sepia(double value) {
-    return [
+    return <double>[
       (1 - (0.607 * value)),
       0.769 * value,
       0.189 * value,
@@ -135,7 +136,7 @@ class ColorFilterAddons {
 
   /// Invert the colors
   static List<double> invert() {
-    return [
+    return <double>[
       -1,
       0,
       0,
@@ -168,7 +169,7 @@ class ColorFilterAddons {
     }
 
     if (value == 0) {
-      return [
+      return <double>[
         1,
         0,
         0,
@@ -213,15 +214,15 @@ class ColorFilterAddons {
       0,
       1,
       0
-    ]).map((i) => i.toDouble()).toList();
+    ]).map((double i) => i).toList();
   }
 
   /// Contrast adjustment
   static List<double> contrast(double value) {
-    double adj = value * 255;
-    double factor = (259 * (adj + 255)) / (255 * (259 - adj));
+    final double adj = value * 255;
+    final double factor = (259 * (adj + 255)) / (255 * (259 - adj));
 
-    return [
+    return <double>[
       factor,
       0,
       0,
@@ -250,7 +251,7 @@ class ColorFilterAddons {
     value = value * pi;
 
     if (value == 0) {
-      return [
+      return <double>[
         1,
         0,
         0,
@@ -276,9 +277,9 @@ class ColorFilterAddons {
 
     final double cosVal = cos(value);
     final double sinVal = sin(value);
-    final double lumR = 0.213;
-    final double lumG = 0.715;
-    final double lumB = 0.072;
+    const double lumR = 0.213;
+    const double lumG = 0.715;
+    const double lumB = 0.072;
 
     return List<double>.from(<double>[
       (lumR + (cosVal * (1 - lumR))) + (sinVal * (-lumR)),
@@ -301,7 +302,7 @@ class ColorFilterAddons {
       0,
       1,
       0,
-    ]).map((i) => i.toDouble()).toList();
+    ]).map((double i) => i).toList();
   }
 
   /// Saturation adjustment
@@ -309,7 +310,7 @@ class ColorFilterAddons {
     value = value * 100;
 
     if (value == 0) {
-      return [
+      return <double>[
         1,
         0,
         0,
@@ -333,10 +334,10 @@ class ColorFilterAddons {
       ];
     }
 
-    final x = ((1 + ((value > 0) ? ((3 * value) / 100) : (value / 100)))).toDouble();
-    final double lumR = 0.3086;
-    final double lumG = 0.6094;
-    final double lumB = 0.082;
+    final double x = 1 + ((value > 0) ? ((3 * value) / 100) : (value / 100));
+    const double lumR = 0.3086;
+    const double lumG = 0.6094;
+    const double lumB = 0.082;
 
     return List<double>.from(<double>[
       (lumR * (1 - x)) + x,
@@ -359,6 +360,6 @@ class ColorFilterAddons {
       0,
       1,
       0,
-    ]).map((i) => i.toDouble()).toList();
+    ]).map((double i) => i).toList();
   }
 }

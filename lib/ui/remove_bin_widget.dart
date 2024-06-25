@@ -17,7 +17,8 @@ class RemoveBinWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<StoryElement?>(
       valueListenable: _editorController._selectedItem,
-      builder: (BuildContext context, StoryElement? selectedItem, Widget? child) {
+      builder:
+          (BuildContext context, StoryElement? selectedItem, Widget? child) {
         return Positioned(
           bottom: 0,
           width: screen.width,

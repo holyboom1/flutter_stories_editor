@@ -381,7 +381,7 @@ class PresetFilters {
 }
 
 /// List of filter presets
-final List<ColorFilterGenerator> presetFiltersList = [
+final List<ColorFilterGenerator> presetFiltersList = <ColorFilterGenerator>[
   PresetFilters.none,
   PresetFilters.aden,
   PresetFilters.amaro,

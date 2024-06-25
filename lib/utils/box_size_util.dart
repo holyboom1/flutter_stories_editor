@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-
 typedef OnWidgetSizeChange = void Function(Size size);
 
 class MeasureSizeRenderObject extends RenderProxyBox {
@@ -41,7 +40,8 @@ class MeasureSize extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, covariant MeasureSizeRenderObject renderObject) {
+  void updateRenderObject(
+      BuildContext context, covariant MeasureSizeRenderObject renderObject) {
     renderObject.onChange = onChange;
   }
 }
