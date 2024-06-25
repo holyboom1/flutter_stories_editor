@@ -24,14 +24,18 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string></string>
 	<key>NSCameraUsageDescription</key>
-	<string>your usage description here</string>
+	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>your usage description here</string>
+	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>In order to access your photo library</string>
+	<string></string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
