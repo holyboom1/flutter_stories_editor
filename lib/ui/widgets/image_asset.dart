@@ -1,20 +1,27 @@
-part of '../../flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
 
-class _ImageAsset extends StatelessWidget {
+import '../../flutter_stories_editor.dart';
+import 'base_story_element.dart';
+import 'image_widget.dart';
+
+class ImageAsset extends StatelessWidget {
   final StoryElement storyElement;
   final bool isEditing;
   final Size screen;
+  final EditorController editorController;
 
-  const _ImageAsset({
+  const ImageAsset({
     super.key,
     required this.storyElement,
     required this.screen,
     required this.isEditing,
+    required this.editorController,
   });
 
   @override
   Widget build(BuildContext context) {
-    return _BaseStoryElement(
+    return BaseStoryElement(
+      editorController: editorController,
       isEditing: isEditing,
       storyElement: storyElement,
       screen: screen,

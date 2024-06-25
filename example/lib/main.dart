@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stories_editor/flutter_stories_editor.dart';
-import 'package:flutter_stories_editor/models/story_model.dart';
 
 void main() {
   runApp(const MyApp());

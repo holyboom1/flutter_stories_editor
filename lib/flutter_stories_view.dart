@@ -1,4 +1,7 @@
-part of 'flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
+
+import 'flutter_stories_editor.dart';
+import 'ui/widgets/story_element.dart';
 
 /// FlutterStoriesViewer
 class FlutterStoriesViewer extends StatefulWidget {
@@ -37,10 +40,11 @@ class _FlutterStoriesViewerState extends State<FlutterStoriesViewer> {
                 children: <Widget>[
                   ...widget.storyModel.elements.map(
                     (StoryElement e) {
-                      return _StoryElementWidget(
+                      return StoryElementWidget(
                         storyElement: e,
                         screen: constraints.biggest,
                         isEditing: false,
+                        editorController: EditorController(),
                       );
                     },
                   ).toList()

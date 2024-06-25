@@ -1,17 +1,25 @@
-part of '../../flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
+
+import '../../constants.dart';
+import '../../models/editor_controller.dart';
+import '../../utils/color_filters/colorfilter_generator.dart';
+import '../../utils/color_filters/presets.dart';
+import 'image_widget.dart';
 
 class FiltersSelector extends StatelessWidget {
+  final EditorController editorController;
   final Function(ColorFilterGenerator) onFilterSelected;
 
   const FiltersSelector({
     super.key,
     required this.onFilterSelected,
+    required this.editorController,
   });
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ColorFilterGenerator>(
-      valueListenable: _editorController._selectedFilter,
+      valueListenable: editorController.selectedFilter,
       builder:
           (BuildContext context, ColorFilterGenerator value, Widget? child) {
         return SizedBox(

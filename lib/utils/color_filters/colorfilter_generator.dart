@@ -4,28 +4,7 @@ import 'package:matrix2d/matrix2d.dart';
 class ColorFilterGenerator {
   String name;
   List<List<double>> filters;
-  List<double> matrix = <double>[
-    1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    0
-  ];
+  List<double> matrix = <double>[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0];
 
   ColorFilterGenerator({
     required this.name,
@@ -47,10 +26,10 @@ class ColorFilterGenerator {
 
     const Matrix2d m2d = Matrix2d();
 
-    List result = m2d.reshape([filters[0]], 4, 5);
+    List result = m2d.reshape(<dynamic>[filters[0]], 4, 5);
 
     for (int i = 1; i < filters.length; i++) {
-      final List listB = [
+      final List listB = <dynamic>[
         ...(filters[i] is ColorFilterGenerator
             ? (filters[i] as ColorFilterGenerator).matrix
             : filters[i]),
@@ -63,7 +42,7 @@ class ColorFilterGenerator {
 
       result = m2d.dot(
         result,
-        m2d.reshape([listB], 5, 5),
+        m2d.reshape(<dynamic>[listB], 5, 5),
       );
     }
 

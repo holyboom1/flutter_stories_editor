@@ -1,4 +1,8 @@
-part of '../flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
+
+import '../models/editor_controller.dart';
+import '../models/story_element.dart';
+import '../ui/widgets/text/text_overlay.dart';
 
 class OverlayBuilder extends StatefulWidget {
   final Widget child;
@@ -60,6 +64,7 @@ BuildContext? _context;
 
 Future<void> showTextOverlay({
   StoryElement? storyElement,
+  required EditorController editorController,
 }) async {
   if (_overlayAnimationController == null) {
     return;
@@ -77,6 +82,7 @@ Future<void> showTextOverlay({
           return Opacity(
             opacity: animationValue,
             child: TextOverlay(
+              editorController: editorController,
               storyElement: storyElement,
               screen: MediaQuery.of(context).size,
             ),

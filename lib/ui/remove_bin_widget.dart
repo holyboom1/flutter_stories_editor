@@ -1,22 +1,20 @@
-part of '../flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
 
-void checkDeleteElement(StoryElement storyElement, Size screen) {
-  if (storyElement.position.dy * screen.height > screen.height - 90) {
-    _editorController._assets.removeAsset(storyElement);
-  }
-}
+import '../flutter_stories_editor.dart';
 
 class RemoveBinWidget extends StatelessWidget {
+  final EditorController editorController;
   final Size screen;
-  RemoveBinWidget({
+  const RemoveBinWidget({
     super.key,
     required this.screen,
+    required this.editorController,
   });
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<StoryElement?>(
-      valueListenable: _editorController._selectedItem,
+      valueListenable: editorController.selectedItem,
       builder:
           (BuildContext context, StoryElement? selectedItem, Widget? child) {
         return Positioned(

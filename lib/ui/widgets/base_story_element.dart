@@ -1,24 +1,31 @@
-part of '../../flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
 
-class _BaseStoryElement extends StatefulWidget {
+import '../../models/editor_controller.dart';
+import '../../models/item_type_enum.dart';
+import '../../models/story_element.dart';
+import '../../utils/extensions.dart';
+
+class BaseStoryElement extends StatefulWidget {
   final StoryElement storyElement;
+  final EditorController editorController;
   final Widget child;
   final Size screen;
   final bool isEditing;
 
-  _BaseStoryElement({
+  const BaseStoryElement({
     Key? key,
     required this.storyElement,
+    required this.editorController,
     required this.child,
     required this.screen,
     required this.isEditing,
   }) : super(key: key);
 
   @override
-  State<_BaseStoryElement> createState() => _BaseStoryElementState();
+  State<BaseStoryElement> createState() => _BaseStoryElementState();
 }
 
-class _BaseStoryElementState extends State<_BaseStoryElement> {
+class _BaseStoryElementState extends State<BaseStoryElement> {
   Offset initPos = Offset.zero;
   Offset currentPos = Offset.zero;
   double currentScale = 1.0;
@@ -45,11 +52,11 @@ class _BaseStoryElementState extends State<_BaseStoryElement> {
             angle: widget.storyElement.rotation,
             child: GestureDetector(
               onTap: () {
-                _editorController._assets
+                widget.editorController.assets
                     .changeZIndex(asset: widget.storyElement);
                 switch (widget.storyElement.type) {
                   case ItemType.text:
-                    _editorController.editText(widget.storyElement);
+                    widget.editorController.editText(widget.storyElement);
                     break;
                   case ItemType.image:
                     break;
@@ -68,7 +75,8 @@ class _BaseStoryElementState extends State<_BaseStoryElement> {
                 currentPos = widget.storyElement.position;
                 currentScale = widget.storyElement.scale;
                 currentRotation = widget.storyElement.rotation;
-                _editorController._selectedItem.value = widget.storyElement;
+                widget.editorController.selectedItem.value =
+                    widget.storyElement;
               },
               onScaleUpdate: (ScaleUpdateDetails details) {
                 final Offset delta = details.focalPoint - initPos;
@@ -83,14 +91,15 @@ class _BaseStoryElementState extends State<_BaseStoryElement> {
                       details.rotation + currentRotation;
                   widget.storyElement.scale = details.scale * currentScale;
                 });
-                _editorController._selectedItem.value = widget.storyElement;
+                widget.editorController.selectedItem.value =
+                    widget.storyElement;
               },
               onScaleEnd: (ScaleEndDetails details) {
-                checkDeleteElement(
+                widget.editorController.checkDeleteElement(
                   widget.storyElement,
                   widget.screen,
                 );
-                _editorController._selectedItem.value = null;
+                widget.editorController.selectedItem.value = null;
               },
               child: widget.child,
             ),

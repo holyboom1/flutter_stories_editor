@@ -1,21 +1,27 @@
-part of '../../../flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
 
-class _TextAsset extends StatefulWidget {
+import '../../../models/editor_controller.dart';
+import '../../../models/story_element.dart';
+import '../base_story_element.dart';
+
+class TextAsset extends StatefulWidget {
   final StoryElement storyElement;
   final Size screen;
   final bool isEditing;
-  const _TextAsset({
+  final EditorController editorController;
+  const TextAsset({
     super.key,
     required this.storyElement,
     required this.screen,
     required this.isEditing,
+    required this.editorController,
   });
 
   @override
-  State<_TextAsset> createState() => _TextAssetState();
+  State<TextAsset> createState() => _TextAssetState();
 }
 
-class _TextAssetState extends State<_TextAsset> {
+class _TextAssetState extends State<TextAsset> {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -27,7 +33,8 @@ class _TextAssetState extends State<_TextAsset> {
   @override
   Widget build(BuildContext context) {
     if (!widget.isEditing) {
-      return _BaseStoryElement(
+      return BaseStoryElement(
+        editorController: widget.editorController,
         storyElement: widget.storyElement,
         isEditing: widget.isEditing,
         screen: widget.screen,
@@ -53,10 +60,11 @@ class _TextAssetState extends State<_TextAsset> {
         ),
       );
     }
-    return _BaseStoryElement(
+    return BaseStoryElement(
       storyElement: widget.storyElement,
       isEditing: widget.isEditing,
       screen: widget.screen,
+      editorController: widget.editorController,
       child: AbsorbPointer(
         child: Container(
           margin: const EdgeInsets.all(20),

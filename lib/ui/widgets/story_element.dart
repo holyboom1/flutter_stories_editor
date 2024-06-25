@@ -1,14 +1,22 @@
-part of '../../flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
 
-class _StoryElementWidget extends StatelessWidget {
+import '../../flutter_stories_editor.dart';
+import '../../models/item_type_enum.dart';
+import 'image_asset.dart';
+import 'text/text_asset.dart';
+import 'widget_asset.dart';
+
+class StoryElementWidget extends StatelessWidget {
   final StoryElement storyElement;
   final Size screen;
   final bool isEditing;
+  final EditorController editorController;
 
-  const _StoryElementWidget({
+  const StoryElementWidget({
     required this.storyElement,
     required this.screen,
     required this.isEditing,
+    required this.editorController,
     super.key,
   });
 
@@ -16,15 +24,17 @@ class _StoryElementWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (storyElement.type) {
       case ItemType.text:
-        return _TextAsset(
+        return TextAsset(
           storyElement: storyElement,
           screen: screen,
           isEditing: isEditing,
+          editorController: editorController,
         );
       case ItemType.image:
-        return _ImageAsset(
+        return ImageAsset(
           storyElement: storyElement,
           screen: screen,
+          editorController: editorController,
           isEditing: isEditing,
         );
       case ItemType.video:
@@ -32,9 +42,10 @@ class _StoryElementWidget extends StatelessWidget {
       case ItemType.audio:
       // TODO: Handle this case.
       case ItemType.widget:
-        return _WidgetAsset(
+        return WidgetAsset(
           storyElement: storyElement,
           screen: screen,
+          editorController: editorController,
           isEditing: isEditing,
         );
       case ItemType.none:

@@ -1,13 +1,26 @@
-part of '../../../flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
+
+import '../../../constants.dart';
+import '../../../models/editor_controller.dart';
+import '../../../models/item_type_enum.dart';
+import '../../../models/story_element.dart';
+import '../../../utils/box_size_util.dart';
+import '../../../utils/extensions.dart';
+import '../../../utils/overlay_util.dart';
+import '../base_icon_button.dart';
+import 'text_color_selector.dart';
+import 'text_font_selector.dart';
 
 class TextOverlay extends StatefulWidget {
   final StoryElement? storyElement;
   final Size screen;
+  final EditorController editorController;
 
   const TextOverlay({
     super.key,
     this.storyElement,
     required this.screen,
+    required this.editorController,
   });
 
   @override
@@ -26,7 +39,6 @@ class _TextOverlayState extends State<TextOverlay> {
     storyElement = widget.storyElement ??
         StoryElement(
           type: ItemType.text,
-          position: const Offset(0.4, 0.4),
         );
     if (widget.storyElement == null) {
       isCreate = true;
@@ -111,7 +123,7 @@ class _TextOverlayState extends State<TextOverlay> {
       if (storyElement.value.isEmpty) {
         hideOverlay();
       } else {
-        _editorController._assets.addAsset(storyElement);
+        widget.editorController.assets.addAsset(storyElement);
         hideOverlay();
       }
       return;
@@ -122,7 +134,7 @@ class _TextOverlayState extends State<TextOverlay> {
       if (storyElement.value.isEmpty) {
         hideOverlay();
       } else {
-        _editorController._assets.addAsset(storyElement);
+        widget.editorController.assets.addAsset(storyElement);
         hideOverlay();
       }
     }

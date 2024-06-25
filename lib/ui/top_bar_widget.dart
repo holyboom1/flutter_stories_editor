@@ -1,11 +1,17 @@
-part of '../flutter_stories_editor.dart';
+import 'package:flutter/material.dart';
+
+import '../models/editor_controller.dart';
+import '../models/story_model.dart';
+import 'widgets/base_icon_button.dart';
 
 class TopBarWidget extends StatelessWidget {
+  final EditorController editorController;
   final Function(StoryModel story)? onDone;
   final Function(StoryModel story)? onClose;
 
   const TopBarWidget({
     super.key,
+    required this.editorController,
     this.onDone,
     this.onClose,
   });
@@ -29,13 +35,13 @@ class TopBarWidget extends StatelessWidget {
                 Navigator.of(context).pop();
               }
               print('Back button pressed');
-              onClose?.call(_editorController.complete());
+              onClose?.call(editorController.complete());
             },
           ),
           const Spacer(),
           BaseIconButton(
             onPressed: () {
-              _editorController.addText();
+              editorController.addText();
             },
             icon: const Icon(
               Icons.text_fields,
@@ -45,7 +51,7 @@ class TopBarWidget extends StatelessWidget {
           const SizedBox(width: 8),
           BaseIconButton(
             onPressed: () {
-              _editorController.addImage(context);
+              editorController.addImage(context);
             },
             icon: const Icon(
               Icons.image,
@@ -55,7 +61,7 @@ class TopBarWidget extends StatelessWidget {
           const SizedBox(width: 8),
           BaseIconButton(
             onPressed: () {
-              _editorController.toggleFilter();
+              editorController.toggleFilter();
             },
             icon: const Icon(
               Icons.local_fire_department,
@@ -69,7 +75,7 @@ class TopBarWidget extends StatelessWidget {
                 Navigator.of(context).pop();
               }
               print('Done button pressed');
-              onDone?.call(_editorController.complete());
+              onDone?.call(editorController.complete());
             },
             icon: const Icon(
               Icons.check_circle_outline,

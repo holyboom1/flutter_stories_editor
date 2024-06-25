@@ -1,7 +1,7 @@
 name: flutter_stories_editor
 description: "Flutter stories editor"
 version: 0.0.1
-homepage: https://github.com:holyboom1/flutter_stories_editor.git
+homepage: https://github.com/holyboom1/flutter_stories_editor.git
 
 environment:
   sdk: '>=3.4.1 <4.0.0'
@@ -16,6 +16,8 @@ dependencies:
   cached_network_image: ^3.3.1
   flutter_svg: ^2.0.10+1
   advanced_media_picker: ^0.0.10
+  collection: ^1.18.0
+  matrix2d: ^1.0.4
 
 dev_dependencies:
   flutter_test:

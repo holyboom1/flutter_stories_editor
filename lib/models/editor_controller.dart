@@ -1,4 +1,13 @@
-part of '../flutter_stories_editor.dart';
+import 'package:advanced_media_picker/advanced_media_picker.dart';
+import 'package:flutter/material.dart';
+
+import '../utils/color_filters/colorfilter_generator.dart';
+import '../utils/color_filters/presets.dart';
+import '../utils/extensions.dart';
+import '../utils/overlay_util.dart';
+import 'item_type_enum.dart';
+import 'story_element.dart';
+import 'story_model.dart';
 
 enum CustomAssetType {
   image,
@@ -9,13 +18,20 @@ enum CustomAssetType {
 
 /// Top bar widget controller if not provided by the user it will use the default one
 final class EditorController {
-  final ValueNotifier<List<StoryElement>> _assets =
+  /// Assets list
+  final ValueNotifier<List<StoryElement>> assets =
       ValueNotifier<List<StoryElement>>(<StoryElement>[]);
-  final ValueNotifier<StoryElement?> _selectedItem =
+
+  /// Selected item notifier
+  final ValueNotifier<StoryElement?> selectedItem =
       ValueNotifier<StoryElement?>(null);
-  final ValueNotifier<ColorFilterGenerator> _selectedFilter =
+
+  /// Selected filter notifier
+  final ValueNotifier<ColorFilterGenerator> selectedFilter =
       ValueNotifier<ColorFilterGenerator>(PresetFilters.none);
-  final ValueNotifier<bool> _isShowFilters = ValueNotifier<bool>(false);
+
+  /// Show filters notifier
+  final ValueNotifier<bool> isShowFilters = ValueNotifier<bool>(false);
 
   /// Open assets picker
   Future<void> addImage(BuildContext context) async {
@@ -43,7 +59,7 @@ final class EditorController {
 
   /// Add text element to the editor
   void addText() {
-    showTextOverlay();
+    showTextOverlay(editorController: this);
   }
 
   /// Complete editing and return the story model
@@ -53,26 +69,29 @@ final class EditorController {
     final StoryModel result = StoryModel(
       id: id ?? DateTime.now().millisecondsSinceEpoch.toString(),
     ).copyWith(
-      elements: <StoryElement>[..._assets.value],
-      colorFiler: _selectedFilter.value,
+      elements: <StoryElement>[...assets.value],
+      colorFiler: selectedFilter.value,
     );
 
-    _assets.value.clear();
-    _selectedFilter.value = PresetFilters.none;
-    _selectedItem.value = null;
-    _isShowFilters.value = false;
+    assets.value.clear();
+    selectedFilter.value = PresetFilters.none;
+    selectedItem.value = null;
+    isShowFilters.value = false;
     return result;
   }
 
   /// Toggle filter selector
   void toggleFilter() {
-    _isShowFilters.value = !_isShowFilters.value;
+    isShowFilters.value = !isShowFilters.value;
   }
 
   /// Edit text element
   void editText(StoryElement storyElement) {
-    _assets.removeAsset(storyElement);
-    showTextOverlay(storyElement: storyElement);
+    assets.removeAsset(storyElement);
+    showTextOverlay(
+      storyElement: storyElement,
+      editorController: this,
+    );
   }
 
   /// Add Custom file widget asset
@@ -84,18 +103,18 @@ final class EditorController {
     assert(file != null || url != null);
     switch (type) {
       case CustomAssetType.image:
-        _assets.addAsset(
+        assets.addAsset(
           StoryElement(
             type: ItemType.image,
-            position: Offset(0.25, 0.25),
+            position: const Offset(0.25, 0.25),
             value: file?.path ?? url ?? '',
           ),
         );
         break;
       case CustomAssetType.video:
-        _assets.addAsset(
+        assets.addAsset(
           StoryElement(
-            position: Offset(0.25, 0.25),
+            position: const Offset(0.25, 0.25),
             type: ItemType.video,
             value: file?.path ?? url ?? '',
           ),
@@ -110,12 +129,19 @@ final class EditorController {
 
   /// Add custom widget to assets
   void addCustomWidgetAsset(Widget widget) {
-    _assets.addAsset(
+    assets.addAsset(
       StoryElement(
         type: ItemType.widget,
-        position: Offset(0.25, 0.25),
+        position: const Offset(0.25, 0.25),
         child: widget,
       ),
     );
+  }
+
+  /// delete StoryElement from assets when it's out of the screen
+  void checkDeleteElement(StoryElement storyElement, Size screen) {
+    if (storyElement.position.dy * screen.height > screen.height - 90) {
+      assets.removeAsset(storyElement);
+    }
   }
 }
