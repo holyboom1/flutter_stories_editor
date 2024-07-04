@@ -1,8 +1,11 @@
+import 'package:advanced_media_picker/advanced_media_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../models/editor_controller.dart';
 import '../models/story_element.dart';
+import '../ui/widgets/loading/loading_overlay.dart';
 import '../ui/widgets/text/text_overlay.dart';
+import '../ui/widgets/video/video_overlay.dart';
 
 class OverlayBuilder extends StatefulWidget {
   final Widget child;
@@ -58,6 +61,7 @@ class _OverlayBuilderState extends State<OverlayBuilder>
 AnimationController? _overlayAnimationController;
 
 OverlayEntry? _overlayEntry;
+OverlayEntry? _loadingEntry;
 
 ValueNotifier<bool> isShowingOverlay = ValueNotifier<bool>(false);
 BuildContext? _context;
@@ -95,6 +99,76 @@ Future<void> showTextOverlay({
     await addToOverlay(_overlayEntry!);
     await _overlayAnimationController!.forward();
   }
+}
+
+Future<void> showVideoOverlay({
+  required XFile videoFile,
+  required EditorController editorController,
+}) async {
+  if (_overlayAnimationController == null) {
+    return;
+  }
+  const Curve curve = Curves.easeOut;
+  isShowingOverlay.value = true;
+  _overlayEntry = OverlayEntry(
+    builder: (BuildContext context) {
+      return AnimatedBuilder(
+        animation: _overlayAnimationController!,
+        builder: (BuildContext context, Widget? child) {
+          final double animationValue =
+              curve.transform(_overlayAnimationController!.value);
+
+          return Opacity(
+            opacity: animationValue,
+            child: VideoOverlay(
+              editorController: editorController,
+              file: videoFile,
+              screen: MediaQuery.of(context).size,
+            ),
+          );
+        },
+      );
+    },
+  );
+  if (_overlayEntry != null) {
+    await addToOverlay(_overlayEntry!);
+    await _overlayAnimationController!.forward();
+  }
+}
+
+Future<void> showLoadingOverlay({ValueNotifier<double>? progress}) async {
+  if (_overlayAnimationController == null) {
+    return;
+  }
+  const Curve curve = Curves.easeOut;
+  isShowingOverlay.value = true;
+  _loadingEntry = OverlayEntry(
+    builder: (BuildContext context) {
+      return AnimatedBuilder(
+        animation: _overlayAnimationController!,
+        builder: (BuildContext context, Widget? child) {
+          final double animationValue =
+              curve.transform(_overlayAnimationController!.value);
+
+          return Opacity(
+            opacity: animationValue,
+            child: LoadingOverlay(
+              progress: progress,
+            ),
+          );
+        },
+      );
+    },
+  );
+  if (_overlayEntry != null) {
+    await addToOverlay(_loadingEntry!);
+    await _overlayAnimationController!.forward();
+  }
+}
+
+Future<void> hideLoadingOverlay() async {
+  _loadingEntry?.remove();
+  _loadingEntry = null;
 }
 
 Future<void> addToOverlay(OverlayEntry entry) async {

@@ -1,5 +1,5 @@
 name: flutter_stories_editor
-description: "Flutter stories editor"
+description: "This plugin allows you to create a story editor and viewer in your Flutter app. Here is a detailed description of its features and functions"
 version: 0.0.1
 homepage: https://github.com/holyboom1/flutter_stories_editor.git
 
@@ -18,6 +18,22 @@ dependencies:
   advanced_media_picker: ^0.0.10
   collection: ^1.18.0
   matrix2d: ^1.0.4
+
+  cached_video_player: ^2.0.4
+  visibility_detector: ^0.4.0+2
+
+  path_provider: ^2.1.3
+  path: ^1.9.0
+  ffmpeg_kit_flutter_min_gpl: ^6.0.3
+  ffmpeg_wasm: ^1.0.2
+
+  transparent_image: ^2.0.1
+  video_player: ^2.5.2
+  video_thumbnail: ^0.5.3
+
+  palette_generator: ^0.3.3+3
+
+  video_compress: ^3.1.2
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/extensions.dart';
+import '../utils/video_editor/lib/domain/bloc/controller.dart';
 import 'item_type_enum.dart';
 
 /// A class that represents a story element.
@@ -31,9 +33,20 @@ class StoryElement {
   /// Element rotation.
   double rotation = 0.0;
 
+  /// Element focus node.
   final FocusNode focusNode = FocusNode();
 
+  /// Element child.
   final Widget child;
+
+  /// Custom widget id.
+  String customWidgetId;
+
+  /// Video muted .
+  bool isVideoMuted;
+
+  /// Video controller.
+  VideoEditorController? videoController;
 
   /// Creates a new story element.
   StoryElement({
@@ -51,5 +64,39 @@ class StoryElement {
     this.rotation = 0.0,
     this.textAlign = TextAlign.center,
     this.child = const SizedBox(),
+    this.customWidgetId = '',
+    this.isVideoMuted = false,
   });
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'id': id,
+      'type': type.toString(),
+      'value': value,
+      'containerColor': containerColor.getRGB,
+      'textStyle': textStyle.toJson(),
+      'textAlign': textAlign.toJson(),
+      'position': position.toJson(),
+      'scale': scale,
+      'rotation': rotation,
+      'customWidgetId': customWidgetId,
+      'isVideoMuted': isVideoMuted,
+    };
+  }
+
+  factory StoryElement.fromJson(Map<String, dynamic> json) {
+    return StoryElement(
+      type: json['type'] as ItemType,
+      value: json['value'] as String,
+      containerColor: json['containerColor'] as Color,
+      textStyle: const TextStyle()
+        ..fromJson(json['textStyle'] as Map<String, dynamic>),
+      textAlign: TextAlign.values[json['textAlign']],
+      position: Offset.zero.fromJson(json['position'] as Map<String, double>),
+      scale: json['scale'] as double,
+      rotation: json['rotation'] as double,
+      customWidgetId: json['customWidgetId'] as String,
+      isVideoMuted: json['isVideoMuted'] as bool,
+    );
+  }
 }

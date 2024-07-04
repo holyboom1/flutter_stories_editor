@@ -8,16 +8,16 @@ import 'ui/editor_view.dart';
 
 export 'flutter_stories_view.dart';
 export 'models/editor_controller.dart';
-export 'models/story_element.dart';
 export 'models/story_model.dart';
+export 'utils/video_editor/lib/domain/entities/trim_style.dart';
 
 /// FlutterStoriesEditor
-class FlutterStoriesEditor extends StatelessWidget {
+class FlutterStoriesEditor extends StatefulWidget {
   /// Top bar config
   final Widget? topBar;
 
   /// Background color
-  final Color? backgroundColor;
+  final Color backgroundColor;
 
   /// Editor controller
   final EditorController? controller;
@@ -31,21 +31,34 @@ class FlutterStoriesEditor extends StatelessWidget {
   /// FlutterStoriesEditor
   const FlutterStoriesEditor({
     Key? key,
-    this.controller,
-    this.backgroundColor = Colors.pink,
+    this.backgroundColor = Colors.black,
     this.topBar,
     this.onDone,
     this.onClose,
+    this.controller,
   }) : super(key: key);
+
+  @override
+  State<FlutterStoriesEditor> createState() => _FlutterStoriesEditorState();
+}
+
+class _FlutterStoriesEditorState extends State<FlutterStoriesEditor> {
+  late EditorController _editorController;
+
+  @override
+  void initState() {
+    super.initState();
+    _editorController = widget.controller ?? EditorController();
+  }
 
   @override
   Widget build(BuildContext context) {
     return EditorView(
-      controller: controller,
-      backgroundColor: backgroundColor,
-      topBar: topBar,
-      onDone: onDone,
-      onClose: onClose,
+      controller: _editorController,
+      backgroundColor: widget.backgroundColor,
+      topBar: widget.topBar,
+      onDone: widget.onDone,
+      onClose: widget.onClose,
     );
   }
 }

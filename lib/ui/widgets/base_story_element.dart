@@ -52,8 +52,9 @@ class _BaseStoryElementState extends State<BaseStoryElement> {
             angle: widget.storyElement.rotation,
             child: GestureDetector(
               onTap: () {
-                widget.editorController.assets
-                    .changeZIndex(asset: widget.storyElement);
+                widget.editorController.assets.changeZIndex(asset: widget.storyElement);
+              },
+              onDoubleTap: () {
                 switch (widget.storyElement.type) {
                   case ItemType.text:
                     widget.editorController.editText(widget.storyElement);
@@ -75,24 +76,19 @@ class _BaseStoryElementState extends State<BaseStoryElement> {
                 currentPos = widget.storyElement.position;
                 currentScale = widget.storyElement.scale;
                 currentRotation = widget.storyElement.rotation;
-                widget.editorController.selectedItem.value =
-                    widget.storyElement;
+                widget.editorController.selectedItem.value = widget.storyElement;
               },
               onScaleUpdate: (ScaleUpdateDetails details) {
                 final Offset delta = details.focalPoint - initPos;
-                final double left =
-                    (delta.dx / widget.screen.width) + currentPos.dx;
-                final double top =
-                    (delta.dy / widget.screen.height) + currentPos.dy;
+                final double left = (delta.dx / widget.screen.width) + currentPos.dx;
+                final double top = (delta.dy / widget.screen.height) + currentPos.dy;
 
                 setState(() {
                   widget.storyElement.position = Offset(left, top);
-                  widget.storyElement.rotation =
-                      details.rotation + currentRotation;
+                  widget.storyElement.rotation = details.rotation + currentRotation;
                   widget.storyElement.scale = details.scale * currentScale;
                 });
-                widget.editorController.selectedItem.value =
-                    widget.storyElement;
+                widget.editorController.selectedItem.value = widget.storyElement;
               },
               onScaleEnd: (ScaleEndDetails details) {
                 widget.editorController.checkDeleteElement(

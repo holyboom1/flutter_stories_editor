@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../flutter_stories_editor.dart';
+import '../../models/story_element.dart';
 import 'base_story_element.dart';
 import 'image_widget.dart';
 

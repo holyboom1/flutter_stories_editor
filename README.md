@@ -30,7 +30,19 @@
 
 ## Getting Started
 
-This plugin displays a gallery with user's Albums and Photos with ability to take photo and video.
+
+This plugin allows you to create a story editor and viewer in your Flutter app. Here is a detailed description of its features and functions:
+
+Main Features:
+Story Editor:
+
+Creating Stories: Allows users to create new stories, adding text, images, videos, and other elements.
+Editing Existing Stories: Enables users to edit previously created stories, change text, replace or add new media files.
+Interactive Elements: Includes the ability to add interactive elements such as polls, questions, and links.
+Preview: Users can see how their story will look before publishing.
+Story Viewer:
+
+Viewing Stories: Allows users to view stories created by other users or the administrator.
 
 ## Prepare for use
 

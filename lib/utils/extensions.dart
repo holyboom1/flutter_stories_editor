@@ -71,4 +71,78 @@ extension ColorExtension on Color {
 
     return Color.fromARGB(alpha, d, d, d);
   }
+
+  Map<String, int> get getRGB {
+    return <String, int>{
+      'r': red,
+      'g': green,
+      'b': blue,
+      'a': alpha,
+    };
+  }
+
+  Color fromRGB(Map<String, int> rgb) {
+    return Color.fromARGB(
+      rgb['a'] ?? 0,
+      rgb['r'] ?? 0,
+      rgb['g'] ?? 0,
+      rgb['b'] ?? 0,
+    );
+  }
+}
+
+extension TextStyleExtension on TextStyle {
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'color': color?.getRGB,
+      'fontSize': fontSize,
+      'letterSpacing': letterSpacing,
+      'fontWeight': fontWeight.toString(),
+      'fontStyle': fontStyle.toString(),
+    };
+  }
+
+  TextStyle fromJson(Map<String, dynamic> style) {
+    return TextStyle(
+      color: style['color'] != null
+          ? const Color(0xFFFFFFFF).fromRGB(style['color'])
+          : null,
+      fontSize: style['fontSize'] ?? 16.0,
+      letterSpacing: style['letterSpacing'] ?? 1.0,
+      fontWeight: FontWeight.values[style['fontWeight']],
+      fontStyle: FontStyle.values[style['fontStyle']],
+    );
+  }
+}
+
+extension TextAlignExtension on TextAlign {
+  String toJson() {
+    switch (this) {
+      case TextAlign.left:
+        return 'left';
+      case TextAlign.right:
+        return 'right';
+      case TextAlign.center:
+        return 'center';
+      case TextAlign.justify:
+        return 'justify';
+      case TextAlign.start:
+        return 'start';
+      case TextAlign.end:
+        return 'end';
+    }
+  }
+}
+
+extension OffsetExtension on Offset {
+  Map<String, double> toJson() {
+    return <String, double>{
+      'dx': dx,
+      'dy': dy,
+    };
+  }
+
+  Offset fromJson(Map<String, double> offset) {
+    return Offset(offset['dx'] ?? 0.0, offset['dy'] ?? 0.0);
+  }
 }

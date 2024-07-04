@@ -4,7 +4,28 @@ import 'package:matrix2d/matrix2d.dart';
 class ColorFilterGenerator {
   String name;
   List<List<double>> filters;
-  List<double> matrix = <double>[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0];
+  List<double> matrix = <double>[
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+  ];
 
   ColorFilterGenerator({
     required this.name,

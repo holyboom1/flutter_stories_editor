@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'flutter_stories_editor.dart';
+import 'models/story_element.dart';
 import 'ui/widgets/story_element.dart';
 
 /// FlutterStoriesViewer
@@ -33,7 +34,7 @@ class _FlutterStoriesViewerState extends State<FlutterStoriesViewer> {
           color: widget.backgroundColor,
         ),
         child: ColorFiltered(
-          colorFilter: ColorFilter.matrix(widget.storyModel.colorFiler.matrix),
+          colorFilter: ColorFilter.matrix(widget.storyModel.colorFiler),
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               return Stack(

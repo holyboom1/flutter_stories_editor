@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +11,11 @@ enum ImageType {
   other,
   network,
   none,
+}
+
+enum ImageDestination {
+  file,
+  asset,
 }
 
 class AppImage extends StatelessWidget {
@@ -46,6 +53,14 @@ class AppImage extends StatelessWidget {
     return ImageType.other;
   }
 
+  ImageDestination _getImageDestination(String path) {
+    if (path.startsWith('packages')) {
+      return ImageDestination.asset;
+    } else {
+      return ImageDestination.file;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     switch (_getImageType(image)) {
@@ -58,7 +73,6 @@ class AppImage extends StatelessWidget {
             child: SvgPicture.asset(
               image,
               fit: fit ?? BoxFit.contain,
-              color: color,
               width: width,
               height: height,
               colorFilter: colorFilter,
@@ -69,15 +83,21 @@ class AppImage extends StatelessWidget {
         return ClipRRect(
           borderRadius: borderRadius,
           child: SizedBox(
-            height: height,
-            width: width,
-            child: Image.asset(
-              image,
-              width: width,
               height: height,
-              fit: fit,
-            ),
-          ),
+              width: width,
+              child: _getImageDestination(image) == ImageDestination.file
+                  ? Image.file(
+                      File(image),
+                      width: width,
+                      height: height,
+                      fit: fit,
+                    )
+                  : Image.asset(
+                      image,
+                      width: width,
+                      height: height,
+                      fit: fit,
+                    )),
         );
       case ImageType.network:
         if (image.isSvg()) {

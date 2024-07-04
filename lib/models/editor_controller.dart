@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:advanced_media_picker/advanced_media_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -5,6 +7,8 @@ import '../utils/color_filters/colorfilter_generator.dart';
 import '../utils/color_filters/presets.dart';
 import '../utils/extensions.dart';
 import '../utils/overlay_util.dart';
+import '../utils/video_editor/lib/domain/entities/crop_style.dart';
+import '../utils/video_editor/lib/domain/entities/trim_style.dart';
 import 'item_type_enum.dart';
 import 'story_element.dart';
 import 'story_model.dart';
@@ -18,6 +22,12 @@ enum CustomAssetType {
 
 /// Top bar widget controller if not provided by the user it will use the default one
 final class EditorController {
+  /// Trim slider style
+  final TrimSliderStyle trimSliderStyle;
+
+  /// Crop grid style
+  final CropGridStyle cropGridStyle;
+
   /// Assets list
   final ValueNotifier<List<StoryElement>> assets =
       ValueNotifier<List<StoryElement>>(<StoryElement>[]);
@@ -32,6 +42,27 @@ final class EditorController {
 
   /// Show filters notifier
   final ValueNotifier<bool> isShowFilters = ValueNotifier<bool>(false);
+
+  /// Current story model
+  final StoryModel _storyModel;
+
+  /// Story model getter
+  StoryModel get storyModel => _storyModel;
+
+  /// Max video duration allowed
+  final Duration maxVideoDuration;
+
+  /// Min video duration allowed
+  final Duration minVideoDuration;
+
+  /// Constructor
+  EditorController({
+    String storyId = '',
+    this.cropGridStyle = const CropGridStyle(),
+    this.trimSliderStyle = const TrimSliderStyle(),
+    this.maxVideoDuration = const Duration(seconds: 30),
+    this.minVideoDuration = const Duration(seconds: 1),
+  }) : _storyModel = StoryModel(id: storyId);
 
   /// Open assets picker
   Future<void> addImage(BuildContext context) async {
@@ -63,20 +94,53 @@ final class EditorController {
   }
 
   /// Complete editing and return the story model
-  StoryModel complete({
-    String? id,
-  }) {
-    final StoryModel result = StoryModel(
-      id: id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-    ).copyWith(
+  StoryModel complete() {
+    final StoryModel result = storyModel.copyWith(
       elements: <StoryElement>[...assets.value],
-      colorFiler: selectedFilter.value,
+      colorFiler: selectedFilter.value.matrix,
     );
 
     assets.value.clear();
     selectedFilter.value = PresetFilters.none;
     selectedItem.value = null;
     isShowFilters.value = false;
+
+    ///compress video
+    // Future<void> _exportVideo() async {
+    //   final ValueNotifier<double> exportingProgress = ValueNotifier<double>(0.0);
+    //   unawaited(showLoadingOverlay(progress: exportingProgress));
+    //   XFile? video;
+    //   try {
+    //     video = await VideoUtils.exportVideo(
+    //       onStatistics: (FFmpegStatistics stats) {
+    //         exportingProgress.value = stats.getProgress(_controller.trimmedDuration.inMilliseconds);
+    //       },
+    //       controller: _controller,
+    //       scale: 1,
+    //     );
+    //   } catch (e) {
+    //     _showErrorSnackBar("Error on export video :(");
+    //   } finally {
+    //     unawaited(hideLoadingOverlay());
+    //   }
+    //   if (video == null) return;
+    //   widget.editorController.assets.addAsset(
+    //     StoryElement(
+    //       type: ItemType.video,
+    //       value: video.path,
+    //     ),
+    //   );
+    // }
+    // unawaited(showLoadingOverlay());
+    // final MediaInfo? mediaInfo = await VideoCompress.compressVideo(
+    //   file!.path,
+    //   quality: VideoQuality.Res1280x720Quality,
+    // );
+    // unawaited(hideLoadingOverlay());
+    // if (mediaInfo != null && mediaInfo.file != null) {
+    //   final XFile compressedFile = XFile(mediaInfo.file!.path);
+    // }
+
     return result;
   }
 
@@ -112,13 +176,9 @@ final class EditorController {
         );
         break;
       case CustomAssetType.video:
-        assets.addAsset(
-          StoryElement(
-            position: const Offset(0.25, 0.25),
-            type: ItemType.video,
-            value: file?.path ?? url ?? '',
-          ),
-        );
+        if (file != null) {
+          showVideoOverlay(videoFile: file, editorController: this);
+        }
         break;
       case CustomAssetType.audio:
         break;
