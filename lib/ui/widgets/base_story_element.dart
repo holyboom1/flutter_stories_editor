@@ -89,6 +89,13 @@ class _BaseStoryElementState extends State<BaseStoryElement> {
                   widget.storyElement.scale = details.scale * currentScale;
                 });
                 widget.editorController.selectedItem.value = widget.storyElement;
+
+                if (widget.storyElement.position.dy * widget.screen.height >
+                    widget.screen.height - 90) {
+                  widget.storyElement.hoverDelete.value = true;
+                } else if (widget.storyElement.hoverDelete.value) {
+                  widget.storyElement.hoverDelete.value = false;
+                }
               },
               onScaleEnd: (ScaleEndDetails details) {
                 widget.editorController.checkDeleteElement(

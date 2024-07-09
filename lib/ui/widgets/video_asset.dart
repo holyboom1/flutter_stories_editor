@@ -27,9 +27,25 @@ class VideoAsset extends StatefulWidget {
 class _VideoAssetState extends State<VideoAsset> {
   bool isControllerInitialized = false;
 
+  late double videoWidth;
+  late double videoHeight;
+  late double topVideoCropPercent;
+  late double bottomVideoCropPercent;
+  late double leftVideoCropPercent;
+  late double rightVideoCropPercent;
+
+  late double leftCropContainer;
+  late double topCropContainer;
+  late double rightCropContainer;
+  late double bottomCropContainer;
+
+  late double containerWidth;
+  late double containerHeight;
+
   @override
   void initState() {
     super.initState();
+
     if (widget.storyElement.videoController != null &&
         !widget.storyElement.videoController!.initialized) {
       widget.storyElement.videoController?.initialize();
@@ -39,9 +55,25 @@ class _VideoAssetState extends State<VideoAsset> {
         widget.storyElement.videoController!.initialized) {
       isControllerInitialized = true;
     }
-    final double w = (widget.screen.width - (widget.screen.width * 0.7)) / 2 / widget.screen.width;
+    videoWidth = widget.storyElement.videoController!.videoWidth;
+    videoHeight = widget.storyElement.videoController!.videoHeight;
+    topVideoCropPercent = widget.storyElement.videoController!.minCrop.dy;
+    bottomVideoCropPercent = 1 - widget.storyElement.videoController!.maxCrop.dy;
+    leftVideoCropPercent = widget.storyElement.videoController!.minCrop.dx;
+    rightVideoCropPercent = 1 - widget.storyElement.videoController!.maxCrop.dx;
+    containerWidth = widget.screen.width;
+    containerHeight = containerWidth * (videoHeight / videoWidth);
+    leftCropContainer = leftVideoCropPercent * containerWidth;
+    topCropContainer = topVideoCropPercent * containerHeight;
+    rightCropContainer = rightVideoCropPercent * containerWidth;
+    bottomCropContainer = bottomVideoCropPercent * containerHeight;
+
+    final double w =
+        (widget.screen.width - (containerWidth - leftCropContainer - rightCropContainer)) /
+            2 /
+            widget.screen.width;
     final double h = (widget.screen.height -
-            ((widget.screen.width * 0.7) *
+            ((containerHeight - topCropContainer - bottomCropContainer) *
                 (widget.storyElement.videoController!.videoHeight /
                     widget.storyElement.videoController!.videoWidth))) /
         2 /
@@ -54,46 +86,14 @@ class _VideoAssetState extends State<VideoAsset> {
     if (!isControllerInitialized) {
       return Container();
     }
-
-    final double videoWidth = widget.storyElement.videoController!.videoWidth;
-    final double videoHeight = widget.storyElement.videoController!.videoHeight;
-
-    final double topCrop = widget.storyElement.videoController!.minCrop.dy * videoHeight;
-    final double bottomCrop = (1 - widget.storyElement.videoController!.maxCrop.dy) * videoHeight;
-    final double leftCrop = widget.storyElement.videoController!.minCrop.dx * videoWidth;
-    final double rightCrop = (1 - widget.storyElement.videoController!.maxCrop.dx) * videoWidth;
-
-    final double effectiveWidth = videoWidth - leftCrop - rightCrop;
-    final double effectiveHeight = videoHeight - topCrop - bottomCrop;
-    double containerWidth = widget.screen.width * 0.7;
-
-    final double containerHeightFull = containerWidth * (videoHeight / videoWidth);
-
-    final double topCropContainer =
-        widget.storyElement.videoController!.minCrop.dy * containerHeightFull;
-    final double bottomCropContainer =
-        (1 - widget.storyElement.videoController!.maxCrop.dy) * containerHeightFull;
-    final double leftCropContainer =
-        widget.storyElement.videoController!.minCrop.dx * containerWidth;
-    final double rightCropContainer =
-        (1 - widget.storyElement.videoController!.maxCrop.dx) * containerWidth;
-
-    final double containerHeight;
-    if (effectiveWidth > effectiveHeight) {
-      containerHeight = containerWidth * (effectiveHeight / effectiveWidth);
-    } else {
-      containerHeight = containerWidth * (effectiveWidth / effectiveHeight);
-    }
-    containerWidth -= leftCropContainer;
-
     return BaseStoryElement(
       editorController: widget.editorController,
       isEditing: widget.isEditing,
       storyElement: widget.storyElement,
       screen: widget.screen,
       child: Container(
-        width: containerWidth,
-        height: containerHeight,
+        width: containerWidth - leftCropContainer - rightCropContainer,
+        height: containerHeight - topCropContainer - bottomCropContainer,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -104,8 +104,8 @@ class _VideoAssetState extends State<VideoAsset> {
               left: -leftCropContainer,
               top: -topCropContainer,
               child: SizedBox(
-                width: containerWidth + leftCropContainer + rightCropContainer,
-                height: containerHeightFull,
+                height: containerHeight,
+                width: containerWidth,
                 child: VideoPlayer(widget.storyElement.videoController!.video),
               ),
             ),

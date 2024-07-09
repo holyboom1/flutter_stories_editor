@@ -1,3 +1,4 @@
+import 'package:advanced_media_picker/advanced_media_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/extensions.dart';
@@ -11,6 +12,9 @@ class StoryElement {
 
   /// Element type.
   final ItemType type;
+
+  /// Element file.
+  XFile? elementFile;
 
   /// Element value.
   String value = '';
@@ -47,6 +51,9 @@ class StoryElement {
 
   /// Video controller.
   VideoEditorController? videoController;
+
+  /// Hover delete indicator.
+  ValueNotifier<bool> hoverDelete = ValueNotifier<bool>(false);
 
   /// Creates a new story element.
   StoryElement({
@@ -89,8 +96,7 @@ class StoryElement {
       type: json['type'] as ItemType,
       value: json['value'] as String,
       containerColor: json['containerColor'] as Color,
-      textStyle: const TextStyle()
-        ..fromJson(json['textStyle'] as Map<String, dynamic>),
+      textStyle: const TextStyle()..fromJson(json['textStyle'] as Map<String, dynamic>),
       textAlign: TextAlign.values[json['textAlign']],
       position: Offset.zero.fromJson(json['position'] as Map<String, double>),
       scale: json['scale'] as double,

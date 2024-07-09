@@ -20,8 +20,7 @@ class FiltersSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ColorFilterGenerator>(
       valueListenable: editorController.selectedFilter,
-      builder:
-          (BuildContext context, ColorFilterGenerator value, Widget? child) {
+      builder: (BuildContext context, ColorFilterGenerator value, Widget? child) {
         return SizedBox(
           height: 120,
           child: ListView.builder(
@@ -33,25 +32,51 @@ class FiltersSelector extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: Column(
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        onFilterSelected(filter);
+                    ValueListenableBuilder<ColorFilterGenerator>(
+                      valueListenable: editorController.selectedFilter,
+                      builder: (BuildContext context, ColorFilterGenerator value, Widget? child) {
+                        return GestureDetector(
+                          onTap: () {
+                            onFilterSelected(filter);
+                          },
+                          child: Stack(
+                            children: <Widget>[
+                              ColorFiltered(
+                                colorFilter: ColorFilter.matrix(filter.matrix),
+                                child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  clipBehavior: Clip.hardEdge,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const AppImage(
+                                    image: Constants.imageFilter,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              if (value == filter)
+                                Positioned(
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.check,
+                                      color: Colors.black,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
                       },
-                      child: ColorFiltered(
-                        colorFilter: ColorFilter.matrix(filter.matrix),
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          clipBehavior: Clip.hardEdge,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const AppImage(
-                            image: Constants.imageFilter,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(

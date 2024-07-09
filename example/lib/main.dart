@@ -32,11 +32,11 @@ class _MyAppState extends State<MyApp> {
                 Expanded(
                   child: FlutterStoriesEditor(
                     backgroundColor: Colors.pink,
-                    onDone: (StoryModel story) {
-                      storyModel = story;
+                    onDone: (Future<StoryModel> story) async {
+                      storyModel = await story;
                       setState(() {});
                     },
-                    onClose: (StoryModel story) {
+                    onClose: (Future<StoryModel> story) {
                       print('Story editor closed');
                     },
                   ),
@@ -45,7 +45,6 @@ class _MyAppState extends State<MyApp> {
                 Expanded(
                   child: FlutterStoriesViewer(
                     storyModel: storyModel!,
-                    backgroundColor: Colors.pink,
                   ),
                 ),
             ],

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/editor_controller.dart';
@@ -9,12 +10,15 @@ class TextAsset extends StatefulWidget {
   final Size screen;
   final bool isEditing;
   final EditorController editorController;
+  final Function(String tappedText)? onTextTap;
+
   const TextAsset({
     super.key,
     required this.storyElement,
     required this.screen,
     required this.isEditing,
     required this.editorController,
+    this.onTextTap,
   });
 
   @override
@@ -33,27 +37,55 @@ class _TextAssetState extends State<TextAsset> {
   @override
   Widget build(BuildContext context) {
     if (!widget.isEditing) {
+      final List<String> rows = widget.storyElement.value.split('\n');
+      final List<List<String>> wordsInRows = rows.map((String row) => row.split(' ')).toList();
       return BaseStoryElement(
         editorController: widget.editorController,
         storyElement: widget.storyElement,
         isEditing: widget.isEditing,
         screen: widget.screen,
-        child: AbsorbPointer(
-          child: Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: widget.storyElement.containerColor,
-            ),
-            child: IntrinsicWidth(
-              child: Text(
-                widget.storyElement.value,
+        child: Container(
+          margin: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 4,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: widget.storyElement.containerColor,
+          ),
+          child: IntrinsicWidth(
+            child: RichText(
+              textAlign: widget.storyElement.textAlign,
+              strutStyle: StrutStyle(
+                fontSize: widget.storyElement.textStyle.fontSize,
+                height: 1.5,
+                fontFamily: widget.storyElement.textStyle.fontFamily,
+                fontStyle: widget.storyElement.textStyle.fontStyle,
+                fontWeight: widget.storyElement.textStyle.fontWeight,
+              ),
+              text: TextSpan(
                 style: widget.storyElement.textStyle,
-                textAlign: widget.storyElement.textAlign,
+                children: List<TextSpan>.generate(
+                  rows.length,
+                  (int rowIndex) => TextSpan(
+                    text: '',
+                    children: <TextSpan>[
+                      ...List<TextSpan>.generate(
+                        wordsInRows[rowIndex].length,
+                        (int wordsIndex) => TextSpan(
+                          text: (wordsIndex == 0 ? '' : ' ') + wordsInRows[rowIndex][wordsIndex],
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              widget.onTextTap?.call(wordsInRows[rowIndex][wordsIndex]);
+                              print('#Print# : asdasd ${wordsInRows[rowIndex][wordsIndex]}');
+                            },
+                        ),
+                      ),
+                      if (rowIndex < rows.length - 1) const TextSpan(text: '\n'),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

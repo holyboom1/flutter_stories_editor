@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../utils/color_filters/presets.dart';
 import 'story_element.dart';
@@ -8,7 +8,7 @@ final class StoryModel {
   final String id;
 
   List<StoryElement> _elements = <StoryElement>[];
-  List<double> _colorFiler = PresetFilters.none.matrix;
+  String _colorFiler = PresetFilters.none.name;
 
   /// Is video included in the story
   bool _isVideoIncluded;
@@ -19,6 +19,7 @@ final class StoryModel {
   /// Video duration
   double _videoDuration;
 
+  /// Constructor
   StoryModel({
     this.id = '',
     bool isVideoIncluded = false,
@@ -26,42 +27,67 @@ final class StoryModel {
   })  : _videoDuration = videoDuration,
         _isVideoIncluded = isVideoIncluded;
 
+  /// Set video duration
   set videoDuration(double value) {
     _videoDuration = value;
   }
 
+  /// Get video duration
   double get videoDuration => _videoDuration;
 
+  /// Set video included
   set isVideoIncluded(bool value) {
     _isVideoIncluded = value;
   }
 
+  /// Get video included
   bool get isVideoIncluded => _isVideoIncluded;
 
+  /// Set story elements
   set elements(List<StoryElement> elements) {
     _elements = <StoryElement>[...elements];
   }
 
+  /// Get story elements
   List<StoryElement> get elements => _elements;
 
-  set colorFiler(List<double> colorFiler) {
+  /// Set color filter
+  set colorFilter(String colorFiler) {
     _colorFiler = colorFiler;
   }
 
-  List<double> get colorFiler => _colorFiler;
+  /// Get color filter name
+  String get colorFilter => _colorFiler;
+
+  /// Palette color
+  List<Color> _paletteColors = <Color>[
+    Colors.black,
+    Colors.black,
+  ];
+
+  /// Get palette color
+  List<Color> get paletteColors => _paletteColors;
+
+  /// Set palette color
+  set paletteColors(List<Color> value) {
+    _paletteColors = <Color>[...value];
+  }
 
   StoryModel copyWith({
     String? id,
     List<StoryElement>? elements,
-    List<double>? colorFiler,
+    String? colorFiler,
+    List<Color>? paletteColors,
   }) {
     return StoryModel(
       id: id ?? this.id,
     )
       ..elements = elements ?? _elements
-      ..colorFiler = colorFiler ?? _colorFiler;
+      ..colorFilter = colorFiler ?? _colorFiler
+      ..paletteColors = paletteColors ?? _paletteColors;
   }
 
+  /// Convert to json
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': id,
@@ -69,9 +95,11 @@ final class StoryModel {
       'colorFiler': _colorFiler,
       'isVideoIncluded': isVideoIncluded,
       'videoDuration': _videoDuration,
+      'paletteColors': _paletteColors.map((Color e) => e.value).toList(),
     };
   }
 
+  /// Create story model from json
   factory StoryModel.fromJson(Map<String, dynamic> json) {
     return StoryModel(
       id: json['id'] as String,
@@ -79,8 +107,10 @@ final class StoryModel {
       videoDuration: json['videoDuration'] as double,
     )
       ..elements = (json['elements'] as List<dynamic>)
-          .map((e) => StoryElement.fromJson(e as Map<String, dynamic>))
+          .map((dynamic e) => StoryElement.fromJson(e as Map<String, dynamic>))
           .toList()
-      ..colorFiler = (json['colorFiler'] as List<dynamic>).cast<double>();
+      ..colorFilter = json['colorFiler'] as String
+      ..paletteColors =
+          (json['paletteColors'] as List<dynamic>).map((dynamic e) => Color(e as int)).toList();
   }
 }

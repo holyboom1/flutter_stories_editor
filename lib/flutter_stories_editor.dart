@@ -23,10 +23,10 @@ class FlutterStoriesEditor extends StatefulWidget {
   final EditorController? controller;
 
   /// Function onDone to return the story model when the user is finished editing
-  final Function(StoryModel story)? onDone;
+  final Function(Future<StoryModel> story)? onDone;
 
   /// Function onClose to return the story model when the user closes the editor
-  final Function(StoryModel story)? onClose;
+  final Function(Future<StoryModel> story)? onClose;
 
   /// FlutterStoriesEditor
   const FlutterStoriesEditor({

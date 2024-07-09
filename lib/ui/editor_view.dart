@@ -24,18 +24,18 @@ class EditorView extends StatefulWidget {
 
   final EditorController controller;
 
-  final Function(StoryModel story)? onDone;
+  final Function(Future<StoryModel> story)? onDone;
 
-  final Function(StoryModel story)? onClose;
+  final Function(Future<StoryModel> story)? onClose;
 
-  const EditorView(
-      {Key? key,
-      required this.backgroundColor,
-      required this.controller,
-      this.topBar,
-      this.onDone,
-      this.onClose})
-      : super(key: key);
+  const EditorView({
+    Key? key,
+    required this.backgroundColor,
+    required this.controller,
+    this.topBar,
+    this.onDone,
+    this.onClose,
+  }) : super(key: key);
 
   @override
   _EditorViewState createState() => _EditorViewState();
@@ -64,27 +64,26 @@ class _EditorViewState extends State<EditorView> {
 
   Future<void> setColor() async {
     if (!isColorSet) {
-      final bool containsImage =
-          widget.controller.assets.value.any((StoryElement element) {
+      final bool containsImage = widget.controller.assets.value.any((StoryElement element) {
         return element.type == ItemType.image || element.type == ItemType.video;
       });
       if (containsImage) {
         final StoryElement element =
             widget.controller.assets.value.firstWhere((StoryElement element) {
-          return element.type == ItemType.image ||
-              element.type == ItemType.video;
+          return element.type == ItemType.image || element.type == ItemType.video;
         });
         if (element.type == ItemType.video) {
-          final CoverData videoCover =
-              await generateSingleCoverThumbnail(element.value);
-          paletteColor = await PaletteGeneratorUtil.getGeneratorFromData(
-              videoCover.thumbData ?? Uint8List(0));
-        } else {
+          final CoverData videoCover = await generateSingleCoverThumbnail(element.value);
           paletteColor =
-              await PaletteGeneratorUtil.getGeneratorFromPath(element.value);
+              await PaletteGeneratorUtil.getGeneratorFromData(videoCover.thumbData ?? Uint8List(0));
+        } else {
+          paletteColor = await PaletteGeneratorUtil.getGeneratorFromPath(element.value);
         }
         isColorSet = true;
-        setState(() {});
+        if (paletteColor != null) {
+          widget.controller.storyModel.paletteColors = paletteColor!.colors.toList();
+          setState(() {});
+        }
       }
     }
   }
@@ -130,8 +129,8 @@ class _EditorViewState extends State<EditorView> {
                       ),
                       ValueListenableBuilder<ColorFilterGenerator>(
                           valueListenable: widget.controller.selectedFilter,
-                          builder: (BuildContext context,
-                              ColorFilterGenerator value, Widget? child) {
+                          builder:
+                              (BuildContext context, ColorFilterGenerator value, Widget? child) {
                             return ColorFiltered(
                               colorFilter: ColorFilter.matrix(value.matrix),
                               child: child,
@@ -153,8 +152,7 @@ class _EditorViewState extends State<EditorView> {
                           )),
                       ValueListenableBuilder<bool>(
                         valueListenable: isShowingOverlay,
-                        builder:
-                            (BuildContext context, bool value, Widget? child) {
+                        builder: (BuildContext context, bool value, Widget? child) {
                           return Positioned(
                             top: 0,
                             width: MediaQuery.of(context).size.width,
@@ -174,8 +172,7 @@ class _EditorViewState extends State<EditorView> {
                       ),
                       ValueListenableBuilder<bool>(
                         valueListenable: isShowingOverlay,
-                        builder: (BuildContext context, bool isShowingOverlay,
-                            Widget? child) {
+                        builder: (BuildContext context, bool isShowingOverlay, Widget? child) {
                           return Positioned(
                             bottom: 0,
                             width: MediaQuery.of(context).size.width,
@@ -184,25 +181,16 @@ class _EditorViewState extends State<EditorView> {
                               child: isShowingOverlay
                                   ? const SizedBox()
                                   : ValueListenableBuilder<bool>(
-                                      valueListenable:
-                                          widget.controller.isShowFilters,
-                                      builder: (BuildContext context,
-                                          bool value, Widget? child) {
+                                      valueListenable: widget.controller.isShowFilters,
+                                      builder: (BuildContext context, bool value, Widget? child) {
                                         return AnimatedSwitcher(
-                                          duration:
-                                              const Duration(milliseconds: 300),
+                                          duration: const Duration(milliseconds: 300),
                                           child: !value
                                               ? const SizedBox()
                                               : FiltersSelector(
-                                                  editorController:
-                                                      widget.controller,
-                                                  onFilterSelected:
-                                                      (ColorFilterGenerator
-                                                          filter) {
-                                                    widget
-                                                        .controller
-                                                        .selectedFilter
-                                                        .value = filter;
+                                                  editorController: widget.controller,
+                                                  onFilterSelected: (ColorFilterGenerator filter) {
+                                                    widget.controller.selectedFilter.value = filter;
                                                   },
                                                 ),
                                         );

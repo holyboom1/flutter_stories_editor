@@ -24,10 +24,8 @@ abstract class FFmpegConfig {
     if (!isFiltersEnabled) return '';
 
     // CALCULATE FILTERS
-    final bool isGif =
-        videoFormat?.extension == VideoExportFormat.gif.extension;
-    final String scaleInstruction =
-        scale == 1.0 ? '' : 'scale=iw*$scale:ih*$scale';
+    final bool isGif = videoFormat?.extension == VideoExportFormat.gif.extension;
+    final String scaleInstruction = scale == 1.0 ? '' : 'scale=iw*$scale:ih*$scale';
 
     // VALIDATE FILTERS
     final List<String> filters = <String>[
@@ -39,9 +37,7 @@ abstract class FFmpegConfig {
           : '',
     ]..removeWhere((String item) => item.isEmpty);
 
-    return filters.isNotEmpty
-        ? "-vf ${filters.join(",")}${isGif ? " -loop 0" : ""}"
-        : '';
+    return filters.isNotEmpty ? "-vf ${filters.join(",")}${isGif ? " -loop 0" : ""}" : '';
   }
 }
 

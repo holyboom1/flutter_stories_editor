@@ -45,6 +45,8 @@ class _TextOverlayState extends State<TextOverlay> {
     }
     storyElement.focusNode.requestFocus();
     _controller.text = storyElement.value;
+    _textAlign = storyElement.textAlign;
+    textLetterSpace = storyElement.textStyle.letterSpacing != 0.0;
   }
 
   TextAlign _textAlign = TextAlign.center;
@@ -179,10 +181,9 @@ class _TextOverlayState extends State<TextOverlay> {
                         focusNode: storyElement.focusNode,
                         textAlign: _textAlign,
                         style: storyElement.textStyle,
-                        cursorColor:
-                            storyElement.containerColor.computeLuminance() > 0.5
-                                ? Colors.black
-                                : Colors.white,
+                        cursorColor: storyElement.containerColor.computeLuminance() > 0.5
+                            ? Colors.black
+                            : Colors.white,
                         minLines: 1,
                         maxLines: 1000,
                         decoration: const InputDecoration(
@@ -305,12 +306,8 @@ class _TextOverlayState extends State<TextOverlay> {
                     child: MeasureSize(
                       onChange: (Size size) {
                         storyElement.position = Offset(
-                          (widget.screen.width - size.width) /
-                              2 /
-                              widget.screen.width,
-                          (widget.screen.height - size.height) /
-                              2 /
-                              widget.screen.height,
+                          (widget.screen.width - size.width) / 2 / widget.screen.width,
+                          (widget.screen.height - size.height) / 2 / widget.screen.height,
                         );
                       },
                       child: Container(
@@ -374,8 +371,7 @@ class _TextOverlayState extends State<TextOverlay> {
                             thumbColor: Colors.white,
                             onChanged: (double newValue) {
                               setState(() {
-                                storyElement.textStyle =
-                                    storyElement.textStyle.copyWith(
+                                storyElement.textStyle = storyElement.textStyle.copyWith(
                                   fontSize: newValue,
                                 );
                               });

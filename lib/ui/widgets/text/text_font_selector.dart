@@ -42,8 +42,7 @@ class _TextFontSelectorState extends State<TextFontSelector> {
               return const SizedBox(width: 8);
             }
 
-            final TextStyle font =
-                fonts[fonts.keys.elementAt(index - 1)]!.call();
+            final TextStyle font = fonts[fonts.keys.elementAt(index - 1)]!.call();
 
             return InkWell(
               borderRadius: BorderRadius.circular(30),

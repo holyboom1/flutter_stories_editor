@@ -6,8 +6,8 @@ import 'widgets/base_icon_button.dart';
 
 class TopBarWidget extends StatelessWidget {
   final EditorController editorController;
-  final Function(StoryModel story)? onDone;
-  final Function(StoryModel story)? onClose;
+  final Function(Future<StoryModel> story)? onDone;
+  final Function(Future<StoryModel> story)? onClose;
 
   const TopBarWidget({
     super.key,

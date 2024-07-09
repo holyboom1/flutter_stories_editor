@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/color_filters/colorfilter_generator.dart';
 import '../utils/color_filters/presets.dart';
+import '../utils/compress_service.dart';
 import '../utils/extensions.dart';
 import '../utils/overlay_util.dart';
 import '../utils/video_editor/lib/domain/entities/crop_style.dart';
@@ -33,8 +34,7 @@ final class EditorController {
       ValueNotifier<List<StoryElement>>(<StoryElement>[]);
 
   /// Selected item notifier
-  final ValueNotifier<StoryElement?> selectedItem =
-      ValueNotifier<StoryElement?>(null);
+  final ValueNotifier<StoryElement?> selectedItem = ValueNotifier<StoryElement?>(null);
 
   /// Selected filter notifier
   final ValueNotifier<ColorFilterGenerator> selectedFilter =
@@ -67,6 +67,12 @@ final class EditorController {
   /// Open assets picker
   Future<void> addImage(BuildContext context) async {
     final PickerController pickerController = PickerController();
+    bool isAvailableToAddVideo = true;
+    assets.value.forEach((StoryElement element) {
+      if (element.type == ItemType.video) {
+        isAvailableToAddVideo = false;
+      }
+    });
     final List<XFile> result = await AdvancedMediaPicker.openPicker(
       controller: pickerController,
       context: context,
@@ -77,7 +83,7 @@ final class EditorController {
         typeSelectionWidget: const SizedBox.shrink(),
         selectIconBackgroundColor: Colors.transparent,
       ),
-      allowedTypes: PickerAssetType.imageAndVideo,
+      allowedTypes: isAvailableToAddVideo ? PickerAssetType.imageAndVideo : PickerAssetType.image,
       selectionLimit: 1,
     );
     if (result.isNotEmpty) {
@@ -94,53 +100,37 @@ final class EditorController {
   }
 
   /// Complete editing and return the story model
-  StoryModel complete() {
-    final StoryModel result = storyModel.copyWith(
-      elements: <StoryElement>[...assets.value],
-      colorFiler: selectedFilter.value.matrix,
+  Future<StoryModel> complete() async {
+    final StoryModel result;
+    final bool isContainsVideo =
+        assets.value.any((StoryElement element) => element.type == ItemType.video);
+    final bool isContainsImage =
+        assets.value.any((StoryElement element) => element.type == ItemType.image);
+
+    if (isContainsVideo) {
+      storyModel.isVideoIncluded = true;
+    }
+    if (isContainsImage) {}
+    final List<StoryElement> elements = <StoryElement>[...assets.value];
+    result = storyModel.copyWith(
+      elements: elements,
     );
+
+    await Future.forEach(elements, (StoryElement element) async {
+      if (element.type == ItemType.video) {
+        if (element.videoController != null) {
+          element.elementFile =
+              await CompressService.trimVideoAndCompress(element.videoController!);
+        }
+      } else if (element.type == ItemType.image) {
+        element.elementFile = await CompressService.compressImage(XFile(element.value));
+      }
+    });
 
     assets.value.clear();
     selectedFilter.value = PresetFilters.none;
     selectedItem.value = null;
     isShowFilters.value = false;
-
-    ///compress video
-    // Future<void> _exportVideo() async {
-    //   final ValueNotifier<double> exportingProgress = ValueNotifier<double>(0.0);
-    //   unawaited(showLoadingOverlay(progress: exportingProgress));
-    //   XFile? video;
-    //   try {
-    //     video = await VideoUtils.exportVideo(
-    //       onStatistics: (FFmpegStatistics stats) {
-    //         exportingProgress.value = stats.getProgress(_controller.trimmedDuration.inMilliseconds);
-    //       },
-    //       controller: _controller,
-    //       scale: 1,
-    //     );
-    //   } catch (e) {
-    //     _showErrorSnackBar("Error on export video :(");
-    //   } finally {
-    //     unawaited(hideLoadingOverlay());
-    //   }
-    //   if (video == null) return;
-    //   widget.editorController.assets.addAsset(
-    //     StoryElement(
-    //       type: ItemType.video,
-    //       value: video.path,
-    //     ),
-    //   );
-    // }
-    // unawaited(showLoadingOverlay());
-    // final MediaInfo? mediaInfo = await VideoCompress.compressVideo(
-    //   file!.path,
-    //   quality: VideoQuality.Res1280x720Quality,
-    // );
-    // unawaited(hideLoadingOverlay());
-    // if (mediaInfo != null && mediaInfo.file != null) {
-    //   final XFile compressedFile = XFile(mediaInfo.file!.path);
-    // }
-
     return result;
   }
 
