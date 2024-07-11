@@ -58,7 +58,8 @@ class _VideoAssetState extends State<VideoAsset> {
     videoWidth = widget.storyElement.videoController!.videoWidth;
     videoHeight = widget.storyElement.videoController!.videoHeight;
     topVideoCropPercent = widget.storyElement.videoController!.minCrop.dy;
-    bottomVideoCropPercent = 1 - widget.storyElement.videoController!.maxCrop.dy;
+    bottomVideoCropPercent =
+        1 - widget.storyElement.videoController!.maxCrop.dy;
     leftVideoCropPercent = widget.storyElement.videoController!.minCrop.dx;
     rightVideoCropPercent = 1 - widget.storyElement.videoController!.maxCrop.dx;
     containerWidth = widget.screen.width;
@@ -68,10 +69,10 @@ class _VideoAssetState extends State<VideoAsset> {
     rightCropContainer = rightVideoCropPercent * containerWidth;
     bottomCropContainer = bottomVideoCropPercent * containerHeight;
 
-    final double w =
-        (widget.screen.width - (containerWidth - leftCropContainer - rightCropContainer)) /
-            2 /
-            widget.screen.width;
+    final double w = (widget.screen.width -
+            (containerWidth - leftCropContainer - rightCropContainer)) /
+        2 /
+        widget.screen.width;
     final double h = (widget.screen.height -
             ((containerHeight - topCropContainer - bottomCropContainer) *
                 (widget.storyElement.videoController!.videoHeight /

@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:advanced_media_picker/advanced_media_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stories_editor/ui/widgets/video/top_bar.dart';
 
 import '../../../models/editor_controller.dart';
 import '../../../models/item_type_enum.dart';
 import '../../../models/story_element.dart';
-import '../../../utils/extensions.dart';
-import '../../../utils/overlay_util.dart';
 import '../../../utils/video_editor/lib/domain/bloc/controller.dart';
 import '../../../utils/video_editor/lib/ui/crop/crop_grid.dart';
 import '../base_icon_button.dart';
+import 'actions_bar.dart';
 import 'trim_slider.dart';
 
 class VideoOverlay extends StatefulWidget {
@@ -46,6 +46,7 @@ class _VideoOverlayState extends State<VideoOverlay> {
       cropStyle: widget.editorController.cropGridStyle,
       trimStyle: widget.editorController.trimSliderStyle,
     );
+
     initController();
   }
 
@@ -69,11 +70,6 @@ class _VideoOverlayState extends State<VideoOverlay> {
     setState(() {});
   }
 
-  void completeEditing() {
-    widget.editorController.assets.addAsset(storyElement);
-    hideOverlay();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (storyElement.videoController == null) {
@@ -86,12 +82,9 @@ class _VideoOverlayState extends State<VideoOverlay> {
           backgroundColor: Colors.transparent,
           body: Stack(
             children: <Widget>[
-              if (isControllerInitialized &&
-                  !storyElement.videoController!.isCropping)
-                CropGridViewer.preview(
-                    controller: storyElement.videoController!),
-              if (isControllerInitialized &&
-                  storyElement.videoController!.isCropping)
+              if (isControllerInitialized && !storyElement.videoController!.isCropping)
+                CropGridViewer.preview(controller: storyElement.videoController!),
+              if (isControllerInitialized && storyElement.videoController!.isCropping)
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
@@ -100,68 +93,16 @@ class _VideoOverlayState extends State<VideoOverlay> {
                   ),
                 ),
               if (!storyElement.videoController!.isCropping)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        const SizedBox(
-                          width: 44,
-                        ),
-                        const Spacer(),
-                        BaseIconButton(
-                          icon: const Icon(
-                            Icons.crop,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: () {
-                            storyElement.videoController!.isCropping = true;
-                            setState(() {});
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        BaseIconButton(
-                          icon: storyElement.videoController!.isVideoMuted
-                              ? const Icon(
-                                  Icons.volume_up,
-                                  color: Colors.white,
-                                  size: 24,
-                                )
-                              : const Icon(
-                                  Icons.volume_off_sharp,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                          onPressed: muteVideo,
-                        ),
-                        const SizedBox(width: 8),
-                        BaseIconButton(
-                          icon: const Icon(
-                            Icons.rotate_90_degrees_cw,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: () {
-                            storyElement.videoController!.rotate90Degrees();
-                          },
-                        ),
-                        const Spacer(),
-                        BaseIconButton(
-                          icon: const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: completeEditing,
-                        ),
-                      ],
-                    ),
-                  ),
+                VideoTopBar(
+                  editorController: widget.editorController,
+                  storyElement: storyElement,
+                ),
+              if (!storyElement.videoController!.isCropping)
+                VideoActionsBar(
+                  onCropClick: () {
+                    storyElement.videoController!.isCropping = true;
+                    setState(() {});
+                  },
                 ),
               if (storyElement.videoController!.isCropping)
                 Positioned(
@@ -192,8 +133,7 @@ class _VideoOverlayState extends State<VideoOverlay> {
                     ),
                   ),
                 ),
-              if (isControllerInitialized &&
-                  !storyElement.videoController!.isCropping)
+              if (isControllerInitialized && !storyElement.videoController!.isCropping)
                 Positioned(
                   bottom: 0,
                   width: MediaQuery.of(context).size.width,

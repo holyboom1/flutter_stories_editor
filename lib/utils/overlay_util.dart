@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../models/editor_controller.dart';
 import '../models/story_element.dart';
+import '../ui/widgets/audio/audio_overlay.dart';
+import '../ui/widgets/filters/filters_selector.dart';
 import '../ui/widgets/loading/loading_overlay.dart';
 import '../ui/widgets/text/text_overlay.dart';
 import '../ui/widgets/video/video_overlay.dart';
@@ -18,8 +20,7 @@ class OverlayBuilder extends StatefulWidget {
   _OverlayBuilderState createState() => _OverlayBuilderState();
 }
 
-class _OverlayBuilderState extends State<OverlayBuilder>
-    with SingleTickerProviderStateMixin {
+class _OverlayBuilderState extends State<OverlayBuilder> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -80,8 +81,7 @@ Future<void> showTextOverlay({
       return AnimatedBuilder(
         animation: _overlayAnimationController!,
         builder: (BuildContext context, Widget? child) {
-          final double animationValue =
-              curve.transform(_overlayAnimationController!.value);
+          final double animationValue = curve.transform(_overlayAnimationController!.value);
 
           return Opacity(
             opacity: animationValue,
@@ -115,14 +115,79 @@ Future<void> showVideoOverlay({
       return AnimatedBuilder(
         animation: _overlayAnimationController!,
         builder: (BuildContext context, Widget? child) {
-          final double animationValue =
-              curve.transform(_overlayAnimationController!.value);
+          final double animationValue = curve.transform(_overlayAnimationController!.value);
 
           return Opacity(
             opacity: animationValue,
             child: VideoOverlay(
               editorController: editorController,
               file: videoFile,
+              screen: MediaQuery.of(context).size,
+            ),
+          );
+        },
+      );
+    },
+  );
+  if (_overlayEntry != null) {
+    await addToOverlay(_overlayEntry!);
+    await _overlayAnimationController!.forward();
+  }
+}
+
+Future<void> showAudioOverlay({
+  required XFile audioFile,
+  required EditorController editorController,
+}) async {
+  if (_overlayAnimationController == null) {
+    return;
+  }
+  const Curve curve = Curves.easeOut;
+  isShowingOverlay.value = true;
+  _overlayEntry = OverlayEntry(
+    builder: (BuildContext context) {
+      return AnimatedBuilder(
+        animation: _overlayAnimationController!,
+        builder: (BuildContext context, Widget? child) {
+          final double animationValue = curve.transform(_overlayAnimationController!.value);
+
+          return Opacity(
+            opacity: animationValue,
+            child: AudioOverlay(
+              editorController: editorController,
+              file: audioFile,
+              screen: MediaQuery.of(context).size,
+            ),
+          );
+        },
+      );
+    },
+  );
+  if (_overlayEntry != null) {
+    await addToOverlay(_overlayEntry!);
+    await _overlayAnimationController!.forward();
+  }
+}
+
+Future<void> showFiltersOverlay({
+  required EditorController editorController,
+}) async {
+  if (_overlayAnimationController == null) {
+    return;
+  }
+  const Curve curve = Curves.easeOut;
+  isShowingOverlay.value = true;
+  _overlayEntry = OverlayEntry(
+    builder: (BuildContext context) {
+      return AnimatedBuilder(
+        animation: _overlayAnimationController!,
+        builder: (BuildContext context, Widget? child) {
+          final double animationValue = curve.transform(_overlayAnimationController!.value);
+
+          return Opacity(
+            opacity: animationValue,
+            child: FiltersSelectorOverlay(
+              editorController: editorController,
               screen: MediaQuery.of(context).size,
             ),
           );
@@ -147,8 +212,7 @@ Future<void> showLoadingOverlay({ValueNotifier<double>? progress}) async {
       return AnimatedBuilder(
         animation: _overlayAnimationController!,
         builder: (BuildContext context, Widget? child) {
-          final double animationValue =
-              curve.transform(_overlayAnimationController!.value);
+          final double animationValue = curve.transform(_overlayAnimationController!.value);
 
           return Opacity(
             opacity: animationValue,

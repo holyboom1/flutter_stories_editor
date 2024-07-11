@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-  static const String _iconPath =
-      'packages/flutter_stories_editor/assets/icons/';
-  static const String _imagePath =
-      'packages/flutter_stories_editor/assets/image/';
+  static const String _iconPath = 'packages/flutter_stories_editor/assets/icons/';
+  static const String _imagePath = 'packages/flutter_stories_editor/assets/image/';
 
   static const String iconPalet = '${_iconPath}palet.png';
   static const String imageFilter = '${_imagePath}filter_preview.jpg';
+
+  static const String cropIcon = '${_iconPath}crop.svg';
+  static const String filtersIcon = '${_iconPath}filters.svg';
+  static const String imageIcon = '${_iconPath}image.svg';
+  static const String musicIcon = '${_iconPath}music.svg';
+  static const String muteIcon = '${_iconPath}mute.svg';
+  static const String textIcon = '${_iconPath}text.svg';
+  static const String backArrowIcon = '${_iconPath}back_arrow.svg';
 
   static const List<({Color background, Color text})> textColors =
       <({Color background, Color text})>[

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:advanced_media_picker/advanced_media_picker.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/color_filters/colorfilter_generator.dart';
@@ -18,7 +19,6 @@ enum CustomAssetType {
   image,
   video,
   audio,
-  customWidget,
 }
 
 /// Top bar widget controller if not provided by the user it will use the default one
@@ -40,9 +40,6 @@ final class EditorController {
   final ValueNotifier<ColorFilterGenerator> selectedFilter =
       ValueNotifier<ColorFilterGenerator>(PresetFilters.none);
 
-  /// Show filters notifier
-  final ValueNotifier<bool> isShowFilters = ValueNotifier<bool>(false);
-
   /// Current story model
   final StoryModel _storyModel;
 
@@ -59,18 +56,28 @@ final class EditorController {
   EditorController({
     String storyId = '',
     this.cropGridStyle = const CropGridStyle(),
-    this.trimSliderStyle = const TrimSliderStyle(),
+    this.trimSliderStyle = const TrimSliderStyle(
+      borderRadius: 12,
+      onTrimmedColor: Color(0xFFEB671B),
+      onTrimmingColor: Color(0xFFEB671B),
+      lineColor: Color(0xFFEB671B),
+    ),
     this.maxVideoDuration = const Duration(seconds: 30),
     this.minVideoDuration = const Duration(seconds: 1),
   }) : _storyModel = StoryModel(id: storyId);
 
+  /// _isAvailableToAddVideo
+  bool _isAvailableToAddVideo = true;
+
+  /// isAvailableToAddVideo getter
+  bool get isAvailableToAddVideo => _isAvailableToAddVideo;
+
   /// Open assets picker
   Future<void> addImage(BuildContext context) async {
     final PickerController pickerController = PickerController();
-    bool isAvailableToAddVideo = true;
     assets.value.forEach((StoryElement element) {
       if (element.type == ItemType.video) {
-        isAvailableToAddVideo = false;
+        _isAvailableToAddVideo = false;
       }
     });
     final List<XFile> result = await AdvancedMediaPicker.openPicker(
@@ -83,7 +90,7 @@ final class EditorController {
         typeSelectionWidget: const SizedBox.shrink(),
         selectIconBackgroundColor: Colors.transparent,
       ),
-      allowedTypes: isAvailableToAddVideo ? PickerAssetType.imageAndVideo : PickerAssetType.image,
+      allowedTypes: _isAvailableToAddVideo ? PickerAssetType.imageAndVideo : PickerAssetType.image,
       selectionLimit: 1,
     );
     if (result.isNotEmpty) {
@@ -130,13 +137,12 @@ final class EditorController {
     assets.value.clear();
     selectedFilter.value = PresetFilters.none;
     selectedItem.value = null;
-    isShowFilters.value = false;
     return result;
   }
 
   /// Toggle filter selector
-  void toggleFilter() {
-    isShowFilters.value = !isShowFilters.value;
+  void openFilter() {
+    showFiltersOverlay(editorController: this);
   }
 
   /// Edit text element
@@ -166,13 +172,14 @@ final class EditorController {
         );
         break;
       case CustomAssetType.video:
-        if (file != null) {
+        if (file != null && _isAvailableToAddVideo) {
           showVideoOverlay(videoFile: file, editorController: this);
         }
         break;
       case CustomAssetType.audio:
-        break;
-      case CustomAssetType.customWidget:
+        if (file != null) {
+          showAudioOverlay(audioFile: file, editorController: this);
+        }
         break;
     }
   }
@@ -192,6 +199,23 @@ final class EditorController {
   void checkDeleteElement(StoryElement storyElement, Size screen) {
     if (storyElement.position.dy * screen.height > screen.height - 90) {
       assets.removeAsset(storyElement);
+    }
+  }
+
+  /// Mute story video
+  void muteVideo() {
+    final StoryElement? videoElement = assets.value.firstWhereOrNull(
+      (StoryElement element) => element.type == ItemType.video,
+    );
+
+    if (videoElement != null) {
+      if (videoElement.videoController!.isVideoMuted) {
+        videoElement.videoController!.unmuteVideo();
+        videoElement.isVideoMuted = false;
+      } else {
+        videoElement.videoController!.muteVideo();
+        videoElement.isVideoMuted = true;
+      }
     }
   }
 }

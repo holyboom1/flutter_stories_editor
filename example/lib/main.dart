@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_stories_editor/flutter_stories_editor.dart';
 
 void main() {
@@ -20,10 +23,22 @@ class _MyAppState extends State<MyApp> {
 
   StoryModel? storyModel;
 
+  final EditorController editorController = EditorController();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        floatingActionButton: IconButton(
+          onPressed: () async {
+            final ByteData audio = await rootBundle.load('assets/test_mp3.mp3');
+            final Uint8List audioBytes = audio.buffer.asUint8List();
+            final XFile file = XFile.fromData(audioBytes,
+                name: 'my_text.txt', mimeType: 'audio/mp3');
+            editorController.addCustomAsset(
+                type: CustomAssetType.audio, file: file);
+          },
+          icon: const Icon(Icons.audiotrack),
+        ),
         body: SafeArea(
           child: Column(
             children: <Widget>[
@@ -31,6 +46,7 @@ class _MyAppState extends State<MyApp> {
               if (storyModel == null)
                 Expanded(
                   child: FlutterStoriesEditor(
+                    controller: editorController,
                     backgroundColor: Colors.pink,
                     onDone: (Future<StoryModel> story) async {
                       storyModel = await story;

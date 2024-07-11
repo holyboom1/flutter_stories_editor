@@ -17,7 +17,8 @@ class RemoveBinWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<StoryElement?>(
       valueListenable: editorController.selectedItem,
-      builder: (BuildContext context, StoryElement? selectedItem, Widget? child) {
+      builder:
+          (BuildContext context, StoryElement? selectedItem, Widget? child) {
         return Positioned(
           bottom: 0,
           width: screen.width,
@@ -32,7 +33,9 @@ class RemoveBinWidget extends StatelessWidget {
                         height: 50,
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: value ? Colors.red.withOpacity(.38) : Colors.black38,
+                          color: value
+                              ? Colors.red.withOpacity(.38)
+                              : Colors.black38,
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(8),
                             topRight: Radius.circular(8),

@@ -6,6 +6,8 @@ import 'models/editor_controller.dart';
 import 'models/story_model.dart';
 import 'ui/editor_view.dart';
 
+export 'package:cross_file/cross_file.dart';
+
 export 'flutter_stories_view.dart';
 export 'models/editor_controller.dart';
 export 'models/story_model.dart';
@@ -15,6 +17,9 @@ export 'utils/video_editor/lib/domain/entities/trim_style.dart';
 class FlutterStoriesEditor extends StatefulWidget {
   /// Top bar config
   final Widget? topBar;
+
+  /// Actions bar config
+  final Widget? actionsBar;
 
   /// Background color
   final Color backgroundColor;
@@ -33,6 +38,7 @@ class FlutterStoriesEditor extends StatefulWidget {
     Key? key,
     this.backgroundColor = Colors.black,
     this.topBar,
+    this.actionsBar,
     this.onDone,
     this.onClose,
     this.controller,
@@ -57,6 +63,7 @@ class _FlutterStoriesEditorState extends State<FlutterStoriesEditor> {
       controller: _editorController,
       backgroundColor: widget.backgroundColor,
       topBar: widget.topBar,
+      actionsBar: widget.actionsBar,
       onDone: widget.onDone,
       onClose: widget.onClose,
     );

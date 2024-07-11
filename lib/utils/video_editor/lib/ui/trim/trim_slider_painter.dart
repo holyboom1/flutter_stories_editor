@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/entities/trim_style.dart';
 
 class TrimSliderPainter extends CustomPainter {
@@ -25,12 +26,15 @@ class TrimSliderPainter extends CustomPainter {
       Radius.circular(style.borderRadius),
     );
 
-    // DRAW LEFT AND RIGHT BACKGROUNDS
-    // extract [rect] trimmed area from the canvas
     canvas.drawPath(
       Path()
         ..fillType = PathFillType.evenOdd
-        ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
+        ..addRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(25, 0, size.width - 50, size.height),
+            Radius.circular(style.borderRadius),
+          ),
+        )
         ..addRRect(rrect),
       background,
     );
@@ -276,38 +280,26 @@ class TrimSliderPainter extends CustomPainter {
     required Offset centerLeft,
     required Offset centerRight,
   }) {
-    final Offset halfIconSize = Offset(style.iconSize / 2, style.iconSize / 2);
-
     // LEFT ICON
     if (style.leftIcon != null) {
-      final TextPainter leftArrow =
-          TextPainter(textDirection: TextDirection.rtl);
-      leftArrow.text = TextSpan(
-        text: String.fromCharCode(style.leftIcon!.codePoint),
-        style: TextStyle(
-          fontSize: style.iconSize,
-          fontFamily: style.leftIcon!.fontFamily,
-          color: style.iconColor,
-        ),
-      );
-      leftArrow.layout();
-      leftArrow.paint(canvas, centerLeft - halfIconSize);
+      final Paint paint = Paint()
+        ..color = Colors.white // The color you need
+        ..style = PaintingStyle.fill;
+
+      final Rect rect = Rect.fromLTWH(centerLeft.dx - 2, centerLeft.dy - 10, 4, 20);
+      final RRect rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10));
+      canvas.drawRRect(rrect, paint);
     }
 
     // RIGHT ICON
     if (style.rightIcon != null) {
-      final TextPainter rightArrow =
-          TextPainter(textDirection: TextDirection.rtl);
-      rightArrow.text = TextSpan(
-        text: String.fromCharCode(style.rightIcon!.codePoint),
-        style: TextStyle(
-          fontSize: style.iconSize,
-          fontFamily: style.rightIcon!.fontFamily,
-          color: style.iconColor,
-        ),
-      );
-      rightArrow.layout();
-      rightArrow.paint(canvas, centerRight - halfIconSize);
+      final Paint paint = Paint()
+        ..color = Colors.white // The color you need
+        ..style = PaintingStyle.fill;
+
+      final Rect rect = Rect.fromLTWH(centerRight.dx - 2, centerRight.dy - 10, 4, 20);
+      final RRect rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10));
+      canvas.drawRRect(rrect, paint);
     }
   }
 

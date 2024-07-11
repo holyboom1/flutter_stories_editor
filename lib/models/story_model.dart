@@ -110,7 +110,8 @@ final class StoryModel {
           .map((dynamic e) => StoryElement.fromJson(e as Map<String, dynamic>))
           .toList()
       ..colorFilter = json['colorFiler'] as String
-      ..paletteColors =
-          (json['paletteColors'] as List<dynamic>).map((dynamic e) => Color(e as int)).toList();
+      ..paletteColors = (json['paletteColors'] as List<dynamic>)
+          .map((dynamic e) => Color(e as int))
+          .toList();
   }
 }

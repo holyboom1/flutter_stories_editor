@@ -50,9 +50,11 @@ class _VideoViewerState extends State<VideoViewer> with WidgetsBindingObserver {
                 ClipRect(
                   clipper: CustomVideoClipper(
                     top: widget.controller.minCrop.dy * constraints.maxHeight,
-                    bottom: (1 - widget.controller.maxCrop.dy) * constraints.maxHeight,
+                    bottom: (1 - widget.controller.maxCrop.dy) *
+                        constraints.maxHeight,
                     left: widget.controller.minCrop.dx * constraints.maxWidth,
-                    right: (1 - widget.controller.maxCrop.dx) * constraints.maxWidth,
+                    right: (1 - widget.controller.maxCrop.dx) *
+                        constraints.maxWidth,
                   ),
                   child: VideoPlayer(widget.controller.video),
                 ),

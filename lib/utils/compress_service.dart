@@ -23,15 +23,14 @@ class CompressService {
       file.path,
       quality: 70,
       format: CompressFormat.png,
-      minHeight: 1080,
       minWidth: 1080,
     );
     if (result == null) {
       return null;
     }
     final String cacheDir = await getCacheDirectory();
-    final XFile compressedFile =
-        XFile.fromData(result, path: '$cacheDir/${DateTime.now().millisecondsSinceEpoch}.png');
+    final XFile compressedFile = XFile.fromData(result,
+        path: '$cacheDir/${DateTime.now().millisecondsSinceEpoch}.png');
     await compressedFile.saveTo(compressedFile.path);
     return compressedFile;
   }
@@ -45,34 +44,37 @@ class CompressService {
     try {
       video = await VideoUtils.exportVideo(
         onStatistics: (FFmpegStatistics stats) {
-          exportingProgress.value = stats.getProgress(controller.trimmedDuration.inMilliseconds);
+          exportingProgress.value =
+              stats.getProgress(controller.trimmedDuration.inMilliseconds);
         },
         controller: controller,
       );
     } catch (e) {
       log(e.toString());
     }
-    await video
-        ?.saveTo('${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.mp4');
+    await video?.saveTo(
+        '${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.mp4');
     return video;
   }
 
   /// Trim video and compress video
-  static Future<XFile?> trimVideoAndCompress(VideoEditorController controller) async {
+  static Future<XFile?> trimVideoAndCompress(
+      VideoEditorController controller) async {
     final ValueNotifier<double> exportingProgress = ValueNotifier<double>(0.0);
     XFile? video;
     try {
       video = await VideoUtils.exportVideo(
         onStatistics: (FFmpegStatistics stats) {
-          exportingProgress.value = stats.getProgress(controller.trimmedDuration.inMilliseconds);
+          exportingProgress.value =
+              stats.getProgress(controller.trimmedDuration.inMilliseconds);
         },
         controller: controller,
       );
     } catch (e) {
       log(e.toString());
     }
-    await video
-        ?.saveTo('${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.mp4');
+    await video?.saveTo(
+        '${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.mp4');
     return video;
   }
 }

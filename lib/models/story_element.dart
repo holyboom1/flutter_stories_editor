@@ -96,7 +96,8 @@ class StoryElement {
       type: json['type'] as ItemType,
       value: json['value'] as String,
       containerColor: json['containerColor'] as Color,
-      textStyle: const TextStyle()..fromJson(json['textStyle'] as Map<String, dynamic>),
+      textStyle: const TextStyle()
+        ..fromJson(json['textStyle'] as Map<String, dynamic>),
       textAlign: TextAlign.values[json['textAlign']],
       position: Offset.zero.fromJson(json['position'] as Map<String, double>),
       scale: json['scale'] as double,

@@ -38,7 +38,8 @@ class _TextAssetState extends State<TextAsset> {
   Widget build(BuildContext context) {
     if (!widget.isEditing) {
       final List<String> rows = widget.storyElement.value.split('\n');
-      final List<List<String>> wordsInRows = rows.map((String row) => row.split(' ')).toList();
+      final List<List<String>> wordsInRows =
+          rows.map((String row) => row.split(' ')).toList();
       return BaseStoryElement(
         editorController: widget.editorController,
         storyElement: widget.storyElement,
@@ -74,15 +75,19 @@ class _TextAssetState extends State<TextAsset> {
                       ...List<TextSpan>.generate(
                         wordsInRows[rowIndex].length,
                         (int wordsIndex) => TextSpan(
-                          text: (wordsIndex == 0 ? '' : ' ') + wordsInRows[rowIndex][wordsIndex],
+                          text: (wordsIndex == 0 ? '' : ' ') +
+                              wordsInRows[rowIndex][wordsIndex],
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              widget.onTextTap?.call(wordsInRows[rowIndex][wordsIndex]);
-                              print('#Print# : asdasd ${wordsInRows[rowIndex][wordsIndex]}');
+                              widget.onTextTap
+                                  ?.call(wordsInRows[rowIndex][wordsIndex]);
+                              print(
+                                  '#Print# : asdasd ${wordsInRows[rowIndex][wordsIndex]}');
                             },
                         ),
                       ),
-                      if (rowIndex < rows.length - 1) const TextSpan(text: '\n'),
+                      if (rowIndex < rows.length - 1)
+                        const TextSpan(text: '\n'),
                     ],
                   ),
                 ),

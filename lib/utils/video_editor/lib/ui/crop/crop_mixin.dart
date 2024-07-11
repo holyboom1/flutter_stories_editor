@@ -35,11 +35,11 @@ mixin CropPreviewMixin<T extends StatefulWidget> on State<T> {
   }) {
     if (viewerSize == Size.zero) return Size.zero;
     final double videoRatio = controller.video.value.aspectRatio;
-    final Size size =
-        Size(viewerSize.width - margin.horizontal, viewerSize.height - margin.vertical);
+    final Size size = Size(viewerSize.width - margin.horizontal,
+        viewerSize.height - margin.vertical);
     if (shouldFlipped) {
-      return computeSizeWithRatio(
-              videoRatio > 1 ? size.flipped : size, getOppositeRatio(videoRatio))
+      return computeSizeWithRatio(videoRatio > 1 ? size.flipped : size,
+              getOppositeRatio(videoRatio))
           .flipped;
     }
     return computeSizeWithRatio(size, videoRatio);
@@ -134,7 +134,8 @@ mixin CropPreviewMixin<T extends StatefulWidget> on State<T> {
 
       return ValueListenableBuilder(
         valueListenable: transform,
-        builder: (_, TransformData transform, __) => buildView(context, transform),
+        builder: (_, TransformData transform, __) =>
+            buildView(context, transform),
       );
     });
   }

@@ -12,13 +12,14 @@ import '../utils/overlay_util.dart';
 import '../utils/palette_generator_util.dart';
 import '../utils/video_editor/lib/domain/entities/cover_data.dart';
 import '../utils/video_editor/lib/domain/thumbnails.dart';
+import 'actions_bar_widget.dart';
+import 'navigation_bar_widget.dart';
 import 'remove_bin_widget.dart';
-import 'top_bar_widget.dart';
-import 'widgets/filters_selector.dart';
 import 'widgets/story_element.dart';
 
 class EditorView extends StatefulWidget {
   final Widget? topBar;
+  final Widget? actionsBar;
 
   final Color backgroundColor;
 
@@ -33,6 +34,7 @@ class EditorView extends StatefulWidget {
     required this.backgroundColor,
     required this.controller,
     this.topBar,
+    this.actionsBar,
     this.onDone,
     this.onClose,
   }) : super(key: key);
@@ -161,7 +163,7 @@ class _EditorViewState extends State<EditorView> {
                               child: value
                                   ? const SizedBox()
                                   : widget.topBar ??
-                                      TopBarWidget(
+                                      NavigationBarWidget(
                                         onClose: widget.onClose,
                                         onDone: widget.onDone,
                                         editorController: widget.controller,
@@ -172,30 +174,18 @@ class _EditorViewState extends State<EditorView> {
                       ),
                       ValueListenableBuilder<bool>(
                         valueListenable: isShowingOverlay,
-                        builder: (BuildContext context, bool isShowingOverlay, Widget? child) {
+                        builder: (BuildContext context, bool value, Widget? child) {
                           return Positioned(
-                            bottom: 0,
-                            width: MediaQuery.of(context).size.width,
+                            right: 0,
+                            height: MediaQuery.of(context).size.height,
                             child: AnimatedSwitcher(
                               duration: const Duration(milliseconds: 300),
-                              child: isShowingOverlay
+                              child: value
                                   ? const SizedBox()
-                                  : ValueListenableBuilder<bool>(
-                                      valueListenable: widget.controller.isShowFilters,
-                                      builder: (BuildContext context, bool value, Widget? child) {
-                                        return AnimatedSwitcher(
-                                          duration: const Duration(milliseconds: 300),
-                                          child: !value
-                                              ? const SizedBox()
-                                              : FiltersSelector(
-                                                  editorController: widget.controller,
-                                                  onFilterSelected: (ColorFilterGenerator filter) {
-                                                    widget.controller.selectedFilter.value = filter;
-                                                  },
-                                                ),
-                                        );
-                                      },
-                                    ),
+                                  : widget.actionsBar ??
+                                      ActionsBarWidget(
+                                        editorController: widget.controller,
+                                      ),
                             ),
                           );
                         },

@@ -39,7 +39,8 @@ class _FlutterStoriesViewerState extends State<FlutterStoriesViewer> {
         child: ColorFiltered(
           colorFilter: ColorFilter.matrix(presetFiltersList
                   .firstWhereOrNull(
-                    (ColorFilterGenerator e) => e.name == widget.storyModel.colorFilter,
+                    (ColorFilterGenerator e) =>
+                        e.name == widget.storyModel.colorFilter,
                   )
                   ?.matrix ??
               PresetFilters.none.matrix),

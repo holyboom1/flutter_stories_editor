@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../../utils/video_editor/lib/domain/bloc/controller.dart';
 import '../../../utils/video_editor/lib/ui/trim/trim_slider.dart';
-import '../../../utils/video_editor/lib/ui/trim/trim_timeline.dart';
 
 class TrimSliderWidget extends StatelessWidget {
   final VideoEditorController _controller;
   final double height;
 
-  const TrimSliderWidget({
+  TrimSliderWidget({
     super.key,
     required VideoEditorController controller,
     required this.height,
   }) : _controller = controller;
 
+  final ValueNotifier<Rect> _rectNotifier = ValueNotifier<Rect>(Rect.zero);
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -25,22 +25,42 @@ class TrimSliderWidget extends StatelessWidget {
             _controller.video,
           ]),
           builder: (_, __) {
-            final int duration = _controller.videoDuration.inSeconds;
-            final double pos = _controller.trimPosition * duration;
+            final Duration pos = _controller.trimmedDuration;
 
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: height / 4),
-              child: Row(children: <Widget>[
-                if (pos.isFinite)
-                  Text(formatter(Duration(seconds: pos.toInt()))),
-                const Expanded(child: SizedBox()),
-                if (_controller.isTrimming)
-                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    Text(formatter(_controller.startTrim)),
-                    const SizedBox(width: 10),
-                    Text(formatter(_controller.endTrim)),
-                  ]),
-              ]),
+            return SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 20,
+              child: Stack(
+                children: <Widget>[
+                  ValueListenableBuilder<Rect>(
+                    valueListenable: _rectNotifier,
+                    builder: (BuildContext context, Rect value, Widget? child) {
+                      return Positioned(
+                        left: value.left + (value.right - value.left) / 2 - 35,
+                        child: Container(
+                          width: 70,
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: Center(
+                            child: Text(
+                              formatter(pos),
+                              style: const TextStyle(
+                                color: Color(0xFFE75A22),
+                                fontSize: 12,
+                                fontFamily: 'SF Pro Display',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             );
           },
         ),
@@ -48,14 +68,14 @@ class TrimSliderWidget extends StatelessWidget {
           width: MediaQuery.of(context).size.width,
           margin: EdgeInsets.symmetric(vertical: height / 4),
           child: TrimSlider(
-            controller: _controller,
-            height: height,
-            horizontalMargin: height / 4,
-            child: TrimTimeline(
               controller: _controller,
-              padding: const EdgeInsets.only(top: 10),
-            ),
-          ),
+              height: height,
+              horizontalMargin: height / 4,
+              onRectUpdate: (Rect rect) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _rectNotifier.value = rect;
+                });
+              }),
         )
       ],
     );
@@ -64,5 +84,6 @@ class TrimSliderWidget extends StatelessWidget {
 
 String formatter(Duration duration) => <String>[
       duration.inMinutes.remainder(60).toString().padLeft(2, '0'),
-      duration.inSeconds.remainder(60).toString().padLeft(2, '0')
+      duration.inSeconds.remainder(60).toString().padLeft(2, '0'),
+      duration.inMilliseconds.remainder(1000).toString().padLeft(2, '0'),
     ].join(':');

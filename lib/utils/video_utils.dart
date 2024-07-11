@@ -6,7 +6,6 @@ import 'package:ffmpeg_kit_flutter_min_gpl/ffmpeg_kit_config.dart';
 import 'package:ffmpeg_kit_flutter_min_gpl/ffmpeg_session.dart';
 import 'package:ffmpeg_kit_flutter_min_gpl/return_code.dart';
 import 'package:ffmpeg_kit_flutter_min_gpl/statistics.dart';
-import 'package:ffmpeg_wasm/ffmpeg_wasm.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -62,23 +61,12 @@ class VideoUtils {
 
     debugPrint('run export video command : [$execute]');
 
-    if (kIsWeb) {
-      return const FFmpegExport().executeFFmpegWeb(
-        execute: execute,
-        inputData: await controller.file.readAsBytes(),
-        inputPath: inputPath,
-        outputPath: outputPath,
-        outputMimeType: outputFormat.mimeType,
-        onStatistics: onStatistics,
-      );
-    } else {
-      return const FFmpegExport().executeFFmpegIO(
-        execute: execute,
-        outputPath: outputPath,
-        outputMimeType: outputFormat.mimeType,
-        onStatistics: onStatistics,
-      );
-    }
+    return const FFmpegExport().executeFFmpegIO(
+      execute: execute,
+      outputPath: outputPath,
+      outputMimeType: outputFormat.mimeType,
+      onStatistics: onStatistics,
+    );
   }
 }
 
@@ -119,47 +107,6 @@ class FFmpegExport {
     );
 
     return completer.future;
-  }
-
-  Future<XFile> executeFFmpegWeb({
-    required String execute,
-    required Uint8List inputData,
-    required String inputPath,
-    required String outputPath,
-    String? outputMimeType,
-    void Function(FFmpegStatistics)? onStatistics,
-  }) async {
-    FFmpeg? ffmpeg;
-    final List<String> logs = <String>[];
-    try {
-      ffmpeg = createFFmpeg(CreateFFmpegParam(log: false));
-      ffmpeg.setLogger((LoggerParam logger) {
-        logs.add('[${logger.type}] ${logger.message}');
-
-        if (onStatistics != null && logger.type == 'fferr') {
-          final FFmpegStatistics? statistics =
-              FFmpegStatistics.fromMessage(logger.message);
-          if (statistics != null) {
-            onStatistics(statistics);
-          }
-        }
-      });
-
-      await ffmpeg.load();
-
-      ffmpeg.writeFile(inputPath, inputData);
-      await ffmpeg.runCommand(execute);
-
-      final Uint8List data = ffmpeg.readFile(outputPath);
-      return XFile.fromData(data, mimeType: outputMimeType);
-    } catch (e, s) {
-      Error.throwWithStackTrace(
-        Exception('Exception:\n$e\n\nLogs:${logs.join('\n')}}'),
-        s,
-      );
-    } finally {
-      ffmpeg?.exit();
-    }
   }
 }
 
