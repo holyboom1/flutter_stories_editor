@@ -8,11 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import '../../../models/editor_controller.dart';
 import '../../../models/item_type_enum.dart';
 import '../../../models/story_element.dart';
-import '../../../utils/audio_trimmer/trim_viewer/trim_area_properties.dart';
-import '../../../utils/audio_trimmer/trim_viewer/trim_editor_properties.dart';
-import '../../../utils/audio_trimmer/trim_viewer/trim_viewer.dart';
+import '../../../utils/audio_trimmer/trim/audio_trim_slider.dart';
 import '../../../utils/audio_trimmer/trimmer.dart';
-import '../../../utils/audio_trimmer/utils/duration_style.dart';
 import '../../../utils/extensions.dart';
 import '../../../utils/overlay_util.dart';
 import '../base_icon_button.dart';
@@ -87,40 +84,21 @@ class _AudioOverlayState extends State<AudioOverlay> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    TrimViewer(
-                      trimmer: _trimmer,
-                      viewerHeight: 100,
-                      maxAudioLength: const Duration(seconds: 30),
-                      viewerWidth: widget.screen.width,
-                      durationStyle: DurationStyle.FORMAT_MM_SS,
-                      backgroundColor: Theme.of(context).primaryColor,
-                      barColor: Colors.white,
-                      durationTextStyle: const TextStyle(
-                        color: Colors.white,
+                    Container(
+                      height: 100,
+                      width: widget.screen.width * 0.8,
+                      child: AudioTrimSlider(
+                        trimmer: _trimmer, maxAudioLength: Duration(seconds: 10),
+
+                        // maxAudioLength: Duration(seconds: 10),
+                        // onChangeStart: (value) => _startValue = value,
+                        // onChangeEnd: (value) => _endValue = value,
+                        // onChangePlaybackState: (value) {
+                        //   if (mounted) {
+                        //     setState(() => _isPlaying = value);
+                        //   }
+                        // },
                       ),
-                      allowAudioSelection: false,
-                      editorProperties: TrimEditorProperties(
-                        circleSize: 10,
-                        borderPaintColor: Colors.pinkAccent,
-                        borderWidth: 4,
-                        borderRadius: 5,
-                        circlePaintColor: Colors.pink.shade400,
-                      ),
-                      areaProperties: TrimAreaProperties.edgeBlur(
-                        blurEdges: true,
-                        borderRadius: 5,
-                        startIcon: Icon(
-                          Icons.abc,
-                          color: Colors.red,
-                        ),
-                      ),
-                      onChangeStart: (value) => _startValue = value,
-                      onChangeEnd: (value) => _endValue = value,
-                      onChangePlaybackState: (value) {
-                        if (mounted) {
-                          setState(() => _isPlaying = value);
-                        }
-                      },
                     ),
                     TextButton(
                       child: _isPlaying

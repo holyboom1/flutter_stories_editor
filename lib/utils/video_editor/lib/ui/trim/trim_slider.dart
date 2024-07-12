@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import '../../domain/bloc/controller.dart';
 import '../../ui/trim/thumbnail_slider.dart';
 import '../../ui/trim/trim_slider_painter.dart';
-import 'trim_timeline.dart';
 
 enum _TrimBoundaries { left, right, inside, progress }
 
@@ -27,6 +26,7 @@ class TrimSlider extends StatefulWidget {
     this.scrollController,
     this.onRectUpdate,
   });
+
   final void Function(Rect)? onRectUpdate;
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate in the trim slider view
@@ -534,90 +534,95 @@ class _TrimSliderState extends State<TrimSlider> with AutomaticKeepAliveClientMi
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return LayoutBuilder(builder: (_, BoxConstraints contrainst) {
-      final Size trimLayout = Size(
-        contrainst.maxWidth - _horizontalMargin * 2,
-        contrainst.maxHeight,
-      );
-      _fullLayout = Size(
-        trimLayout.width * (_isExtendTrim ? _viewportRatio : 1),
-        contrainst.maxHeight,
-      );
-      if (_trimLayout != trimLayout) {
-        _trimLayout = trimLayout;
-        _createTrimRect();
-      }
+    return LayoutBuilder(
+      builder: (_, BoxConstraints contrainst) {
+        final Size trimLayout = Size(
+          contrainst.maxWidth - _horizontalMargin * 2,
+          contrainst.maxHeight,
+        );
+        _fullLayout = Size(
+          trimLayout.width * (_isExtendTrim ? _viewportRatio : 1),
+          contrainst.maxHeight,
+        );
+        if (_trimLayout != trimLayout) {
+          _trimLayout = trimLayout;
+          _createTrimRect();
+        }
 
-      return SizedBox(
+        return SizedBox(
           width: _fullLayout.width,
-          child: Stack(children: <Widget>[
-            NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification scrollNotification) {
-                if (_boundary == null) {
-                  if (scrollNotification is ScrollStartNotification) {
-                    _updateControllerIsTrimming(true);
-                  } else if (scrollNotification is ScrollEndNotification) {
-                    _onHorizontalDragEnd();
+          child: Stack(
+            children: <Widget>[
+              NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollNotification) {
+                  if (_boundary == null) {
+                    if (scrollNotification is ScrollStartNotification) {
+                      _updateControllerIsTrimming(true);
+                    } else if (scrollNotification is ScrollEndNotification) {
+                      _onHorizontalDragEnd();
+                    }
                   }
-                }
-                return true;
-              },
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: _horizontalMargin),
-                  child: Column(
-                    children: <Widget>[
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          widget.controller.trimStyle.borderRadius,
-                        ),
-                        child: SizedBox(
-                          height: widget.height,
-                          width: _fullLayout.width,
-                          child: ThumbnailSlider(
-                            controller: widget.controller,
+                  return true;
+                },
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: _horizontalMargin),
+                    child: Column(
+                      children: <Widget>[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            widget.controller.trimStyle.borderRadius,
+                          ),
+                          child: SizedBox(
                             height: widget.height,
-                            quality: widget.quality,
+                            width: _fullLayout.width,
+                            child: ThumbnailSlider(
+                              controller: widget.controller,
+                              height: widget.height,
+                              quality: widget.quality,
+                            ),
                           ),
                         ),
-                      ),
-                      if (widget.child != null)
-                        SizedBox(width: _fullLayout.width, child: widget.child)
-                    ],
+                        if (widget.child != null)
+                          SizedBox(width: _fullLayout.width, child: widget.child)
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            GestureDetector(
-              onHorizontalDragStart: _onHorizontalDragStart,
-              onHorizontalDragUpdate: _onHorizontalDragUpdate,
-              onHorizontalDragEnd: _onHorizontalDragEnd,
-              behavior: HitTestBehavior.opaque,
-              child: AnimatedBuilder(
-                animation: Listenable.merge(<Listenable?>[
-                  widget.controller,
-                  widget.controller.video,
-                ]),
-                builder: (_, __) {
-                  return RepaintBoundary(
-                    child: CustomPaint(
-                      size: Size.fromHeight(widget.height),
-                      painter: TrimSliderPainter(
-                        _rect,
-                        _getVideoPosition(),
-                        widget.controller.trimStyle,
-                        isTrimming: widget.controller.isTrimming,
-                        isTrimmed: widget.controller.isTrimmed,
+              GestureDetector(
+                onHorizontalDragStart: _onHorizontalDragStart,
+                onHorizontalDragUpdate: _onHorizontalDragUpdate,
+                onHorizontalDragEnd: _onHorizontalDragEnd,
+                behavior: HitTestBehavior.opaque,
+                child: AnimatedBuilder(
+                  animation: Listenable.merge(<Listenable?>[
+                    widget.controller,
+                    widget.controller.video,
+                  ]),
+                  builder: (_, __) {
+                    return RepaintBoundary(
+                      child: CustomPaint(
+                        size: Size.fromHeight(widget.height),
+                        painter: TrimSliderPainter(
+                          _rect,
+                          _getVideoPosition(),
+                          widget.controller.trimStyle,
+                          isTrimming: widget.controller.isTrimming,
+                          isTrimmed: widget.controller.isTrimmed,
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            )
-          ]));
-    });
+            ],
+          ),
+        );
+      },
+    );
   }
 }

@@ -13,7 +13,7 @@ import '../trim_editor_painter.dart';
 import '../trim_editor_properties.dart';
 import 'fixed_bar_viewer.dart';
 
-class FixedTrimViewer extends StatefulWidget {
+class AudioTrimViewer extends StatefulWidget {
   /// The Trimmer instance controlling the data.
   final AudioTrimmer trimmer;
 
@@ -118,7 +118,7 @@ class FixedTrimViewer extends StatefulWidget {
 
   final bool allowAudioSelection;
 
-  const FixedTrimViewer(
+  const AudioTrimViewer(
       {super.key,
       required this.trimmer,
       this.viewerWidth = 50.0 * 8,
@@ -137,10 +137,10 @@ class FixedTrimViewer extends StatefulWidget {
       required this.allowAudioSelection});
 
   @override
-  State<FixedTrimViewer> createState() => _FixedTrimViewerState();
+  State<AudioTrimViewer> createState() => _AudioTrimViewerState();
 }
 
-class _FixedTrimViewerState extends State<FixedTrimViewer> with TickerProviderStateMixin {
+class _AudioTrimViewerState extends State<AudioTrimViewer> with TickerProviderStateMixin {
   final GlobalKey<State<StatefulWidget>> _trimmerAreaKey = GlobalKey();
   File? get _audioFile => widget.trimmer.currentAudioFile;
 
