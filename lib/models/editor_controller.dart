@@ -34,8 +34,7 @@ final class EditorController {
       ValueNotifier<List<StoryElement>>(<StoryElement>[]);
 
   /// Selected item notifier
-  final ValueNotifier<StoryElement?> selectedItem =
-      ValueNotifier<StoryElement?>(null);
+  final ValueNotifier<StoryElement?> selectedItem = ValueNotifier<StoryElement?>(null);
 
   /// Selected filter notifier
   final ValueNotifier<ColorFilterGenerator> selectedFilter =
@@ -76,11 +75,7 @@ final class EditorController {
   /// Open assets picker
   Future<void> addImage(BuildContext context) async {
     final PickerController pickerController = PickerController();
-    assets.value.forEach((StoryElement element) {
-      if (element.type == ItemType.video) {
-        _isAvailableToAddVideo = false;
-      }
-    });
+    _isAvailableToAddVideo = assets.value.isEmpty;
     final List<XFile> result = await AdvancedMediaPicker.openPicker(
       controller: pickerController,
       context: context,
@@ -91,9 +86,7 @@ final class EditorController {
         typeSelectionWidget: const SizedBox.shrink(),
         selectIconBackgroundColor: Colors.transparent,
       ),
-      allowedTypes: _isAvailableToAddVideo
-          ? PickerAssetType.imageAndVideo
-          : PickerAssetType.image,
+      allowedTypes: _isAvailableToAddVideo ? PickerAssetType.imageAndVideo : PickerAssetType.image,
       selectionLimit: 1,
     );
     if (result.isNotEmpty) {
@@ -112,10 +105,10 @@ final class EditorController {
   /// Complete editing and return the story model
   Future<StoryModel> complete() async {
     final StoryModel result;
-    final bool isContainsVideo = assets.value
-        .any((StoryElement element) => element.type == ItemType.video);
-    final bool isContainsImage = assets.value
-        .any((StoryElement element) => element.type == ItemType.image);
+    final bool isContainsVideo =
+        assets.value.any((StoryElement element) => element.type == ItemType.video);
+    final bool isContainsImage =
+        assets.value.any((StoryElement element) => element.type == ItemType.image);
 
     if (isContainsVideo) {
       storyModel.isVideoIncluded = true;
@@ -129,12 +122,11 @@ final class EditorController {
     await Future.forEach(elements, (StoryElement element) async {
       if (element.type == ItemType.video) {
         if (element.videoController != null) {
-          element.elementFile = await CompressService.trimVideoAndCompress(
-              element.videoController!);
+          element.elementFile =
+              await CompressService.trimVideoAndCompress(element.videoController!);
         }
       } else if (element.type == ItemType.image) {
-        element.elementFile =
-            await CompressService.compressImage(XFile(element.value));
+        element.elementFile = await CompressService.compressImage(XFile(element.value));
       }
     });
 
