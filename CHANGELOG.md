@@ -1,3 +1,7 @@
+## 0.0.5
+
+* ColorFilter Fix
+
 ## 0.0.4
 
 * Improve functionality.

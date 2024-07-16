@@ -109,7 +109,7 @@ final class EditorController {
         assets.value.any((StoryElement element) => element.type == ItemType.video);
     final bool isContainsImage =
         assets.value.any((StoryElement element) => element.type == ItemType.image);
-
+    storyModel.colorFilter = selectedFilter.value.name;
     if (isContainsVideo) {
       storyModel.isVideoIncluded = true;
     }
