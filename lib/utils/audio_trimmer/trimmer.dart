@@ -24,7 +24,8 @@ enum TrimmerEvent { initialized }
 class AudioTrimmer {
   // final FlutterFFmpeg _flutterFFmpeg = FFmpegKit();
 
-  final StreamController<TrimmerEvent> _controller = StreamController<TrimmerEvent>.broadcast();
+  final StreamController<TrimmerEvent> _controller =
+      StreamController<TrimmerEvent>.broadcast();
 
   AudioPlayer? _audioPlayer;
 
@@ -77,7 +78,8 @@ class AudioTrimmer {
     }
 
     // Directory + folder name
-    final Directory directoryFolder = Directory('${directory!.path}/$folderName/');
+    final Directory directoryFolder =
+        Directory('${directory!.path}/$folderName/');
 
     if (await directoryFolder.exists()) {
       // If folder already exists return path
@@ -86,7 +88,8 @@ class AudioTrimmer {
     } else {
       debugPrint('Creating');
       // If folder does not exists create folder and then return its path
-      final Directory directoryNewFolder = await directoryFolder.create(recursive: true);
+      final Directory directoryNewFolder =
+          await directoryFolder.create(recursive: true);
       return directoryNewFolder.path;
     }
   }
@@ -220,7 +223,8 @@ class AudioTrimmer {
       outputFormatString = outputFormat.toString();
     }
 
-    final String trimLengthCommand = ' -ss $startPoint -i "$audioPath" -t ${endPoint - startPoint}';
+    final String trimLengthCommand =
+        ' -ss $startPoint -i "$audioPath" -t ${endPoint - startPoint}';
 
     if (ffmpegCommand == null) {
       command = '$trimLengthCommand -c:a copy ';
@@ -238,7 +242,8 @@ class AudioTrimmer {
     command += '"$outputPath"';
 
     FFmpegKit.executeAsync(command, (FFmpegSession session) async {
-      final String state = FFmpegKitConfig.sessionStateToString(await session.getState());
+      final String state =
+          FFmpegKitConfig.sessionStateToString(await session.getState());
       final ReturnCode? returnCode = await session.getReturnCode();
 
       debugPrint('FFmpeg process exited with state $state and rc $returnCode');

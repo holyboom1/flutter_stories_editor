@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:advanced_media_picker/advanced_media_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stories_editor/ui/widgets/video/top_bar.dart';
 
 import '../../../models/editor_controller.dart';
 import '../../../models/item_type_enum.dart';
@@ -11,6 +10,7 @@ import '../../../utils/video_editor/lib/domain/bloc/controller.dart';
 import '../../../utils/video_editor/lib/ui/crop/crop_grid.dart';
 import '../base_icon_button.dart';
 import 'actions_bar.dart';
+import 'top_bar.dart';
 import 'trim_slider.dart';
 
 class VideoOverlay extends StatefulWidget {
@@ -82,9 +82,12 @@ class _VideoOverlayState extends State<VideoOverlay> {
           backgroundColor: Colors.transparent,
           body: Stack(
             children: <Widget>[
-              if (isControllerInitialized && !storyElement.videoController!.isCropping)
-                CropGridViewer.preview(controller: storyElement.videoController!),
-              if (isControllerInitialized && storyElement.videoController!.isCropping)
+              if (isControllerInitialized &&
+                  !storyElement.videoController!.isCropping)
+                CropGridViewer.preview(
+                    controller: storyElement.videoController!),
+              if (isControllerInitialized &&
+                  storyElement.videoController!.isCropping)
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
@@ -133,7 +136,8 @@ class _VideoOverlayState extends State<VideoOverlay> {
                     ),
                   ),
                 ),
-              if (isControllerInitialized && !storyElement.videoController!.isCropping)
+              if (isControllerInitialized &&
+                  !storyElement.videoController!.isCropping)
                 Positioned(
                   bottom: 0,
                   width: MediaQuery.of(context).size.width,

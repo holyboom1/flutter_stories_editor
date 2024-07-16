@@ -33,11 +33,12 @@ class AudioOverlay extends StatefulWidget {
 class _AudioOverlayState extends State<AudioOverlay> {
   late StoryElement storyElement;
   final AudioTrimmer _trimmer = AudioTrimmer();
+
   @override
   void initState() {
     super.initState();
     storyElement = StoryElement(
-      type: ItemType.video,
+      type: ItemType.audio,
     );
     initController();
   }
@@ -56,16 +57,28 @@ class _AudioOverlayState extends State<AudioOverlay> {
     setState(() {});
   }
 
-  void completeEditing() {
+  Future<void> completeEditing() async {
+    unawaited(_trimmer.audioPlayer?.pause());
+    final Completer<void> completer = Completer<void>();
+    String filePath = '';
+    await _trimmer.saveTrimmedAudio(
+      startValue: _startValue.inMilliseconds.toDouble(),
+      endValue: _endValue.inMilliseconds.toDouble(),
+      onSave: (String? path) {
+        filePath = path ?? '';
+        completer.complete();
+      },
+    );
+    await completer.future;
+    storyElement.value = filePath;
+    storyElement.elementFile = XFile(filePath);
     widget.editorController.assets.addAsset(storyElement);
-    hideOverlay();
+    unawaited(hideOverlay());
   }
 
-  double _startValue = 0.0;
-  double _endValue = 0.0;
+  Duration _startValue = Duration.zero;
+  Duration _endValue = const Duration(seconds: 30);
 
-  bool _isPlaying = false;
-  bool _progressVisibility = false;
   bool isLoading = false;
 
   @override
@@ -82,64 +95,64 @@ class _AudioOverlayState extends State<AudioOverlay> {
             children: <Widget>[
               Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    Container(
-                      height: 100,
+                    SizedBox(
                       width: widget.screen.width * 0.8,
                       child: AudioTrimSlider(
-                        trimmer: _trimmer, maxAudioLength: Duration(seconds: 10),
-
-                        // maxAudioLength: Duration(seconds: 10),
-                        // onChangeStart: (value) => _startValue = value,
-                        // onChangeEnd: (value) => _endValue = value,
-                        // onChangePlaybackState: (value) {
-                        //   if (mounted) {
-                        //     setState(() => _isPlaying = value);
-                        //   }
-                        // },
+                        trimmer: _trimmer,
+                        height: 56.0,
+                        width: widget.screen.width * 0.8,
+                        maxAudioLength: const Duration(seconds: 30),
+                        minAudioLength: const Duration(seconds: 10),
+                        onTrim: (Duration start, Duration end) {
+                          _startValue = start;
+                          _endValue = end;
+                        },
                       ),
                     ),
-                    TextButton(
-                      child: _isPlaying
-                          ? Icon(
-                              Icons.pause,
-                              size: 80.0,
-                              color: Theme.of(context).primaryColor,
-                            )
-                          : Icon(
-                              Icons.play_arrow,
-                              size: 80.0,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                      onPressed: () async {
-                        bool playbackState = await _trimmer.audioPlaybackControl(
-                          startValue: _startValue,
-                          endValue: _endValue,
-                        );
-                        setState(() => _isPlaying = playbackState);
-                      },
-                    ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
               Positioned(
                 top: 0,
                 left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(16),
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
+                      BaseIconButton(
+                        onPressed: () {
+                          hideOverlay();
+                        },
+                        icon: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontFamily: 'DM Sans',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        withText: true,
+                      ),
                       const Spacer(),
                       BaseIconButton(
-                        icon: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 24,
+                        onPressed: () {
+                          completeEditing();
+                        },
+                        icon: const Text(
+                          'Done',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontFamily: 'DM Sans',
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                        onPressed: completeEditing,
+                        withText: true,
                       ),
                     ],
                   ),

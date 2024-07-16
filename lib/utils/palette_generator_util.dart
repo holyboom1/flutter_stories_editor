@@ -39,10 +39,17 @@ class PaletteGeneratorUtil {
     );
   }
 
-  static Future<PaletteGenerator> getGeneratorFromPath(String filePath) async {
-    final ImageStream stream = Image.file(File(filePath)).image.resolve(
-          const ImageConfiguration(devicePixelRatio: 1.0),
-        );
+  static Future<PaletteGenerator> getGeneratorFromPath(String path) async {
+    late final ImageStream stream;
+    if (path.contains('http')) {
+      stream = NetworkImage(path).resolve(
+        const ImageConfiguration(devicePixelRatio: 1.0),
+      );
+    } else {
+      stream = Image.file(File(path)).image.resolve(
+            const ImageConfiguration(devicePixelRatio: 1.0),
+          );
+    }
     final Completer<ui.Image> imageCompleter = Completer<ui.Image>();
     late ImageStreamListener listener;
     listener = ImageStreamListener((ImageInfo info, bool synchronousCall) {

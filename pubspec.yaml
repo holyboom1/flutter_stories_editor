@@ -1,6 +1,6 @@
 name: flutter_stories_editor
 description: "This plugin allows you to create a story editor and viewer in your Flutter app. Here is a detailed description of its features and functions"
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/holyboom1/flutter_stories_editor.git
 
 environment:
@@ -15,7 +15,7 @@ dependencies:
   google_fonts: ^6.2.1
   cached_network_image: ^3.3.1
   flutter_svg: ^2.0.10+1
-  advanced_media_picker: ^0.0.12
+  advanced_media_picker: ^0.0.13
   collection: ^1.18.0
   matrix2d: ^1.0.4
 

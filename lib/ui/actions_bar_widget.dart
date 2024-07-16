@@ -7,10 +7,12 @@ import 'widgets/image_widget.dart';
 
 class ActionsBarWidget extends StatefulWidget {
   final EditorController editorController;
+  final List<Widget> additionalActions;
 
   const ActionsBarWidget({
     super.key,
     required this.editorController,
+    this.additionalActions = const <Widget>[],
   });
 
   @override
@@ -54,7 +56,6 @@ class _ActionsBarWidgetState extends State<ActionsBarWidget> {
             icon: const AppImage(image: Constants.imageIcon),
           ),
           const SizedBox(height: 16),
-
           BaseIconButton(
             isCircle: false,
             onPressed: () {
@@ -63,28 +64,10 @@ class _ActionsBarWidgetState extends State<ActionsBarWidget> {
             icon: const AppImage(image: Constants.filtersIcon),
           ),
           const SizedBox(height: 16),
-          BaseIconButton(
-            isCircle: false,
-            onPressed: () {
-              // widget.editorController.toggleFilter();
-            },
-            icon: const AppImage(image: Constants.musicIcon),
-          ),
-          const SizedBox(height: 16),
-
-          // BaseIconButton(
-          //   onPressed: () {
-          //     if (Navigator.of(context).canPop()) {
-          //       Navigator.of(context).pop();
-          //     }
-          //     print('Done button pressed');
-          //     onDone?.call(editorController.complete());
-          //   },
-          //   icon: const Icon(
-          //     Icons.check_circle_outline,
-          //     color: Colors.white,
-          //   ),
-          // ),
+          for (final Widget action in widget.additionalActions) ...<Widget>[
+            action,
+            const SizedBox(height: 16),
+          ],
         ],
       ),
     );

@@ -29,12 +29,15 @@ class EditorView extends StatefulWidget {
 
   final Function(Future<StoryModel> story)? onClose;
 
+  final List<Widget> additionalActions;
+
   const EditorView({
     Key? key,
     required this.backgroundColor,
     required this.controller,
     this.topBar,
     this.actionsBar,
+    this.additionalActions = const <Widget>[],
     this.onDone,
     this.onClose,
   }) : super(key: key);
@@ -66,24 +69,29 @@ class _EditorViewState extends State<EditorView> {
 
   Future<void> setColor() async {
     if (!isColorSet) {
-      final bool containsImage = widget.controller.assets.value.any((StoryElement element) {
+      final bool containsImage =
+          widget.controller.assets.value.any((StoryElement element) {
         return element.type == ItemType.image || element.type == ItemType.video;
       });
       if (containsImage) {
         final StoryElement element =
             widget.controller.assets.value.firstWhere((StoryElement element) {
-          return element.type == ItemType.image || element.type == ItemType.video;
+          return element.type == ItemType.image ||
+              element.type == ItemType.video;
         });
         if (element.type == ItemType.video) {
-          final CoverData videoCover = await generateSingleCoverThumbnail(element.value);
-          paletteColor =
-              await PaletteGeneratorUtil.getGeneratorFromData(videoCover.thumbData ?? Uint8List(0));
+          final CoverData videoCover =
+              await generateSingleCoverThumbnail(element.value);
+          paletteColor = await PaletteGeneratorUtil.getGeneratorFromData(
+              videoCover.thumbData ?? Uint8List(0));
         } else {
-          paletteColor = await PaletteGeneratorUtil.getGeneratorFromPath(element.value);
+          paletteColor =
+              await PaletteGeneratorUtil.getGeneratorFromPath(element.value);
         }
         isColorSet = true;
         if (paletteColor != null) {
-          widget.controller.storyModel.paletteColors = paletteColor!.colors.toList();
+          widget.controller.storyModel.paletteColors =
+              paletteColor!.colors.toList();
           setState(() {});
         }
       }
@@ -131,8 +139,8 @@ class _EditorViewState extends State<EditorView> {
                       ),
                       ValueListenableBuilder<ColorFilterGenerator>(
                           valueListenable: widget.controller.selectedFilter,
-                          builder:
-                              (BuildContext context, ColorFilterGenerator value, Widget? child) {
+                          builder: (BuildContext context,
+                              ColorFilterGenerator value, Widget? child) {
                             return ColorFiltered(
                               colorFilter: ColorFilter.matrix(value.matrix),
                               child: child,
@@ -154,7 +162,8 @@ class _EditorViewState extends State<EditorView> {
                           )),
                       ValueListenableBuilder<bool>(
                         valueListenable: isShowingOverlay,
-                        builder: (BuildContext context, bool value, Widget? child) {
+                        builder:
+                            (BuildContext context, bool value, Widget? child) {
                           return Positioned(
                             top: 0,
                             width: MediaQuery.of(context).size.width,
@@ -174,7 +183,8 @@ class _EditorViewState extends State<EditorView> {
                       ),
                       ValueListenableBuilder<bool>(
                         valueListenable: isShowingOverlay,
-                        builder: (BuildContext context, bool value, Widget? child) {
+                        builder:
+                            (BuildContext context, bool value, Widget? child) {
                           return Positioned(
                             right: 0,
                             height: MediaQuery.of(context).size.height,
@@ -185,6 +195,8 @@ class _EditorViewState extends State<EditorView> {
                                   : widget.actionsBar ??
                                       ActionsBarWidget(
                                         editorController: widget.controller,
+                                        additionalActions:
+                                            widget.additionalActions,
                                       ),
                             ),
                           );

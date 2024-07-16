@@ -39,7 +39,8 @@ class TrimSliderWidget extends StatelessWidget {
                         left: value.left + (value.right - value.left) / 2 - 35,
                         child: Container(
                           width: 70,
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 2),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(5.0),

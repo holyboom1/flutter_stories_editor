@@ -286,8 +286,10 @@ class TrimSliderPainter extends CustomPainter {
         ..color = Colors.white // The color you need
         ..style = PaintingStyle.fill;
 
-      final Rect rect = Rect.fromLTWH(centerLeft.dx - 2, centerLeft.dy - 10, 4, 20);
-      final RRect rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10));
+      final Rect rect =
+          Rect.fromLTWH(centerLeft.dx - 2, centerLeft.dy - 10, 4, 20);
+      final RRect rrect =
+          RRect.fromRectAndRadius(rect, const Radius.circular(10));
       canvas.drawRRect(rrect, paint);
     }
 
@@ -297,8 +299,10 @@ class TrimSliderPainter extends CustomPainter {
         ..color = Colors.white // The color you need
         ..style = PaintingStyle.fill;
 
-      final Rect rect = Rect.fromLTWH(centerRight.dx - 2, centerRight.dy - 10, 4, 20);
-      final RRect rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10));
+      final Rect rect =
+          Rect.fromLTWH(centerRight.dx - 2, centerRight.dy - 10, 4, 20);
+      final RRect rrect =
+          RRect.fromRectAndRadius(rect, const Radius.circular(10));
       canvas.drawRRect(rrect, paint);
     }
   }

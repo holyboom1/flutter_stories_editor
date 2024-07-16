@@ -3,23 +3,30 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../trimmer.dart';
 
+enum _TrimBoundaries { left, right, inside, progress }
+
 class AudioTrimSlider extends StatefulWidget {
   final double height;
-  final double? width;
+  final double width;
   final AudioTrimmer trimmer;
   final Duration maxAudioLength;
+  final Duration minAudioLength;
+  final Function(Duration start, Duration end) onTrim;
 
-  AudioTrimSlider({
+  const AudioTrimSlider({
     super.key,
     this.height = 100.0,
-    this.width,
+    required this.width,
     required this.trimmer,
     required this.maxAudioLength,
+    required this.minAudioLength,
+    required this.onTrim,
   });
 
   @override
@@ -33,14 +40,20 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
   final ValueNotifier<int> _audioDuration = ValueNotifier<int>(0);
 
   AudioPlayer get audioPlayerController => widget.trimmer.audioPlayer!;
+
   File? get _audioFile => widget.trimmer.currentAudioFile;
+
+  double audioScaleFactor = 1.0;
+
+  double minTrimLength = 0.0;
+  double maxTrimLength = double.infinity;
 
   @override
   void initState() {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       await _initializeAudioController();
-      await audioPlayerController.seek(Duration.zero);
+      // await audioPlayerController.seek(Duration.zero);
       final Duration? totalDuration = await audioPlayerController.getDuration();
 
       setState(() {
@@ -48,8 +61,17 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
           return;
         }
 
-        if (widget.maxAudioLength > Duration.zero && widget.maxAudioLength < totalDuration) {
-          if (widget.maxAudioLength < totalDuration) {}
+        audioScaleFactor = widget.width / totalDuration.inMilliseconds;
+        maxTrimLength = audioScaleFactor * widget.maxAudioLength.inMilliseconds;
+        minTrimLength = audioScaleFactor * widget.minAudioLength.inMilliseconds;
+        if (widget.maxAudioLength > Duration.zero &&
+            widget.maxAudioLength < totalDuration) {
+          if (widget.maxAudioLength < totalDuration) {
+            _audioEndPos.value =
+                widget.maxAudioLength.inMilliseconds * audioScaleFactor;
+          } else {
+            _audioEndPos.value = widget.width;
+          }
         }
       });
     });
@@ -65,471 +87,399 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
       });
 
       audioPlayerController.onPositionChanged.listen((Duration event) async {
-        final bool isPlaying = audioPlayerController.state == PlayerState.playing;
-
+        final bool isPlaying =
+            audioPlayerController.state == PlayerState.playing;
         if (isPlaying) {
-          setState(() {
-            _currentPosition.value = event.inMilliseconds;
-
-            if (_currentPosition.value > _audioEndPos.value.toInt()) {
-              audioPlayerController.pause();
-            } else {}
-          });
+          _currentPosition.value = event.inMilliseconds;
+          if (_currentPosition.value >
+              (_audioEndPos.value - 24) / audioScaleFactor) {
+            await audioPlayerController.seek(Duration(
+                microseconds:
+                    (_audioStartPos.value / audioScaleFactor).toInt()));
+          } else {}
         }
       });
 
       unawaited(audioPlayerController.setVolume(1.0));
-      _audioDuration.value = (await audioPlayerController.getDuration())!.inMilliseconds;
+      _audioDuration.value =
+          (await audioPlayerController.getDuration())!.inMilliseconds;
+      await audioPlayerController.seek(const Duration());
+
+      await audioPlayerController.resume();
     }
   }
 
-  // /// Called when the user starts dragging the frame, on either side on the whole frame.
-  // /// Determine which [EditorDragType] is used.
-  // void _onDragStart(DragStartDetails details) {
-  //   debugPrint('_onDragStart');
-  //   debugPrint(details.localPosition.toString());
-  //   debugPrint((_startPos.dx - details.localPosition.dx).abs().toString());
-  //   debugPrint((_endPos.dx - details.localPosition.dx).abs().toString());
-  //
-  //   final double startDifference = _startPos.dx - details.localPosition.dx;
-  //   final double endDifference = _endPos.dx - details.localPosition.dx;
-  //
-  //   // First we determine whether the dragging motion should be allowed. The allowed
-  //   // zone is widget.sideTapSize (left) + frame (center) + widget.sideTapSize (right)
-  //   if (startDifference <= widget.editorProperties.sideTapSize &&
-  //       endDifference >= -widget.editorProperties.sideTapSize) {
-  //     _allowDrag = true;
-  //   } else {
-  //     debugPrint('Dragging is outside of frame, ignoring gesture...');
-  //     _allowDrag = false;
-  //     return;
-  //   }
-  //
-  //   // Now we determine which part is dragged
-  //   if (details.localPosition.dx <= _startPos.dx + widget.editorProperties.sideTapSize) {
-  //     _dragType = EditorDragType.left;
-  //   } else if (details.localPosition.dx <= _endPos.dx - widget.editorProperties.sideTapSize) {
-  //     _dragType = EditorDragType.center;
-  //   } else {
-  //     _dragType = EditorDragType.right;
-  //   }
-  // }
-  //
-  // /// Called during dragging, only executed if [_allowDrag] was set to true in
-  // /// [_onDragStart].
-  // /// Makes sure the limits are respected.
-  // void _onDragUpdate(DragUpdateDetails details) {
-  //   if (!_allowDrag) return;
-  //
-  //   if (_dragType == EditorDragType.left) {
-  //     if (!widget.allowAudioSelection) return;
-  //     _startCircleSize = widget.editorProperties.circleSizeOnDrag;
-  //     if ((_startPos.dx + details.delta.dx >= 0) &&
-  //         (_startPos.dx + details.delta.dx <= _endPos.dx) &&
-  //         !(_endPos.dx - _startPos.dx - details.delta.dx > maxLengthPixels!)) {
-  //       _startPos += details.delta;
-  //       _onStartDragged();
-  //     }
-  //   } else if (_dragType == EditorDragType.center) {
-  //     _startCircleSize = widget.editorProperties.circleSizeOnDrag;
-  //     _endCircleSize = widget.editorProperties.circleSizeOnDrag;
-  //     if ((_startPos.dx + details.delta.dx >= 0) &&
-  //         (_endPos.dx + details.delta.dx <= _barViewerW)) {
-  //       _startPos += details.delta;
-  //       _endPos += details.delta;
-  //       _onStartDragged();
-  //       _onEndDragged();
-  //     }
-  //   } else {
-  //     if (!widget.allowAudioSelection) return;
-  //     _endCircleSize = widget.editorProperties.circleSizeOnDrag;
-  //     if ((_endPos.dx + details.delta.dx <= _barViewerW) &&
-  //         (_endPos.dx + details.delta.dx >= _startPos.dx) &&
-  //         !(_endPos.dx - _startPos.dx + details.delta.dx > maxLengthPixels!)) {
-  //       _endPos += details.delta;
-  //       _onEndDragged();
-  //     }
-  //   }
-  //   setState(() {});
-  // }
-  //
-  // void _onStartDragged() {
-  //   _startFraction = _startPos.dx / _barViewerW;
-  //   _audioStartPos = _audioDuration * _startFraction;
-  //   widget.onChangeStart!(_audioStartPos);
-  //   _linearTween.begin = _startPos.dx;
-  //   _animationController!.duration =
-  //       Duration(milliseconds: (_audioEndPos - _audioStartPos).toInt());
-  //   _animationController!.reset();
-  // }
-  //
-  // void _onEndDragged() {
-  //   _endFraction = _endPos.dx / _barViewerW;
-  //   _audioEndPos = _audioDuration * _endFraction;
-  //   widget.onChangeEnd!(_audioEndPos);
-  //   _linearTween.end = _endPos.dx;
-  //   _animationController!.duration =
-  //       Duration(milliseconds: (_audioEndPos - _audioStartPos).toInt());
-  //   _animationController!.reset();
-  // }
-  //
-  // /// Drag gesture ended, update UI accordingly.
-  // void _onDragEnd(DragEndDetails details) {
-  //   setState(() {
-  //     _startCircleSize = widget.editorProperties.circleSize;
-  //     _endCircleSize = widget.editorProperties.circleSize;
-  //     if (_dragType == EditorDragType.right) {
-  //       audioPlayerController.seek(Duration(milliseconds: _audioEndPos.toInt()));
-  //     } else {
-  //       audioPlayerController.seek(Duration(milliseconds: _audioStartPos.toInt()));
-  //     }
-  //   });
-  // }
-
-  Stream<List<int?>> generateBars(double width) async* {
-    final List<int> bars = <int>[];
-    final Random r = Random();
-    for (int i = 1; i <= width / 5.0; i++) {
-      final int number = 1 + r.nextInt(widget.height.toInt() - 2);
-      bars.add(r.nextInt(number));
-      yield bars;
-    }
-  }
+  Stream<List<int?>> generateBars(double width) async* {}
 
   Widget bars({
     required double width,
     double horizontalPadding = 4.0,
     double verticalPadding = 8.0,
+    double barWidth = 3.0,
+    double barPadding = 1.0,
   }) {
-    int i = 0;
+    final List<int> bars = <int>[];
+    final Random r = Random();
+    double availableWidth = width - (horizontalPadding * 3);
+    for (int i = 0; availableWidth > 0; i++) {
+      final int number = 1 + r.nextInt(widget.height.toInt());
+      bars.add(r.nextInt(number));
+      availableWidth -= barWidth + (barPadding * 2);
+    }
 
-    return StreamBuilder<List<int?>>(
-      stream: generateBars(width - horizontalPadding * 2.0),
-      builder: (BuildContext context, AsyncSnapshot<List<int?>> snapshot) {
-        if (snapshot.hasData) {
-          final List<int?> bars = snapshot.data!;
-          return Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: horizontalPadding,
-              vertical: verticalPadding,
-            ),
-            color: Colors.white,
-            width: double.infinity,
-            child: Row(
-              children: bars.map((int? height) {
-                i++;
+    return Container(
+      height: widget.height,
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+        vertical: verticalPadding,
+      ),
+      color: Colors.white,
+      width: width,
+      child: Row(
+        children: bars.mapIndexed(
+          (int index, int height) {
+            final double position = index * (barWidth + barPadding * 2);
+            return ValueListenableBuilder<int>(
+              valueListenable: _currentPosition,
+              builder: (BuildContext context, int value, Widget? child) {
+                final double valuePosition = value * audioScaleFactor;
+                double width = 0;
+
+                if (valuePosition > position) {
+                  width = 3;
+                }
+
                 return Container(
-                  width: 3,
-                  margin: const EdgeInsets.symmetric(horizontal: 1.0),
-                  height: height?.toDouble(),
+                  width: barWidth,
+                  margin: EdgeInsets.symmetric(horizontal: barPadding),
+                  height: height.toDouble(),
                   decoration: ShapeDecoration(
-                    color: const Color(0xFFEB671B),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                    color: const Color(0x7F7E7F83),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(2)),
+                  ),
+                  clipBehavior: Clip.hardEdge,
+                  child: Container(
+                    width: width,
+                    height: height.toDouble(),
+                    decoration: BoxDecoration(
+                      color: position < valuePosition
+                          ? const Color(0xFFEB671B)
+                          : Colors.transparent,
+                    ),
                   ),
                 );
-              }).toList(),
-            ),
-          );
-        } else {
-          return Container(
-            color: Colors.grey[900],
-            height: widget.height,
-            width: double.maxFinite,
-          );
-        }
-      },
+              },
+            );
+          },
+        ).toList(),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return RepaintBoundary(
-          child: CustomPaint(
-            size: Size.fromHeight(widget.height),
-            foregroundPainter: TrimSliderPainter(
-              Rect.fromLTRB(
-                _audioStartPos.value,
-                0,
-                _audioEndPos.value,
-                0,
-              ),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              clipBehavior: Clip.hardEdge,
-              child: bars(
-                width: constraints.maxWidth,
-              ),
-            ),
+    return Stack(
+      children: <Widget>[
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
           ),
-        );
-      },
+          clipBehavior: Clip.hardEdge,
+          child: bars(
+            width: widget.width - 24,
+          ),
+        ),
+        TrimSlider(
+          height: widget.height,
+          width: widget.width,
+          audioStartPos: _audioStartPos,
+          audioEndPos: _audioEndPos,
+          minTrimLength: minTrimLength,
+          maxTrimLength: maxTrimLength,
+        ),
+      ],
     );
   }
 }
 
-class TrimSliderPainter extends CustomPainter {
-  TrimSliderPainter(
-    this.rect, {
-    this.borderRadius = 12,
-    this.backgroundColor = Colors.black12,
-    this.trimColor = const Color(0xFFEB671B),
+class TrimSlider extends StatefulWidget {
+  final ValueNotifier<double> audioStartPos;
+  final ValueNotifier<double> audioEndPos;
+  final double width;
+  final double height;
+  final double minTrimLength;
+  final double maxTrimLength;
+
+  const TrimSlider({
+    super.key,
+    required this.audioStartPos,
+    required this.audioEndPos,
+    required this.width,
+    required this.height,
+    this.minTrimLength = 0.0,
+    this.maxTrimLength = double.infinity,
   });
 
-  final Rect rect;
-  final double borderRadius;
-  final Color backgroundColor;
-  final Color trimColor;
-  final double lineWidth = 2;
-  final double edgeSize = 10;
-  final double edgeWidth = 10;
+  @override
+  State<TrimSlider> createState() => _TrimSliderState();
+}
+
+class _TrimSliderState extends State<TrimSlider> {
+  double startPostion = 0;
+  double endPostion = 0;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final Paint background = Paint()..color = backgroundColor;
-
-    final RRect rrect = RRect.fromRectAndRadius(
-      rect,
-      Radius.circular(borderRadius),
-    );
-
-    canvas.drawPath(
-      Path()
-        ..fillType = PathFillType.evenOdd
-        ..addRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromLTWH(25, 0, size.width - 50, size.height),
-            Radius.circular(borderRadius),
-          ),
-        )
-        ..addRRect(rrect),
-      background,
-    );
-
-    final Paint line = Paint()
-      ..color = trimColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    final Paint edges = Paint()..color = trimColor;
-
-    final double halfLineWidth = edgeSize / 2;
-    final double halfHeight = rect.height / 2;
-
-    final Offset centerLeft = Offset(rect.left - halfLineWidth, halfHeight);
-    final Offset centerRight = Offset(rect.right + halfLineWidth, halfHeight);
-
-    paintBar(
-      canvas,
-      size,
-      rrect: rrect,
-      line: line,
-      edges: edges,
-      centerLeft: centerLeft,
-      centerRight: centerRight,
-      halfLineWidth: halfLineWidth,
-    );
+  void initState() {
+    super.initState();
+    endPostion = widget.audioEndPos.value;
+    startPostion = widget.audioStartPos.value;
+    widget.audioStartPos.addListener(() {
+      startPostion = widget.audioStartPos.value;
+      setState(() {});
+    });
+    widget.audioEndPos.addListener(() {
+      endPostion = widget.audioEndPos.value;
+      setState(() {});
+    });
   }
 
-  void paintBar(
-    Canvas canvas,
-    Size size, {
-    required RRect rrect,
-    required Paint line,
-    required Paint edges,
-    required Offset centerLeft,
-    required Offset centerRight,
-    required double halfLineWidth,
-  }) {
-    // DRAW TOP AND BOTTOM LINES
-    canvas.drawPath(
-      Path()
-        ..addRect(
-          Rect.fromPoints(
-            rect.topLeft,
-            rect.topRight - Offset(0.0, lineWidth),
-          ),
-        )
-        ..addRect(
-          Rect.fromPoints(
-            rect.bottomRight + Offset(0.0, lineWidth),
-            rect.bottomLeft,
-          ),
-        ),
-      edges,
-    );
+  Offset lastPosition = Offset.zero;
 
-    // DRAW EDGES
-    paintEdgesBarPath(
-      canvas,
-      size,
-      edges: edges,
-      centerLeft: centerLeft,
-      centerRight: centerRight,
-      halfLineWidth: halfLineWidth,
-    );
-
-    paintIcons(canvas, centerLeft: centerLeft, centerRight: centerRight);
+  void _startDrag(DragStartDetails details) {
+    lastPosition = details.globalPosition;
   }
 
-  void paintEdgesBarPath(
-    Canvas canvas,
-    Size size, {
-    required Paint edges,
-    required Offset centerLeft,
-    required Offset centerRight,
-    required double halfLineWidth,
-  }) {
-    if (this.borderRadius == 0) {
-      canvas.drawPath(
-        Path()
-          // LEFT EDGE
-          ..addRect(
-            Rect.fromCenter(
-              center: centerLeft,
-              width: edgeSize,
-              height: size.height + lineWidth * 2,
-            ),
-          )
-          // RIGTH EDGE
-          ..addRect(
-            Rect.fromCenter(
-              center: centerRight,
-              width: edgeSize,
-              height: size.height + lineWidth * 2,
-            ),
-          ),
-        edges,
-      );
+  void _updatePosition(DragUpdateDetails details, _TrimBoundaries boundary) {
+    final double position = details.globalPosition.dx - lastPosition.dx;
+    lastPosition = details.globalPosition;
+    if (boundary == _TrimBoundaries.left) {
+      final double newPostion = widget.audioStartPos.value + position;
+      if (newPostion < 0) {
+        widget.audioStartPos.value = 0;
+      } else if (newPostion > endPostion) {
+        widget.audioStartPos.value = endPostion;
+      } else {
+        if (widget.audioEndPos.value - newPostion < widget.minTrimLength) {
+          return;
+        }
+
+        if (widget.audioEndPos.value - newPostion > widget.maxTrimLength) {
+          return;
+        }
+
+        widget.audioStartPos.value = newPostion;
+      }
+    } else if (boundary == _TrimBoundaries.right) {
+      final double newPostion = widget.audioEndPos.value + position;
+
+      if (newPostion > widget.width) {
+        widget.audioEndPos.value = widget.width;
+      } else if (newPostion < startPostion) {
+        widget.audioEndPos.value = startPostion;
+      } else {
+        if (newPostion - widget.audioStartPos.value < widget.minTrimLength) {
+          return;
+        }
+
+        if (newPostion - widget.audioStartPos.value > widget.maxTrimLength) {
+          return;
+        }
+
+        widget.audioEndPos.value = newPostion;
+      }
     }
-
-    final Radius borderRadius = Radius.circular(this.borderRadius);
-
-    /// Left and right edges, with a reversed border radius on the inside of the rect
-    canvas.drawPath(
-      // LEFT EDGE
-      Path()
-        ..fillType = PathFillType.evenOdd
-        ..addRRect(
-          RRect.fromRectAndCorners(
-            Rect.fromLTWH(
-              centerLeft.dx - halfLineWidth,
-              -lineWidth,
-              edgeWidth + this.borderRadius,
-              size.height + lineWidth * 2,
-            ),
-            topLeft: borderRadius,
-            bottomLeft: borderRadius,
-          ),
-        )
-        ..addRRect(
-          RRect.fromRectAndCorners(
-            Rect.fromLTWH(
-              centerLeft.dx + halfLineWidth,
-              0.0,
-              this.borderRadius,
-              size.height,
-            ),
-            topLeft: borderRadius,
-            bottomLeft: borderRadius,
-          ),
-        ),
-      edges,
-    );
-
-    canvas.drawPath(
-      // RIGHT EDGE
-      Path()
-        ..fillType = PathFillType.evenOdd
-        ..addRRect(
-          RRect.fromRectAndCorners(
-            Rect.fromLTWH(
-              centerRight.dx - halfLineWidth - this.borderRadius,
-              -lineWidth,
-              edgeWidth + this.borderRadius,
-              size.height + lineWidth * 2,
-            ),
-            topRight: borderRadius,
-            bottomRight: borderRadius,
-          ),
-        )
-        ..addRRect(
-          RRect.fromRectAndCorners(
-            Rect.fromLTWH(
-              centerRight.dx - halfLineWidth - this.borderRadius,
-              0.0,
-              this.borderRadius,
-              size.height,
-            ),
-            topRight: borderRadius,
-            bottomRight: borderRadius,
-          ),
-        ),
-      edges,
-    );
+    if (boundary == _TrimBoundaries.inside) {
+      final double diff = widget.audioEndPos.value - widget.audioStartPos.value;
+      final double newStartPostion = widget.audioStartPos.value + position;
+      final double newEndPostion = widget.audioEndPos.value + position;
+      if (newStartPostion + diff > widget.width) {
+        widget.audioEndPos.value = widget.width;
+        widget.audioStartPos.value = widget.width - diff;
+      } else if (newStartPostion < 0) {
+        widget.audioStartPos.value = 0;
+        widget.audioEndPos.value = diff;
+      } else {
+        widget.audioStartPos.value = newStartPostion;
+        widget.audioEndPos.value = newEndPostion;
+      }
+    }
   }
 
-  void paintCircle(
-    Canvas canvas,
-    Size size, {
-    required RRect rrect,
-    required Paint line,
-    required Paint edges,
-    required Offset centerLeft,
-    required Offset centerRight,
-  }) {
-    // DRAW RECT BORDERS
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCenter(
-            center: rect.center,
-            width: rect.width + edgeWidth,
-            height: rect.height + edgeWidth,
-          ),
-          Radius.circular(borderRadius),
-        ),
-        line);
-
-    // LEFT CIRCLE
-    canvas.drawCircle(centerLeft, edgeSize, edges);
-    // RIGHT CIRCLE
-    canvas.drawCircle(centerRight, edgeSize, edges);
-
-    paintIcons(canvas, centerLeft: centerLeft, centerRight: centerRight);
-  }
-
-  void paintIcons(
-    Canvas canvas, {
-    required Offset centerLeft,
-    required Offset centerRight,
-  }) {
-    // LEFT ICON
-
-    final Paint paint = Paint()
-      ..color = Colors.white // The color you need
-      ..style = PaintingStyle.fill;
-
-    final Rect rect = Rect.fromLTWH(centerLeft.dx - 2, centerLeft.dy - 10, 4, 20);
-    final RRect rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10));
-    canvas.drawRRect(rrect, paint);
-
-    // RIGHT ICON
-    final Paint paint2 = Paint()
-      ..color = Colors.white // The color you need
-      ..style = PaintingStyle.fill;
-
-    final Rect rect2 = Rect.fromLTWH(centerRight.dx - 2, centerRight.dy - 10, 4, 20);
-    final RRect rrect2 = RRect.fromRectAndRadius(rect2, const Radius.circular(10));
-    canvas.drawRRect(rrect2, paint2);
+  void _endDrag(DragEndDetails details) {
+    lastPosition = Offset.zero;
   }
 
   @override
-  bool shouldRepaint(TrimSliderPainter oldDelegate) => oldDelegate.rect != rect;
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+            left: 12,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
+                ),
+              ),
+              width: startPostion,
+              height: widget.height,
+            ),
+          ),
+          Positioned(
+            left: endPostion - 12,
+            right: 12,
+            child: Container(
+              width: widget.width,
+              height: widget.height,
+              decoration: const BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: startPostion + 12,
+            child: GestureDetector(
+              onHorizontalDragStart: _startDrag,
+              onHorizontalDragUpdate: (DragUpdateDetails details) {
+                _updatePosition(details, _TrimBoundaries.inside);
+              },
+              onHorizontalDragEnd: _endDrag,
+              child: Container(
+                width: widget.width - (endPostion - startPostion - 24),
+                height: widget.height,
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Positioned(
+            left: startPostion,
+            child: ClipPath(
+              clipper: TransparentCenterClipper(
+                paddingLeft: 12,
+                paddingRight: 12,
+                paddingVertical: 2,
+                borderRadius: 12,
+              ),
+              child: Container(
+                width: endPostion - startPostion,
+                height: widget.height,
+                color: const Color(0xFFEB671B),
+                child: Stack(
+                  children: <Widget>[
+                    GestureDetector(
+                      onHorizontalDragStart: _startDrag,
+                      onHorizontalDragUpdate: (DragUpdateDetails details) {
+                        _updatePosition(details, _TrimBoundaries.left);
+                      },
+                      onHorizontalDragEnd: _endDrag,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        width: 12,
+                        height: widget.height,
+                        child: Center(
+                          child: Container(
+                            width: 4,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: (endPostion - startPostion) - 12,
+                      child: GestureDetector(
+                        onHorizontalDragStart: _startDrag,
+                        onHorizontalDragUpdate: (DragUpdateDetails details) {
+                          _updatePosition(details, _TrimBoundaries.right);
+                        },
+                        onHorizontalDragEnd: _endDrag,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          width: 12,
+                          height: widget.height,
+                          child: Center(
+                            child: Container(
+                              width: 4,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TransparentCenterClipper extends CustomClipper<Path> {
+  final double paddingLeft;
+  final double paddingRight;
+  final double paddingVertical;
+
+  final double borderRadius;
+
+  TransparentCenterClipper({
+    super.reclip,
+    required this.paddingLeft,
+    required this.paddingRight,
+    required this.paddingVertical,
+    required this.borderRadius,
+  });
 
   @override
-  bool shouldRebuildSemantics(TrimSliderPainter oldDelegate) => false;
+  Path getClip(Size size) {
+    final Path path = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        Radius.circular(borderRadius),
+      ));
+
+    final double left = paddingLeft;
+    final double top = paddingVertical;
+    final double right = size.width - paddingRight;
+    final double bottom = size.height - paddingVertical;
+
+    // Cut out the transparent center
+    path.addRRect(RRect.fromRectAndRadius(
+      Rect.fromLTRB(left, top, right, bottom),
+      Radius.circular(borderRadius),
+    ));
+
+    return path..fillType = PathFillType.evenOdd;
+  }
+
+  @override
+  bool shouldReclip(TransparentCenterClipper oldClipper) {
+    return true;
+  }
 }

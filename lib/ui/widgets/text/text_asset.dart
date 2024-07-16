@@ -81,8 +81,6 @@ class _TextAssetState extends State<TextAsset> {
                             ..onTap = () {
                               widget.onTextTap
                                   ?.call(wordsInRows[rowIndex][wordsIndex]);
-                              print(
-                                  '#Print# : asdasd ${wordsInRows[rowIndex][wordsIndex]}');
                             },
                         ),
                       ),

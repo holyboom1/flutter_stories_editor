@@ -33,12 +33,16 @@ class FlutterStoriesEditor extends StatefulWidget {
   /// Function onClose to return the story model when the user closes the editor
   final Function(Future<StoryModel> story)? onClose;
 
+  /// Additional actions to be added to the actions bar
+  final List<Widget> additionalActions;
+
   /// FlutterStoriesEditor
   const FlutterStoriesEditor({
     Key? key,
     this.backgroundColor = Colors.black,
     this.topBar,
     this.actionsBar,
+    this.additionalActions = const <Widget>[],
     this.onDone,
     this.onClose,
     this.controller,
@@ -64,6 +68,7 @@ class _FlutterStoriesEditorState extends State<FlutterStoriesEditor> {
       backgroundColor: widget.backgroundColor,
       topBar: widget.topBar,
       actionsBar: widget.actionsBar,
+      additionalActions: widget.additionalActions,
       onDone: widget.onDone,
       onClose: widget.onClose,
     );
