@@ -1,3 +1,7 @@
+## 0.0.4
+
+* Improve functionality.
+
 ## 0.0.3
 
 * Improve functionality.
