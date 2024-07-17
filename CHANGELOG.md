@@ -1,4 +1,8 @@
-## 0.0.6
+## 0.0.7
+
+* Update text overlay UI
+
+* ## 0.0.6
 
 * Added unique key to each item in the list.
 * Added payload to Elements 
