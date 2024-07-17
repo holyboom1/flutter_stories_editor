@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-  static const String _iconPath = 'packages/flutter_stories_editor/assets/icons/';
-  static const String _imagePath = 'packages/flutter_stories_editor/assets/image/';
+  static const String _iconPath =
+      'packages/flutter_stories_editor/assets/icons/';
+  static const String _imagePath =
+      'packages/flutter_stories_editor/assets/image/';
 
   static const String iconPalet = '${_iconPath}palet.png';
   static const String imageFilter = '${_imagePath}filter_preview.jpg';
