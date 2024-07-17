@@ -7,7 +7,9 @@ import '../../../models/story_element.dart';
 import '../../../utils/box_size_util.dart';
 import '../../../utils/extensions.dart';
 import '../../../utils/overlay_util.dart';
+import '../../editor_view.dart';
 import '../base_icon_button.dart';
+import '../image_widget.dart';
 import 'text_color_selector.dart';
 import 'text_font_selector.dart';
 
@@ -181,10 +183,9 @@ class _TextOverlayState extends State<TextOverlay> {
                         focusNode: storyElement.focusNode,
                         textAlign: _textAlign,
                         style: storyElement.textStyle,
-                        cursorColor:
-                            storyElement.containerColor.computeLuminance() > 0.5
-                                ? Colors.black
-                                : Colors.white,
+                        cursorColor: storyElement.containerColor.computeLuminance() > 0.5
+                            ? Colors.black
+                            : Colors.white,
                         minLines: 1,
                         maxLines: 1000,
                         decoration: const InputDecoration(
@@ -214,91 +215,91 @@ class _TextOverlayState extends State<TextOverlay> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         BaseIconButton(
+                          icon: Padding(
+                            padding: uiSettings.buttonsPadding,
+                            child: Text(
+                              uiSettings.cancelText,
+                              style: uiSettings.cancelButtonsStyle,
+                            ),
+                          ),
+                          withText: true,
+                          onPressed: () {
+                            hideOverlay();
+                          },
+                        ),
+                        const Spacer(
+                          flex: 2,
+                        ),
+                        GestureDetector(
+                          onTap: showChangeContainerColor,
+                          child: Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              border: Border.all(
+                                color: !isColorSelection ? Colors.white : const Color(0x99131313),
+                                width: 2,
+                              ),
+                            ),
+                            child: const AppImage(image: Constants.iconPalet),
+                          ),
+                        ),
+                        const Spacer(),
+                        BaseIconButton(
+                          icon: isColorSelection
+                              ? const AppImage(image: Constants.textAaBlackIcon)
+                              : const AppImage(image: Constants.textAaWhiteIcon),
+                          onPressed: showChangeContainerColor,
+                          backgroundColor:
+                              isColorSelection ? Colors.white : const Color(0x99131313),
+                        ),
+                        const Spacer(),
+                        BaseIconButton(
                           icon: _textAlign == TextAlign.center
-                              ? const Icon(
-                                  Icons.format_align_center,
-                                  color: Colors.white,
-                                  size: 24,
+                              ? const AppImage(
+                                  image: Constants.alignCenterIcon,
+                                  colorFilter: ColorFilter.mode(
+                                    Colors.white,
+                                    BlendMode.srcIn,
+                                  ),
                                 )
                               : _textAlign == TextAlign.left
-                                  ? const Icon(
-                                      Icons.format_align_left,
-                                      color: Colors.white,
-                                      size: 24,
+                                  ? const AppImage(
+                                      image: Constants.alignLeftIcon,
+                                      colorFilter: ColorFilter.mode(
+                                        Colors.white,
+                                        BlendMode.srcIn,
+                                      ),
                                     )
-                                  : const Icon(
-                                      Icons.format_align_right,
-                                      color: Colors.white,
-                                      size: 24,
+                                  : const AppImage(
+                                      image: Constants.alignRightIcon,
+                                      colorFilter: ColorFilter.mode(
+                                        Colors.white,
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                           onPressed: changeTextAlign,
                         ),
-                        const SizedBox(width: 8),
-                        BaseIconButton(
-                          icon: isColorSelection
-                              ? const Icon(
-                                  Icons.text_fields,
-                                  color: Colors.white,
-                                  size: 24,
-                                )
-                              : Image.asset(
-                                  Constants.iconPalet,
-                                  width: 24,
-                                  height: 24,
-                                ),
-                          onPressed: showChangeContainerColor,
+                        const Spacer(
+                          flex: 2,
                         ),
-                        const SizedBox(width: 8),
                         BaseIconButton(
-                          icon: textBackground
-                              ? const Icon(
-                                  Icons.text_snippet_outlined,
-                                  color: Colors.white,
-                                  size: 24,
-                                )
-                              : const Icon(
-                                  Icons.text_snippet,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                          onPressed: changeTextBackground,
-                        ),
-                        const SizedBox(width: 8),
-                        BaseIconButton(
-                          icon: textLetterSpace
-                              ? const Icon(
-                                  Icons.text_fields,
-                                  color: Colors.white,
-                                  size: 24,
-                                )
-                              : const Icon(
-                                  Icons.text_rotation_none_outlined,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                          onPressed: changeTextLetterSpace,
+                          icon: Padding(
+                            padding: uiSettings.buttonsPadding,
+                            child: Text(
+                              uiSettings.doneText,
+                              style: uiSettings.doneButtonsStyle,
+                            ),
+                          ),
+                          withText: true,
+                          onPressed: () {
+                            complete(force: true);
+                          },
                         ),
                       ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    child: GestureDetector(
-                      onTap: () => complete(force: true),
-                      child: const Text(
-                        'Done',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
                     ),
                   ),
                 ),
@@ -307,12 +308,8 @@ class _TextOverlayState extends State<TextOverlay> {
                     child: MeasureSize(
                       onChange: (Size size) {
                         storyElement.position = Offset(
-                          (widget.screen.width - size.width) /
-                              2 /
-                              widget.screen.width,
-                          (widget.screen.height - size.height) /
-                              2 /
-                              widget.screen.height,
+                          (widget.screen.width - size.width) / 2 / widget.screen.width,
+                          (widget.screen.height - size.height) / 2 / widget.screen.height,
                         );
                       },
                       child: Container(
@@ -350,41 +347,40 @@ class _TextOverlayState extends State<TextOverlay> {
                 Positioned(
                   left: 0,
                   top: 80,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      top: 12,
+                    ),
+                    child: CustomPaint(
+                      size: const Size(25, 160),
+                      painter: TrianglePainter(),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 16,
+                  top: 80,
                   child: RotatedBox(
                     quarterTurns: -1,
-                    child: Stack(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 16,
-                            top: 12,
-                          ),
-                          child: CustomPaint(
-                            size: const Size(160, 25),
-                            painter: TrianglePainter(),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          height: 25,
-                          child: Slider(
-                            value: storyElement.textStyle.fontSize ?? 12,
-                            min: 12,
-                            max: 72,
-                            activeColor: Colors.transparent,
-                            inactiveColor: Colors.transparent,
-                            thumbColor: Colors.white,
-                            onChanged: (double newValue) {
-                              setState(() {
-                                storyElement.textStyle =
-                                    storyElement.textStyle.copyWith(
-                                  fontSize: newValue,
-                                );
-                              });
-                            },
-                          ),
-                        ),
-                      ],
+                    child: SizedBox(
+                      width: 200,
+                      height: 25,
+                      child: Slider(
+                        value: storyElement.textStyle.fontSize ?? 12,
+                        min: 12,
+                        max: 72,
+                        activeColor: Colors.transparent,
+                        inactiveColor: Colors.transparent,
+                        thumbColor: Colors.white,
+                        onChanged: (double newValue) {
+                          setState(() {
+                            storyElement.textStyle = storyElement.textStyle.copyWith(
+                              fontSize: newValue,
+                            );
+                          });
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -410,14 +406,19 @@ class TrianglePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
-      ..color = Colors.white.withOpacity(0.6)
+      ..color = Colors.black.withOpacity(0.4)
       ..style = PaintingStyle.fill;
 
-    final Path path = Path()
-      ..moveTo(0, 0)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width, size.height)
-      ..close();
+    const double cornerRadius = 15.0;
+    final Path path = Path();
+
+    path.moveTo(size.width / 2, size.height);
+    path.lineTo(size.width, cornerRadius);
+    path.quadraticBezierTo(size.width, 0, size.width - cornerRadius, 0);
+    path.lineTo(cornerRadius, 0);
+    path.quadraticBezierTo(0, 0, 0, cornerRadius);
+    path.lineTo(size.width / 2, size.height);
+    path.close();
 
     canvas.drawPath(path, paint);
   }

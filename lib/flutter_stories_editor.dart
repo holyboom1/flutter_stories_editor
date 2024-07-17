@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'models/editor_controller.dart';
 import 'models/story_model.dart';
+import 'models/ui_settings.dart';
 import 'ui/editor_view.dart';
 
 export 'package:cross_file/cross_file.dart';
@@ -36,6 +37,9 @@ class FlutterStoriesEditor extends StatefulWidget {
   /// Additional actions to be added to the actions bar
   final List<Widget> additionalActions;
 
+  /// UI settings
+  final StoryEditorUiSettings uiSettings;
+
   /// FlutterStoriesEditor
   const FlutterStoriesEditor({
     Key? key,
@@ -46,6 +50,7 @@ class FlutterStoriesEditor extends StatefulWidget {
     this.onDone,
     this.onClose,
     this.controller,
+    this.uiSettings = const StoryEditorUiSettings(),
   }) : super(key: key);
 
   @override
@@ -71,6 +76,7 @@ class _FlutterStoriesEditorState extends State<FlutterStoriesEditor> {
       additionalActions: widget.additionalActions,
       onDone: widget.onDone,
       onClose: widget.onClose,
+      uiSettings: widget.uiSettings,
     );
   }
 }

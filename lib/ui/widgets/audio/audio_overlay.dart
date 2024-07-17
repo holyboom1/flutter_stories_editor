@@ -12,18 +12,21 @@ import '../../../utils/audio_trimmer/trim/audio_trim_slider.dart';
 import '../../../utils/audio_trimmer/trimmer.dart';
 import '../../../utils/extensions.dart';
 import '../../../utils/overlay_util.dart';
+import '../../editor_view.dart';
 import '../base_icon_button.dart';
 
 class AudioOverlay extends StatefulWidget {
   final XFile file;
   final Size screen;
   final EditorController editorController;
+  final String? uniqueId;
 
   const AudioOverlay({
     super.key,
     required this.file,
     required this.screen,
     required this.editorController,
+    this.uniqueId,
   });
 
   @override
@@ -39,6 +42,7 @@ class _AudioOverlayState extends State<AudioOverlay> {
     super.initState();
     storyElement = StoryElement(
       type: ItemType.audio,
+      customWidgetId: widget.uniqueId ?? '',
     );
     initController();
   }
@@ -124,34 +128,30 @@ class _AudioOverlayState extends State<AudioOverlay> {
                   child: Row(
                     children: <Widget>[
                       BaseIconButton(
+                        icon: Padding(
+                          padding: uiSettings.buttonsPadding,
+                          child: Text(
+                            uiSettings.cancelText,
+                            style: uiSettings.cancelButtonsStyle,
+                          ),
+                        ),
                         onPressed: () {
                           hideOverlay();
                         },
-                        icon: const Text(
-                          'Cancel',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontFamily: 'DM Sans',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
                         withText: true,
                       ),
                       const Spacer(),
                       BaseIconButton(
+                        icon: Padding(
+                          padding: uiSettings.buttonsPadding,
+                          child: Text(
+                            uiSettings.doneText,
+                            style: uiSettings.doneButtonsStyle,
+                          ),
+                        ),
                         onPressed: () {
                           completeEditing();
                         },
-                        icon: const Text(
-                          'Done',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontFamily: 'DM Sans',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
                         withText: true,
                       ),
                     ],

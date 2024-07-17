@@ -52,6 +52,9 @@ final class EditorController {
   /// Min video duration allowed
   final Duration minVideoDuration;
 
+  /// Element deleted callback.
+  final Function(StoryElement)? onElementDeleted;
+
   /// Constructor
   EditorController({
     String storyId = '',
@@ -64,6 +67,7 @@ final class EditorController {
     ),
     this.maxVideoDuration = const Duration(seconds: 30),
     this.minVideoDuration = const Duration(seconds: 1),
+    this.onElementDeleted,
   }) : _storyModel = StoryModel(id: storyId);
 
   /// _isAvailableToAddVideo
@@ -155,6 +159,7 @@ final class EditorController {
     XFile? file,
     String? url,
     required CustomAssetType type,
+    String uniqueId = '',
   }) {
     assert(file != null || url != null);
     switch (type) {
@@ -164,30 +169,46 @@ final class EditorController {
             type: ItemType.image,
             position: const Offset(0.25, 0.25),
             value: file?.path ?? url ?? '',
+            customWidgetUniqueID: uniqueId,
           ),
         );
         break;
       case CustomAssetType.video:
         if (file != null && _isAvailableToAddVideo) {
-          showVideoOverlay(videoFile: file, editorController: this);
+          showVideoOverlay(
+            videoFile: file,
+            editorController: this,
+            uniqueId: uniqueId,
+          );
         }
         break;
       case CustomAssetType.audio:
         if (file != null) {
-          showAudioOverlay(audioFile: file, editorController: this);
+          showAudioOverlay(
+            audioFile: file,
+            editorController: this,
+            uniqueId: uniqueId,
+          );
         }
         break;
     }
   }
 
   /// Add custom widget to assets
-  void addCustomWidgetAsset(Widget widget, {String? customWidgetId}) {
+  void addCustomWidgetAsset(
+    Widget widget, {
+    String? customWidgetId,
+    String customWidgetPayload = '',
+    String customWidgetUniqueID = '',
+  }) {
     assets.addAsset(
       StoryElement(
         type: ItemType.widget,
         position: const Offset(0.25, 0.25),
         child: widget,
         customWidgetId: customWidgetId ?? widget.hashCode.toString(),
+        customWidgetPayload: customWidgetPayload,
+        customWidgetUniqueID: customWidgetUniqueID,
       ),
     );
   }
@@ -196,7 +217,14 @@ final class EditorController {
   void checkDeleteElement(StoryElement storyElement, Size screen) {
     if (storyElement.position.dy * screen.height > screen.height - 90) {
       assets.removeAsset(storyElement);
+      onElementDeleted?.call(storyElement);
     }
+  }
+
+  /// Remove element from assets
+  void removeElement(StoryElement element) {
+    assets.removeAsset(element);
+    onElementDeleted?.call(element);
   }
 
   /// Mute story video

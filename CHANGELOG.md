@@ -1,3 +1,9 @@
+## 0.0.6
+
+* Added unique key to each item in the list.
+* Added payload to Elements 
+* Added onDelete callback to Elements
+
 ## 0.0.5
 
 * ColorFilter Fix

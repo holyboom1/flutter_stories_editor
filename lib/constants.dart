@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-  static const String _iconPath =
-      'packages/flutter_stories_editor/assets/icons/';
-  static const String _imagePath =
-      'packages/flutter_stories_editor/assets/image/';
+  static const String _iconPath = 'packages/flutter_stories_editor/assets/icons/';
+  static const String _imagePath = 'packages/flutter_stories_editor/assets/image/';
 
   static const String iconPalet = '${_iconPath}palet.png';
   static const String imageFilter = '${_imagePath}filter_preview.jpg';
@@ -17,8 +15,24 @@ class Constants {
   static const String textIcon = '${_iconPath}text.svg';
   static const String backArrowIcon = '${_iconPath}back_arrow.svg';
 
+  static const String alignCenterIcon = '${_iconPath}align_center.svg';
+  static const String alignLeftIcon = '${_iconPath}align_left.svg';
+  static const String alignRightIcon = '${_iconPath}align_right.svg';
+  static const String textAaBlackIcon = '${_iconPath}TextAaBlack.svg';
+  static const String textAaWhiteIcon = '${_iconPath}TextAaWhite.svg';
+
   static const List<({Color background, Color text})> textColors =
       <({Color background, Color text})>[
+    (background: Color(0xFF808080), text: Color(0xFFFFFFFF)),
+    (background: Color(0xFFA9A9A9), text: Color(0xFF000000)),
+    (background: Color(0xFFC0C0C0), text: Color(0xFF000000)),
+    (background: Color(0xFFD3D3D3), text: Color(0xFF000000)),
+    (background: Color(0xFF2F4F4F), text: Color(0xFFFFFFFF)),
+    (background: Color(0xFF696969), text: Color(0xFFFFFFFF)),
+    (background: Color(0xFF000000), text: Color(0xFFFFFFFF)),
+    (background: Color(0xFFFFFFFF), text: Color(0xFF000000)),
+    (background: Colors.transparent, text: Color(0xFF000000)),
+    (background: Color(0xFF000000), text: Colors.transparent),
     (background: Color(0xFFEE5548), text: Color(0xFFFBE9EA)),
     (background: Color(0xFF2E8B57), text: Color(0xFFE0F7FA)),
     (background: Color(0xFF1E90FF), text: Color(0xFFFFFFFF)),
@@ -48,13 +62,5 @@ class Constants {
     (background: Color(0xFFBDB76B), text: Color(0xFF000000)),
     (background: Color(0xFF556B2F), text: Color(0xFFFAFAFA)),
     (background: Color(0xFF8FBC8F), text: Color(0xFF000000)),
-    (background: Color(0xFF808080), text: Color(0xFFFFFFFF)),
-    (background: Color(0xFFA9A9A9), text: Color(0xFF000000)),
-    (background: Color(0xFFC0C0C0), text: Color(0xFF000000)),
-    (background: Color(0xFFD3D3D3), text: Color(0xFF000000)),
-    (background: Color(0xFF2F4F4F), text: Color(0xFFFFFFFF)),
-    (background: Color(0xFF696969), text: Color(0xFFFFFFFF)),
-    (background: Color(0xFF000000), text: Color(0xFFFFFFFF)),
-    (background: Color(0xFFFFFFFF), text: Color(0xFF000000)),
   ];
 }

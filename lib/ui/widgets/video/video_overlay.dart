@@ -17,12 +17,14 @@ class VideoOverlay extends StatefulWidget {
   final XFile file;
   final Size screen;
   final EditorController editorController;
+  final String? uniqueId;
 
   const VideoOverlay({
     super.key,
     required this.file,
     required this.screen,
     required this.editorController,
+    this.uniqueId,
   });
 
   @override
@@ -38,6 +40,7 @@ class _VideoOverlayState extends State<VideoOverlay> {
     storyElement = StoryElement(
       type: ItemType.video,
       value: widget.file.path,
+      customWidgetUniqueID: widget.uniqueId ?? '',
     );
     storyElement.videoController = VideoEditorController.file(
       widget.file,

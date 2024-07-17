@@ -106,6 +106,7 @@ Future<void> showTextOverlay({
 Future<void> showVideoOverlay({
   required XFile videoFile,
   required EditorController editorController,
+  String uniqueId = '',
 }) async {
   if (_overlayAnimationController == null) {
     return;
@@ -125,6 +126,7 @@ Future<void> showVideoOverlay({
             child: VideoOverlay(
               editorController: editorController,
               file: videoFile,
+              uniqueId: uniqueId,
               screen: MediaQuery.of(context).size,
             ),
           );
@@ -141,6 +143,7 @@ Future<void> showVideoOverlay({
 Future<void> showAudioOverlay({
   required XFile audioFile,
   required EditorController editorController,
+  String uniqueId = '',
 }) async {
   if (_overlayAnimationController == null) {
     return;
@@ -160,6 +163,7 @@ Future<void> showAudioOverlay({
             child: AudioOverlay(
               editorController: editorController,
               file: audioFile,
+              uniqueId: uniqueId,
               screen: MediaQuery.of(context).size,
             ),
           );

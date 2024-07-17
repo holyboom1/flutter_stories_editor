@@ -46,6 +46,12 @@ class StoryElement {
   /// Custom widget id.
   String customWidgetId;
 
+  /// Custom widget payload.
+  String customWidgetPayload;
+
+  /// Custom widget UniqueID.
+  String customWidgetUniqueID;
+
   /// Video muted .
   bool isVideoMuted;
 
@@ -72,6 +78,8 @@ class StoryElement {
     this.textAlign = TextAlign.center,
     this.child = const SizedBox(),
     this.customWidgetId = '',
+    this.customWidgetPayload = '',
+    this.customWidgetUniqueID = '',
     this.isVideoMuted = false,
   });
 

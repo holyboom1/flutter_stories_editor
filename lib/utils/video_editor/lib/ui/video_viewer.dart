@@ -18,6 +18,10 @@ class _VideoViewerState extends State<VideoViewer> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    widget.controller.video.setLooping(true);
+    if (!widget.controller.isPlaying) {
+      widget.controller.video.play();
+    }
   }
 
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
@@ -42,45 +46,32 @@ class _VideoViewerState extends State<VideoViewer> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        return GestureDetector(
-          onTap: _onTap,
-          child: Stack(
-            children: <Widget>[
-              if (widget.child == null)
-                ClipRect(
-                  clipper: CustomVideoClipper(
-                    top: widget.controller.minCrop.dy * constraints.maxHeight,
-                    bottom: (1 - widget.controller.maxCrop.dy) *
-                        constraints.maxHeight,
-                    left: widget.controller.minCrop.dx * constraints.maxWidth,
-                    right: (1 - widget.controller.maxCrop.dx) *
-                        constraints.maxWidth,
-                  ),
-                  child: VideoPlayer(widget.controller.video),
+        return Stack(
+          children: <Widget>[
+            if (widget.child == null)
+              ClipRect(
+                clipper: CustomVideoClipper(
+                  top: widget.controller.minCrop.dy * constraints.maxHeight,
+                  bottom: (1 - widget.controller.maxCrop.dy) * constraints.maxHeight,
+                  left: widget.controller.minCrop.dx * constraints.maxWidth,
+                  right: (1 - widget.controller.maxCrop.dx) * constraints.maxWidth,
                 ),
-              if (widget.child != null) ...<Widget>[
-                AspectRatio(
-                  aspectRatio: widget.controller.video.value.aspectRatio,
-                  child: VideoPlayer(widget.controller.video),
-                ),
-                AspectRatio(
-                  aspectRatio: widget.controller.video.value.aspectRatio,
-                  child: widget.child,
-                ),
-              ]
-            ],
-          ),
+                child: VideoPlayer(widget.controller.video),
+              ),
+            if (widget.child != null) ...<Widget>[
+              AspectRatio(
+                aspectRatio: widget.controller.video.value.aspectRatio,
+                child: VideoPlayer(widget.controller.video),
+              ),
+              AspectRatio(
+                aspectRatio: widget.controller.video.value.aspectRatio,
+                child: widget.child,
+              ),
+            ]
+          ],
         );
       },
     );
-  }
-
-  void _onTap() {
-    if (widget.controller.video.value.isPlaying) {
-      widget.controller.video.pause();
-    } else {
-      widget.controller.video.play();
-    }
   }
 }
 

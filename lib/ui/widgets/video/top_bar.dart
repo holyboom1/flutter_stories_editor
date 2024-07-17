@@ -4,6 +4,7 @@ import '../../../models/editor_controller.dart';
 import '../../../models/story_element.dart';
 import '../../../utils/extensions.dart';
 import '../../../utils/overlay_util.dart';
+import '../../editor_view.dart';
 import '../base_icon_button.dart';
 
 class VideoTopBar extends StatelessWidget {
@@ -28,18 +29,11 @@ class VideoTopBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             BaseIconButton(
-              icon: const Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 8,
-                ),
+              icon: Padding(
+                padding: uiSettings.buttonsPadding,
                 child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontFamily: 'DM Sans',
-                    fontWeight: FontWeight.w500,
-                  ),
+                  uiSettings.cancelText,
+                  style: uiSettings.cancelButtonsStyle,
                 ),
               ),
               withText: true,
@@ -50,18 +44,11 @@ class VideoTopBar extends StatelessWidget {
             ),
             const Spacer(),
             BaseIconButton(
-              icon: const Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 8,
-                ),
+              icon: Padding(
+                padding: uiSettings.buttonsPadding,
                 child: Text(
-                  'Done',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontFamily: 'DM Sans',
-                    fontWeight: FontWeight.w500,
-                  ),
+                  uiSettings.doneText,
+                  style: uiSettings.doneButtonsStyle,
                 ),
               ),
               withText: true,

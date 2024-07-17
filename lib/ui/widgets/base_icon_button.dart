@@ -5,6 +5,7 @@ class BaseIconButton extends StatelessWidget {
   final Function() onPressed;
   final bool isCircle;
   final bool withText;
+  final Color backgroundColor;
 
   const BaseIconButton({
     super.key,
@@ -12,6 +13,7 @@ class BaseIconButton extends StatelessWidget {
     required this.onPressed,
     this.isCircle = true,
     this.withText = false,
+    this.backgroundColor = const Color(0x99131313),
   });
 
   @override
@@ -40,7 +42,7 @@ class BaseIconButton extends StatelessWidget {
         height: 38,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0x99131313),
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(50),
         ),
         child: Center(child: icon),

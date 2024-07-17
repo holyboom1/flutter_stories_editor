@@ -5,6 +5,7 @@ import '../../../models/editor_controller.dart';
 import '../../../utils/color_filters/colorfilter_generator.dart';
 import '../../../utils/color_filters/presets.dart';
 import '../../../utils/overlay_util.dart';
+import '../../editor_view.dart';
 import '../base_icon_button.dart';
 import '../image_widget.dart';
 
@@ -44,22 +45,17 @@ class _FiltersSelectorOverlayState extends State<FiltersSelectorOverlay> {
                 top: 16,
                 left: 16,
                 child: BaseIconButton(
-                  icon: const Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8,
-                    ),
+                  icon: Padding(
+                    padding: uiSettings.buttonsPadding,
                     child: Text(
-                      'Cancel',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
+                      uiSettings.cancelText,
+                      style: uiSettings.cancelButtonsStyle,
                     ),
                   ),
                   withText: true,
                   onPressed: () {
                     hideOverlay();
-                    widget.editorController.selectedFilter.value =
-                        selectedFilter;
+                    widget.editorController.selectedFilter.value = selectedFilter;
                   },
                 ),
               ),
@@ -67,15 +63,11 @@ class _FiltersSelectorOverlayState extends State<FiltersSelectorOverlay> {
                 top: 16,
                 right: 16,
                 child: BaseIconButton(
-                  icon: const Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8,
-                    ),
+                  icon: Padding(
+                    padding: uiSettings.buttonsPadding,
                     child: Text(
-                      'Done',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
+                      uiSettings.doneText,
+                      style: uiSettings.doneButtonsStyle,
                     ),
                   ),
                   withText: true,
@@ -89,36 +81,30 @@ class _FiltersSelectorOverlayState extends State<FiltersSelectorOverlay> {
                 width: widget.screen.width,
                 child: ValueListenableBuilder<ColorFilterGenerator>(
                   valueListenable: widget.editorController.selectedFilter,
-                  builder: (BuildContext context, ColorFilterGenerator value,
-                      Widget? child) {
+                  builder: (BuildContext context, ColorFilterGenerator value, Widget? child) {
                     return SizedBox(
                       height: 120,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: presetFiltersList.length,
                         itemBuilder: (BuildContext context, int index) {
-                          final ColorFilterGenerator filter =
-                              presetFiltersList[index];
+                          final ColorFilterGenerator filter = presetFiltersList[index];
                           return Padding(
                             padding: const EdgeInsets.all(8),
                             child: Column(
                               children: <Widget>[
                                 ValueListenableBuilder<ColorFilterGenerator>(
-                                  valueListenable:
-                                      widget.editorController.selectedFilter,
-                                  builder: (BuildContext context,
-                                      ColorFilterGenerator value,
+                                  valueListenable: widget.editorController.selectedFilter,
+                                  builder: (BuildContext context, ColorFilterGenerator value,
                                       Widget? child) {
                                     return GestureDetector(
                                       onTap: () {
-                                        widget.editorController.selectedFilter
-                                            .value = filter;
+                                        widget.editorController.selectedFilter.value = filter;
                                       },
                                       child: Stack(
                                         children: <Widget>[
                                           ColorFiltered(
-                                            colorFilter: ColorFilter.matrix(
-                                                filter.matrix),
+                                            colorFilter: ColorFilter.matrix(filter.matrix),
                                             child: Container(
                                               width: 60,
                                               height: 60,
@@ -137,12 +123,10 @@ class _FiltersSelectorOverlayState extends State<FiltersSelectorOverlay> {
                                               right: 0,
                                               bottom: 0,
                                               child: Container(
-                                                padding:
-                                                    const EdgeInsets.all(4),
+                                                padding: const EdgeInsets.all(4),
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
+                                                  borderRadius: BorderRadius.circular(8),
                                                 ),
                                                 child: const Icon(
                                                   Icons.check,

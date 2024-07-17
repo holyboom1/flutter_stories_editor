@@ -7,6 +7,7 @@ import '../models/editor_controller.dart';
 import '../models/item_type_enum.dart';
 import '../models/story_element.dart';
 import '../models/story_model.dart';
+import '../models/ui_settings.dart';
 import '../utils/color_filters/colorfilter_generator.dart';
 import '../utils/overlay_util.dart';
 import '../utils/palette_generator_util.dart';
@@ -16,6 +17,12 @@ import 'actions_bar_widget.dart';
 import 'navigation_bar_widget.dart';
 import 'remove_bin_widget.dart';
 import 'widgets/story_element.dart';
+
+/// UI settings
+StoryEditorUiSettings get uiSettings => _uiSettings;
+StoryEditorUiSettings _uiSettings = const StoryEditorUiSettings();
+
+/// Editor view
 
 class EditorView extends StatefulWidget {
   final Widget? topBar;
@@ -31,6 +38,7 @@ class EditorView extends StatefulWidget {
 
   final List<Widget> additionalActions;
 
+  final StoryEditorUiSettings uiSettings;
   const EditorView({
     Key? key,
     required this.backgroundColor,
@@ -40,6 +48,7 @@ class EditorView extends StatefulWidget {
     this.additionalActions = const <Widget>[],
     this.onDone,
     this.onClose,
+    required this.uiSettings,
   }) : super(key: key);
 
   @override
@@ -52,6 +61,7 @@ class _EditorViewState extends State<EditorView> {
     super.initState();
     widget.controller.assets.addListener(onUpdateAssets);
     widget.controller.assets.addListener(setColor);
+    _uiSettings = widget.uiSettings;
   }
 
   void onUpdateAssets() {
@@ -69,29 +79,24 @@ class _EditorViewState extends State<EditorView> {
 
   Future<void> setColor() async {
     if (!isColorSet) {
-      final bool containsImage =
-          widget.controller.assets.value.any((StoryElement element) {
+      final bool containsImage = widget.controller.assets.value.any((StoryElement element) {
         return element.type == ItemType.image || element.type == ItemType.video;
       });
       if (containsImage) {
         final StoryElement element =
             widget.controller.assets.value.firstWhere((StoryElement element) {
-          return element.type == ItemType.image ||
-              element.type == ItemType.video;
+          return element.type == ItemType.image || element.type == ItemType.video;
         });
         if (element.type == ItemType.video) {
-          final CoverData videoCover =
-              await generateSingleCoverThumbnail(element.value);
-          paletteColor = await PaletteGeneratorUtil.getGeneratorFromData(
-              videoCover.thumbData ?? Uint8List(0));
-        } else {
+          final CoverData videoCover = await generateSingleCoverThumbnail(element.value);
           paletteColor =
-              await PaletteGeneratorUtil.getGeneratorFromPath(element.value);
+              await PaletteGeneratorUtil.getGeneratorFromData(videoCover.thumbData ?? Uint8List(0));
+        } else {
+          paletteColor = await PaletteGeneratorUtil.getGeneratorFromPath(element.value);
         }
         isColorSet = true;
         if (paletteColor != null) {
-          widget.controller.storyModel.paletteColors =
-              paletteColor!.colors.toList();
+          widget.controller.storyModel.paletteColors = paletteColor!.colors.toList();
           setState(() {});
         }
       }
@@ -139,8 +144,8 @@ class _EditorViewState extends State<EditorView> {
                       ),
                       ValueListenableBuilder<ColorFilterGenerator>(
                           valueListenable: widget.controller.selectedFilter,
-                          builder: (BuildContext context,
-                              ColorFilterGenerator value, Widget? child) {
+                          builder:
+                              (BuildContext context, ColorFilterGenerator value, Widget? child) {
                             return ColorFiltered(
                               colorFilter: ColorFilter.matrix(value.matrix),
                               child: child,
@@ -162,8 +167,7 @@ class _EditorViewState extends State<EditorView> {
                           )),
                       ValueListenableBuilder<bool>(
                         valueListenable: isShowingOverlay,
-                        builder:
-                            (BuildContext context, bool value, Widget? child) {
+                        builder: (BuildContext context, bool value, Widget? child) {
                           return Positioned(
                             top: 0,
                             width: MediaQuery.of(context).size.width,
@@ -183,8 +187,7 @@ class _EditorViewState extends State<EditorView> {
                       ),
                       ValueListenableBuilder<bool>(
                         valueListenable: isShowingOverlay,
-                        builder:
-                            (BuildContext context, bool value, Widget? child) {
+                        builder: (BuildContext context, bool value, Widget? child) {
                           return Positioned(
                             right: 0,
                             height: MediaQuery.of(context).size.height,
@@ -195,8 +198,7 @@ class _EditorViewState extends State<EditorView> {
                                   : widget.actionsBar ??
                                       ActionsBarWidget(
                                         editorController: widget.controller,
-                                        additionalActions:
-                                            widget.additionalActions,
+                                        additionalActions: widget.additionalActions,
                                       ),
                             ),
                           );
