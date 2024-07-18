@@ -9,13 +9,13 @@ class LinesWidget extends StatelessWidget {
   final EditorController editorController;
   final Size screen;
 
-  LinesWidget({
+  const LinesWidget({
     super.key,
     required this.screen,
     required this.editorController,
   });
 
-  final Color lineColor = Color(0xFFE64036);
+  final Color lineColor = const Color(0xFFE64036);
   final double lineDistance = 16;
   final double lineWidth = 2;
 
@@ -23,7 +23,8 @@ class LinesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<StoryElement?>(
       valueListenable: editorController.selectedItem,
-      builder: (BuildContext context, StoryElement? selectedItem, Widget? child) {
+      builder:
+          (BuildContext context, StoryElement? selectedItem, Widget? child) {
         if (selectedItem == null) {
           return const SizedBox();
         }
@@ -32,8 +33,10 @@ class LinesWidget extends StatelessWidget {
           valueListenable: selectedItem.itemSize,
           builder: (BuildContext context, Size widgetSize, Widget? child) {
             final Size childSize = widgetSize * selectedItem.scale;
-            final double childOffsetDx = (widgetSize.width - childSize.width) / 2;
-            final double childOffsetDy = (widgetSize.height - childSize.height) / 2;
+            final double childOffsetDx =
+                (widgetSize.width - childSize.width) / 2;
+            final double childOffsetDy =
+                (widgetSize.height - childSize.height) / 2;
             final double positionDx = selectedItem.position.dx * screen.width;
             final double positionDy = selectedItem.position.dy * screen.height;
 
@@ -117,7 +120,8 @@ class LinesWidget extends StatelessWidget {
                       color: lineColor,
                     ),
                   ),
-                if (childCenter.dx > screen.width / 2 - 1 && childCenter.dx < screen.width / 2 + 1)
+                if (childCenter.dx > screen.width / 2 - 1 &&
+                    childCenter.dx < screen.width / 2 + 1)
                   Positioned(
                     left: screen.width / 2,
                     height: screen.height,

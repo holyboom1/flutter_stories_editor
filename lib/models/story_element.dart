@@ -44,7 +44,7 @@ class StoryElement {
   final FocusNode focusNode = FocusNode();
 
   /// Element child.
-  final Widget child;
+  Widget child;
 
   /// Custom widget id.
   String customWidgetId;

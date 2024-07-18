@@ -20,8 +20,9 @@ class RemoveBinWidget extends StatelessWidget {
       valueListenable: editorController.selectedItem,
       builder:
           (BuildContext context, StoryElement? selectedItem, Widget? child) {
-        if (selectedItem != null && selectedItem.type == ItemType.video)
+        if (selectedItem != null && selectedItem.type == ItemType.video) {
           return const SizedBox();
+        }
         return Positioned(
           bottom: 0,
           width: screen.width,
