@@ -8,7 +8,10 @@ import 'item_type_enum.dart';
 /// A class that represents a story element.
 class StoryElement {
   /// The unique identifier of the element.
-  final int id = DateTime.now().millisecondsSinceEpoch;
+  final int id = DateTime.now().microsecondsSinceEpoch;
+
+  /// Element key.
+  final GlobalKey key = GlobalKey();
 
   /// Element type.
   final ItemType type;
@@ -61,6 +64,9 @@ class StoryElement {
   /// Hover delete indicator.
   ValueNotifier<bool> hoverDelete = ValueNotifier<bool>(false);
 
+  /// Item size.
+  ValueNotifier<Size> itemSize = ValueNotifier<Size>(Size.zero);
+
   /// Creates a new story element.
   StoryElement({
     required this.type,
@@ -104,8 +110,7 @@ class StoryElement {
       type: json['type'] as ItemType,
       value: json['value'] as String,
       containerColor: json['containerColor'] as Color,
-      textStyle: const TextStyle()
-        ..fromJson(json['textStyle'] as Map<String, dynamic>),
+      textStyle: const TextStyle()..fromJson(json['textStyle'] as Map<String, dynamic>),
       textAlign: TextAlign.values[json['textAlign']],
       position: Offset.zero.fromJson(json['position'] as Map<String, double>),
       scale: json['scale'] as double,

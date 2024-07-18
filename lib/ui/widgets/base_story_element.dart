@@ -40,8 +40,17 @@ class _BaseStoryElementState extends State<BaseStoryElement> {
     currentRotation = widget.storyElement.rotation;
   }
 
+  bool isAdded = false;
+
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.storyElement.key.currentContext != null) {
+        widget.storyElement.itemSize.value =
+            (widget.storyElement.key.currentContext!.findRenderObject()! as RenderBox).size;
+      }
+    });
+
     if (widget.isEditing) {
       return Positioned(
         top: widget.storyElement.position.dy * widget.screen.height,
@@ -52,8 +61,7 @@ class _BaseStoryElementState extends State<BaseStoryElement> {
             angle: widget.storyElement.rotation,
             child: GestureDetector(
               onTap: () {
-                widget.editorController.assets
-                    .changeZIndex(asset: widget.storyElement);
+                widget.editorController.assets.changeZIndex(asset: widget.storyElement);
               },
               onDoubleTap: () {
                 switch (widget.storyElement.type) {
@@ -77,24 +85,23 @@ class _BaseStoryElementState extends State<BaseStoryElement> {
                 currentPos = widget.storyElement.position;
                 currentScale = widget.storyElement.scale;
                 currentRotation = widget.storyElement.rotation;
-                widget.editorController.selectedItem.value =
-                    widget.storyElement;
+                widget.editorController.selectedItem.value = widget.storyElement;
               },
               onScaleUpdate: (ScaleUpdateDetails details) {
                 final Offset delta = details.focalPoint - initPos;
-                final double left =
-                    (delta.dx / widget.screen.width) + currentPos.dx;
-                final double top =
-                    (delta.dy / widget.screen.height) + currentPos.dy;
+                final double left = (delta.dx / widget.screen.width) + currentPos.dx;
+                final double top = (delta.dy / widget.screen.height) + currentPos.dy;
 
                 setState(() {
                   widget.storyElement.position = Offset(left, top);
-                  widget.storyElement.rotation =
-                      details.rotation + currentRotation;
+                  widget.storyElement.rotation = details.rotation + currentRotation;
                   widget.storyElement.scale = details.scale * currentScale;
+                  widget.storyElement.itemSize.value = Size(
+                      widget.storyElement.itemSize.value.width + (isAdded ? 0.00001 : -0.00001),
+                      widget.storyElement.itemSize.value.height + (isAdded ? 0.00001 : -0.00001));
+                  isAdded = !isAdded;
                 });
-                widget.editorController.selectedItem.value =
-                    widget.storyElement;
+                widget.editorController.selectedItem.value = widget.storyElement;
 
                 if (widget.storyElement.position.dy * widget.screen.height >
                     widget.screen.height - 90) {
@@ -110,7 +117,10 @@ class _BaseStoryElementState extends State<BaseStoryElement> {
                 );
                 widget.editorController.selectedItem.value = null;
               },
-              child: widget.child,
+              child: SizedBox(
+                key: widget.storyElement.key,
+                child: widget.child,
+              ),
             ),
           ),
         ),

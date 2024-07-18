@@ -30,7 +30,7 @@ class _ActionsBarWidgetState extends State<ActionsBarWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          if (!widget.editorController.isAvailableToAddVideo)
+          if (widget.editorController.isContainsVideo)
             BaseIconButton(
               isCircle: false,
               onPressed: () {

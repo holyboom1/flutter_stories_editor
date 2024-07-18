@@ -1,4 +1,8 @@
-## 0.0.7
+## 0.0.8
+
+* Bug fix for `onDelete` callback.
+
+* ## 0.0.7
 
 * Update text overlay UI
 

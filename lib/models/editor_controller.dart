@@ -219,6 +219,7 @@ final class EditorController {
 
   /// delete StoryElement from assets when it's out of the screen
   void checkDeleteElement(StoryElement storyElement, Size screen) {
+    if (storyElement.type == ItemType.video) return;
     if (storyElement.position.dy * screen.height > screen.height - 90) {
       assets.removeAsset(storyElement);
       onElementDeleted?.call(storyElement);
@@ -230,6 +231,13 @@ final class EditorController {
     assets.removeAsset(element);
     onElementDeleted?.call(element);
   }
+
+  /// Check if the assets contains video
+  bool get isContainsVideo =>
+      assets.value.firstWhereOrNull(
+        (StoryElement element) => element.type == ItemType.video,
+      ) !=
+      null;
 
   /// Mute story video
   void muteVideo() {
