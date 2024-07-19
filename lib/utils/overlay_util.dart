@@ -141,10 +141,12 @@ Future<void> showVideoOverlay({
 }
 
 Future<void> showAudioOverlay({
-  required XFile audioFile,
+  XFile? audioFile,
+  String? audioUrl,
   required EditorController editorController,
   String uniqueId = '',
 }) async {
+  assert(audioFile != null || audioUrl != null);
   if (_overlayAnimationController == null) {
     return;
   }
@@ -163,6 +165,7 @@ Future<void> showAudioOverlay({
             child: AudioOverlay(
               editorController: editorController,
               file: audioFile,
+              url: audioUrl,
               uniqueId: uniqueId,
               screen: MediaQuery.of(context).size,
             ),

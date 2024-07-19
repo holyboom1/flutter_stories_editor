@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:advanced_media_picker/advanced_media_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -16,18 +17,20 @@ import '../../editor_view.dart';
 import '../base_icon_button.dart';
 
 class AudioOverlay extends StatefulWidget {
-  final XFile file;
+  final XFile? file;
+  final String? url;
   final Size screen;
   final EditorController editorController;
   final String? uniqueId;
 
   const AudioOverlay({
     super.key,
-    required this.file,
+    this.file,
+    this.url,
     required this.screen,
     required this.editorController,
     this.uniqueId,
-  });
+  }) : assert(file != null || url != null);
 
   @override
   State<AudioOverlay> createState() => _AudioOverlayState();
@@ -52,7 +55,26 @@ class _AudioOverlayState extends State<AudioOverlay> {
   Future<void> initController() async {
     final Directory tempDir = await getTemporaryDirectory();
     final File audioFile = File('${tempDir.path}/audio_${storyElement.id}.mp3');
-    await widget.file.saveTo(audioFile.path);
+    if (widget.file == null) {
+      final HttpClient httpClient = HttpClient();
+      try {
+        final HttpClientRequest request =
+            await httpClient.getUrl(Uri.parse(widget.url!));
+        final HttpClientResponse response = await request.close();
+        if (response.statusCode == 200) {
+          final Uint8List bytes =
+              await consolidateHttpClientResponseBytes(response);
+          await audioFile.writeAsBytes(bytes);
+        } else {}
+      } catch (ex) {
+        print(ex);
+      } finally {
+        httpClient.close();
+      }
+    } else {
+      await widget.file!.saveTo(audioFile.path);
+    }
+
     await _trimmer.loadAudio(audioFile: audioFile);
     storyElement.value = audioFile.path;
 

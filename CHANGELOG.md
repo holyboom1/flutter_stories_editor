@@ -1,3 +1,11 @@
+## 0.0.12
+
+* Added ability to add audio by URL for iOS
+
+## 0.0.11
+
+* Added ability to add audio by URL
+
 ## 0.0.10
 
 * Added ability to change child widget of `Elements` widget.

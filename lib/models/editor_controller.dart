@@ -187,13 +187,12 @@ final class EditorController {
         }
         break;
       case CustomAssetType.audio:
-        if (file != null) {
-          showAudioOverlay(
-            audioFile: file,
-            editorController: this,
-            uniqueId: uniqueId,
-          );
-        }
+        showAudioOverlay(
+          audioFile: file,
+          audioUrl: url,
+          editorController: this,
+          uniqueId: uniqueId,
+        );
         break;
     }
   }

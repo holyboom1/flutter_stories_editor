@@ -1,7 +1,4 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_stories_editor/flutter_stories_editor.dart';
 
 void main() {
@@ -30,12 +27,17 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         floatingActionButton: IconButton(
           onPressed: () async {
-            final ByteData audio = await rootBundle.load('assets/test_mp3.mp3');
-            final Uint8List audioBytes = audio.buffer.asUint8List();
-            final XFile file = XFile.fromData(audioBytes,
-                name: 'my_text.txt', mimeType: 'audio/mp3');
+            // final ByteData audio = await rootBundle.load('assets/test_mp3.mp3');
+            // final Uint8List audioBytes = audio.buffer.asUint8List();
+            // final XFile file = XFile.fromData(audioBytes,
+            //     name: 'my_text.txt', mimeType: 'audio/mp3');
+            // editorController.addCustomAsset(
+            //     type: CustomAssetType.audio, file: file);
+            //
             editorController.addCustomAsset(
-                type: CustomAssetType.audio, file: file);
+                type: CustomAssetType.audio,
+                url:
+                    'https://storage.googleapis.com/jiggl-bucket/backend/files/2024/05/03/11173305733636.mp3');
           },
           icon: const Icon(Icons.audiotrack),
         ),
