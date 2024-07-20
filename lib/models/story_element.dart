@@ -67,9 +67,13 @@ class StoryElement {
   /// Item size.
   ValueNotifier<Size> itemSize = ValueNotifier<Size>(Size.zero);
 
+  /// Layer index.
+  int layerIndex;
+
   /// Creates a new story element.
   StoryElement({
     int? id,
+    this.layerIndex = 0,
     required this.type,
     this.value = '',
     this.containerColor = Colors.black,
@@ -97,23 +101,25 @@ class StoryElement {
       'value': value,
       'containerColor': containerColor.value,
       'textStyle': textStyle.toJson(),
-      'textAlign': textAlign.index,
+      'textAlign': '${textAlign.index}',
       'position': position.toJson(),
       'scale': scale,
       'rotation': rotation,
       'customWidgetId': customWidgetId,
       'isVideoMuted': isVideoMuted,
+      'layerIndex': layerIndex,
     };
   }
 
   factory StoryElement.fromJson(Map<String, dynamic> json) {
     return StoryElement(
+      layerIndex: json['layerIndex'] as int,
       id: int.tryParse(json['id']) ?? DateTime.now().millisecondsSinceEpoch,
       type: ItemType.fromString(json['type']),
       value: json['value'] as String,
       containerColor: Color(json['containerColor']),
       textStyle: const TextStyle()..fromJson(json['textStyle'] as Map<String, dynamic>),
-      textAlign: TextAlign.values[json['textAlign'] as int],
+      textAlign: TextAlign.values[int.tryParse(json['textAlign']) ?? 0],
       position: Offset.zero.fromJson(json['position'] as Map<String, double>),
       scale: json['scale'] as double,
       rotation: json['rotation'] as double,
