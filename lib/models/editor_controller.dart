@@ -33,6 +33,12 @@ final class EditorController {
   final ValueNotifier<List<StoryElement>> assets =
       ValueNotifier<List<StoryElement>>(<StoryElement>[]);
 
+  /// Max audio duration allowed
+  Duration maxAudioDuration;
+
+  /// Min audio duration allowed
+  Duration minAudioDuration;
+
   /// Selected item notifier
   final ValueNotifier<StoryElement?> selectedItem =
       ValueNotifier<StoryElement?>(null);
@@ -56,6 +62,9 @@ final class EditorController {
   /// Element deleted callback.
   final Function(StoryElement)? onElementDeleted;
 
+  /// Is showing overlay notifier
+  final ValueNotifier<bool> isShowingOverlay = ValueNotifier<bool>(false);
+
   /// Constructor
   EditorController({
     String storyId = '',
@@ -69,6 +78,8 @@ final class EditorController {
     this.maxVideoDuration = const Duration(seconds: 30),
     this.minVideoDuration = const Duration(seconds: 1),
     this.onElementDeleted,
+    this.maxAudioDuration = const Duration(seconds: 30),
+    this.minAudioDuration = const Duration(seconds: 1),
   }) : _storyModel = StoryModel(id: storyId);
 
   /// _isAvailableToAddVideo
@@ -108,6 +119,10 @@ final class EditorController {
   void addText() {
     showTextOverlay(editorController: this);
   }
+
+  /// Is audio playing notifier
+  /// If you have audio in story you can control it
+  final ValueNotifier<bool> audioIsPlaying = ValueNotifier<bool>(false);
 
   /// Complete editing and return the story model
   Future<StoryModel> complete() async {
@@ -164,6 +179,7 @@ final class EditorController {
     String? url,
     required CustomAssetType type,
     String uniqueId = '',
+    Widget customWidget = const SizedBox(),
   }) {
     assert(file != null || url != null);
     switch (type) {
@@ -192,6 +208,7 @@ final class EditorController {
           audioUrl: url,
           editorController: this,
           uniqueId: uniqueId,
+          customWidget: customWidget,
         );
         break;
     }

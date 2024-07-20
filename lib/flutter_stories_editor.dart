@@ -12,6 +12,7 @@ export 'package:cross_file/cross_file.dart';
 export 'flutter_stories_view.dart';
 export 'models/editor_controller.dart';
 export 'models/story_model.dart';
+export 'utils/compress_service.dart';
 export 'utils/video_editor/lib/domain/entities/trim_style.dart';
 
 /// FlutterStoriesEditor

@@ -18,10 +18,12 @@ class _VideoViewerState extends State<VideoViewer> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    widget.controller.video.setLooping(true);
-    if (!widget.controller.isPlaying) {
-      widget.controller.video.play();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.controller.video.setLooping(true);
+      if (!widget.controller.isPlaying) {
+        widget.controller.video.play();
+      }
+    });
   }
 
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;

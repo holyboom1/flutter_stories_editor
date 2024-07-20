@@ -37,8 +37,9 @@ class VideoTopBar extends StatelessWidget {
                 ),
               ),
               withText: true,
-              onPressed: () {
-                hideOverlay();
+              onPressed: () async {
+                await hideOverlay();
+
                 storyElement.videoController?.dispose();
               },
             ),

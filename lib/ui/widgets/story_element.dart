@@ -27,6 +27,7 @@ class StoryElementWidget extends StatelessWidget {
     switch (storyElement.type) {
       case ItemType.text:
         return TextAsset(
+          key: super.key,
           storyElement: storyElement,
           screen: screen,
           isEditing: isEditing,
@@ -34,6 +35,7 @@ class StoryElementWidget extends StatelessWidget {
         );
       case ItemType.image:
         return ImageAsset(
+          key: super.key,
           storyElement: storyElement,
           screen: screen,
           editorController: editorController,
@@ -41,15 +43,17 @@ class StoryElementWidget extends StatelessWidget {
         );
       case ItemType.video:
         return VideoAsset(
+          key: super.key,
           storyElement: storyElement,
           screen: screen,
           isEditing: isEditing,
           editorController: editorController,
         );
       case ItemType.audio:
-      // TODO: Handle this case.
+        return const SizedBox();
       case ItemType.widget:
         return WidgetAsset(
+          key: super.key,
           storyElement: storyElement,
           screen: screen,
           editorController: editorController,

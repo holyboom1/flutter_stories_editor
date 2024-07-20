@@ -26,29 +26,23 @@ extension FileTypeExtension on String {
 
 extension AssetContains on List<Widget> {
   bool containsAsset(Widget asset) =>
-      firstWhereOrNull(
-          (Widget element) => element.hashCode == asset.hashCode) !=
-      null;
+      firstWhereOrNull((Widget element) => element.hashCode == asset.hashCode) != null;
 }
 
 extension ValueAssetsList on ValueNotifier<List<StoryElement>> {
   bool containsAsset(StoryElement asset) =>
-      value
-          .firstWhereOrNull((StoryElement element) => element.id == asset.id) !=
-      null;
+      value.firstWhereOrNull((StoryElement element) => element.id == asset.id) != null;
 
   void addAsset(StoryElement asset) {
     value = <StoryElement>[...value, asset];
   }
 
   void removeAsset(StoryElement asset) {
-    value = <StoryElement>[...value]
-      ..removeWhere((StoryElement element) => element.id == asset.id);
+    value = <StoryElement>[...value]..removeWhere((StoryElement element) => element.id == asset.id);
   }
 
   void changeZIndex({required StoryElement asset, int? newIndex}) {
-    final int index =
-        value.indexWhere((StoryElement element) => element.id == asset.id);
+    final int index = value.indexWhere((StoryElement element) => element.id == asset.id);
     final List<StoryElement> temp = value;
     temp.removeAt(index);
     temp.insert(newIndex ?? value.length, asset);
@@ -97,16 +91,14 @@ extension TextStyleExtension on TextStyle {
       'color': color?.value,
       'fontSize': fontSize,
       'letterSpacing': letterSpacing,
-      'fontWeight': fontWeight.toString(),
-      'fontStyle': fontStyle.toString(),
+      'fontWeight': fontWeight?.index ?? FontWeight.normal.index,
+      'fontStyle': fontStyle?.index ?? FontStyle.normal.index,
     };
   }
 
   TextStyle fromJson(Map<String, dynamic> style) {
     return TextStyle(
-      color: style['color'] != null
-          ? const Color(0xFFFFFFFF).fromRGB(style['color'])
-          : null,
+      color: style['color'] != null ? Color(style['color']) : null,
       fontSize: style['fontSize'] ?? 16.0,
       letterSpacing: style['letterSpacing'] ?? 1.0,
       fontWeight: FontWeight.values[style['fontWeight']],

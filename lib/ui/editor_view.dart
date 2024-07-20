@@ -179,7 +179,7 @@ class _EditorViewState extends State<EditorView> {
                         editorController: widget.controller,
                       ),
                       ValueListenableBuilder<bool>(
-                        valueListenable: isShowingOverlay,
+                        valueListenable: widget.controller.isShowingOverlay,
                         builder:
                             (BuildContext context, bool value, Widget? child) {
                           return Positioned(
@@ -200,7 +200,7 @@ class _EditorViewState extends State<EditorView> {
                         },
                       ),
                       ValueListenableBuilder<bool>(
-                        valueListenable: isShowingOverlay,
+                        valueListenable: widget.controller.isShowingOverlay,
                         builder:
                             (BuildContext context, bool value, Widget? child) {
                           return Positioned(

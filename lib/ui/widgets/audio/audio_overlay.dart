@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:advanced_media_picker/advanced_media_picker.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,6 +23,7 @@ class AudioOverlay extends StatefulWidget {
   final Size screen;
   final EditorController editorController;
   final String? uniqueId;
+  final Widget customWidget;
 
   const AudioOverlay({
     super.key,
@@ -30,6 +32,7 @@ class AudioOverlay extends StatefulWidget {
     required this.screen,
     required this.editorController,
     this.uniqueId,
+    required this.customWidget,
   }) : assert(file != null || url != null);
 
   @override
@@ -41,8 +44,29 @@ class _AudioOverlayState extends State<AudioOverlay> {
   final AudioTrimmer _trimmer = AudioTrimmer();
 
   @override
+  void dispose() {
+    _trimmer.audioPlayer?.stop();
+    _trimmer.audioPlayer?.release();
+    _trimmer.audioPlayer?.dispose();
+    _trimmer.dispose();
+    super.dispose();
+  }
+
+  late Duration _startValue;
+  late Duration _endValue;
+
+  @override
   void initState() {
     super.initState();
+    _startValue = widget.editorController.minAudioDuration;
+    _endValue = widget.editorController.maxAudioDuration;
+    widget.editorController.audioIsPlaying.addListener(() {
+      if (widget.editorController.audioIsPlaying.value) {
+        _trimmer.audioPlayer?.resume();
+      } else {
+        _trimmer.audioPlayer?.pause();
+      }
+    });
     storyElement = StoryElement(
       type: ItemType.audio,
       customWidgetId: widget.uniqueId ?? '',
@@ -51,6 +75,24 @@ class _AudioOverlayState extends State<AudioOverlay> {
   }
 
   bool isControllerInitialized = false;
+
+  void muteVideo({bool unMute = false}) {
+    final StoryElement? video =
+        widget.editorController.assets.value.firstWhereOrNull(
+      (StoryElement element) {
+        return element.type == ItemType.video;
+      },
+    );
+    if (video != null) {
+      if (unMute) {
+        video.videoController?.unmuteVideo();
+        video.isVideoMuted = false;
+      } else {
+        video.videoController?.muteVideo();
+        video.isVideoMuted = true;
+      }
+    }
+  }
 
   Future<void> initController() async {
     final Directory tempDir = await getTemporaryDirectory();
@@ -74,7 +116,7 @@ class _AudioOverlayState extends State<AudioOverlay> {
     } else {
       await widget.file!.saveTo(audioFile.path);
     }
-
+    muteVideo();
     await _trimmer.loadAudio(audioFile: audioFile);
     storyElement.value = audioFile.path;
 
@@ -99,13 +141,27 @@ class _AudioOverlayState extends State<AudioOverlay> {
     storyElement.value = filePath;
     storyElement.elementFile = XFile(filePath);
     widget.editorController.assets.addAsset(storyElement);
+    muteVideo();
     unawaited(hideOverlay());
   }
 
-  Duration _startValue = Duration.zero;
-  Duration _endValue = const Duration(seconds: 30);
-
   bool isLoading = false;
+
+  void onTrim(Duration start, Duration end) {
+    _startValue = start;
+    _endValue = end;
+    _trimmer.audioPlayer?.seek(start);
+
+    final StoryElement? video =
+        widget.editorController.assets.value.firstWhereOrNull(
+      (StoryElement element) {
+        return element.type == ItemType.video;
+      },
+    );
+    if (video != null) {
+      video.videoController?.video.seekTo(video.videoController!.startTrim);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,12 +185,11 @@ class _AudioOverlayState extends State<AudioOverlay> {
                         trimmer: _trimmer,
                         height: 56.0,
                         width: widget.screen.width * 0.8,
-                        maxAudioLength: const Duration(seconds: 30),
-                        minAudioLength: const Duration(seconds: 10),
-                        onTrim: (Duration start, Duration end) {
-                          _startValue = start;
-                          _endValue = end;
-                        },
+                        maxAudioLength:
+                            widget.editorController.minAudioDuration,
+                        minAudioLength:
+                            widget.editorController.minAudioDuration,
+                        onTrim: onTrim,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -158,6 +213,7 @@ class _AudioOverlayState extends State<AudioOverlay> {
                           ),
                         ),
                         onPressed: () {
+                          muteVideo(unMute: true);
                           hideOverlay();
                         },
                         withText: true,
@@ -180,6 +236,7 @@ class _AudioOverlayState extends State<AudioOverlay> {
                   ),
                 ),
               ),
+              widget.customWidget,
             ],
           ),
         ),

@@ -8,7 +8,7 @@ import 'item_type_enum.dart';
 /// A class that represents a story element.
 class StoryElement {
   /// The unique identifier of the element.
-  final int id = DateTime.now().microsecondsSinceEpoch;
+  final int id;
 
   /// Element key.
   final GlobalKey key = GlobalKey();
@@ -69,6 +69,7 @@ class StoryElement {
 
   /// Creates a new story element.
   StoryElement({
+    int? id,
     required this.type,
     this.value = '',
     this.containerColor = Colors.black,
@@ -87,16 +88,16 @@ class StoryElement {
     this.customWidgetPayload = '',
     this.customWidgetUniqueID = '',
     this.isVideoMuted = false,
-  });
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': id,
       'type': type.toString(),
       'value': value,
-      'containerColor': containerColor.getRGB,
+      'containerColor': containerColor.value,
       'textStyle': textStyle.toJson(),
-      'textAlign': textAlign.toJson(),
+      'textAlign': textAlign.index,
       'position': position.toJson(),
       'scale': scale,
       'rotation': rotation,
@@ -107,12 +108,12 @@ class StoryElement {
 
   factory StoryElement.fromJson(Map<String, dynamic> json) {
     return StoryElement(
-      type: json['type'] as ItemType,
+      id: int.tryParse(json['id']) ?? DateTime.now().millisecondsSinceEpoch,
+      type: ItemType.fromString(json['type']),
       value: json['value'] as String,
-      containerColor: json['containerColor'] as Color,
-      textStyle: const TextStyle()
-        ..fromJson(json['textStyle'] as Map<String, dynamic>),
-      textAlign: TextAlign.values[json['textAlign']],
+      containerColor: Color(json['containerColor']),
+      textStyle: const TextStyle()..fromJson(json['textStyle'] as Map<String, dynamic>),
+      textAlign: TextAlign.values[json['textAlign'] as int],
       position: Offset.zero.fromJson(json['position'] as Map<String, double>),
       scale: json['scale'] as double,
       rotation: json['rotation'] as double,

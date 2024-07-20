@@ -21,6 +21,7 @@ class _MyAppState extends State<MyApp> {
   StoryModel? storyModel;
 
   final EditorController editorController = EditorController();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

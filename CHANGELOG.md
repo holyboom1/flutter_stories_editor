@@ -1,3 +1,8 @@
+## 0.0.13
+
+* Added ability to control audio
+* Bugs fix
+
 ## 0.0.12
 
 * Added ability to add audio by URL for iOS

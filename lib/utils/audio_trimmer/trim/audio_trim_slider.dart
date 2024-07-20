@@ -53,7 +53,6 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       await _initializeAudioController();
-      // await audioPlayerController.seek(Duration.zero);
       final Duration? totalDuration = await audioPlayerController.getDuration();
 
       setState(() {
@@ -75,6 +74,13 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
         }
       });
     });
+  }
+
+  void onTrim() {
+    widget.onTrim(
+      Duration(milliseconds: (_audioStartPos.value / audioScaleFactor).toInt()),
+      Duration(milliseconds: (_audioEndPos.value / audioScaleFactor).toInt()),
+    );
   }
 
   Future<void> _initializeAudioController() async {
@@ -198,6 +204,7 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
           audioEndPos: _audioEndPos,
           minTrimLength: minTrimLength,
           maxTrimLength: maxTrimLength,
+          onTrim: onTrim,
         ),
       ],
     );
@@ -211,6 +218,7 @@ class TrimSlider extends StatefulWidget {
   final double height;
   final double minTrimLength;
   final double maxTrimLength;
+  final Function() onTrim;
 
   const TrimSlider({
     super.key,
@@ -220,6 +228,7 @@ class TrimSlider extends StatefulWidget {
     required this.height,
     this.minTrimLength = 0.0,
     this.maxTrimLength = double.infinity,
+    required this.onTrim,
   });
 
   @override
@@ -309,6 +318,7 @@ class _TrimSliderState extends State<TrimSlider> {
 
   void _endDrag(DragEndDetails details) {
     lastPosition = Offset.zero;
+    widget.onTrim();
   }
 
   @override

@@ -5,7 +5,6 @@ import '../models/editor_controller.dart';
 import '../models/story_element.dart';
 import '../ui/widgets/audio/audio_overlay.dart';
 import '../ui/widgets/filters/filters_selector.dart';
-import '../ui/widgets/loading/loading_overlay.dart';
 import '../ui/widgets/text/text_overlay.dart';
 import '../ui/widgets/video/video_overlay.dart';
 
@@ -35,18 +34,17 @@ class _OverlayBuilderState extends State<OverlayBuilder>
   @override
   void didUpdateWidget(OverlayBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // WidgetsBinding.instance.addPostFrameCallback((_) => syncWidgetAndOverlay());
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    // WidgetsBinding.instance.addPostFrameCallback((_) => syncWidgetAndOverlay());
   }
 
   @override
   void dispose() {
-    if (isShowingOverlay.value) {
+    if (_editorController != null &&
+        _editorController!.isShowingOverlay.value) {
       hideOverlay();
     }
 
@@ -63,9 +61,7 @@ class _OverlayBuilderState extends State<OverlayBuilder>
 AnimationController? _overlayAnimationController;
 
 OverlayEntry? _overlayEntry;
-OverlayEntry? _loadingEntry;
 
-ValueNotifier<bool> isShowingOverlay = ValueNotifier<bool>(false);
 BuildContext? _context;
 
 Future<void> showTextOverlay({
@@ -75,8 +71,9 @@ Future<void> showTextOverlay({
   if (_overlayAnimationController == null) {
     return;
   }
+  _editorController = editorController;
   const Curve curve = Curves.easeOut;
-  isShowingOverlay.value = true;
+  editorController.isShowingOverlay.value = true;
   _overlayEntry = OverlayEntry(
     builder: (BuildContext context) {
       return AnimatedBuilder(
@@ -111,8 +108,9 @@ Future<void> showVideoOverlay({
   if (_overlayAnimationController == null) {
     return;
   }
+  _editorController = editorController;
   const Curve curve = Curves.easeOut;
-  isShowingOverlay.value = true;
+  editorController.isShowingOverlay.value = true;
   _overlayEntry = OverlayEntry(
     builder: (BuildContext context) {
       return AnimatedBuilder(
@@ -145,13 +143,15 @@ Future<void> showAudioOverlay({
   String? audioUrl,
   required EditorController editorController,
   String uniqueId = '',
+  Widget customWidget = const SizedBox(),
 }) async {
   assert(audioFile != null || audioUrl != null);
   if (_overlayAnimationController == null) {
     return;
   }
+  _editorController = editorController;
   const Curve curve = Curves.easeOut;
-  isShowingOverlay.value = true;
+  editorController.isShowingOverlay.value = true;
   _overlayEntry = OverlayEntry(
     builder: (BuildContext context) {
       return AnimatedBuilder(
@@ -168,6 +168,7 @@ Future<void> showAudioOverlay({
               url: audioUrl,
               uniqueId: uniqueId,
               screen: MediaQuery.of(context).size,
+              customWidget: customWidget,
             ),
           );
         },
@@ -180,14 +181,17 @@ Future<void> showAudioOverlay({
   }
 }
 
+EditorController? _editorController;
+
 Future<void> showFiltersOverlay({
   required EditorController editorController,
 }) async {
   if (_overlayAnimationController == null) {
     return;
   }
+  _editorController = editorController;
   const Curve curve = Curves.easeOut;
-  isShowingOverlay.value = true;
+  editorController.isShowingOverlay.value = true;
   _overlayEntry = OverlayEntry(
     builder: (BuildContext context) {
       return AnimatedBuilder(
@@ -213,41 +217,6 @@ Future<void> showFiltersOverlay({
   }
 }
 
-Future<void> showLoadingOverlay({ValueNotifier<double>? progress}) async {
-  if (_overlayAnimationController == null) {
-    return;
-  }
-  const Curve curve = Curves.easeOut;
-  isShowingOverlay.value = true;
-  _loadingEntry = OverlayEntry(
-    builder: (BuildContext context) {
-      return AnimatedBuilder(
-        animation: _overlayAnimationController!,
-        builder: (BuildContext context, Widget? child) {
-          final double animationValue =
-              curve.transform(_overlayAnimationController!.value);
-
-          return Opacity(
-            opacity: animationValue,
-            child: LoadingOverlay(
-              progress: progress,
-            ),
-          );
-        },
-      );
-    },
-  );
-  if (_overlayEntry != null) {
-    await addToOverlay(_loadingEntry!);
-    await _overlayAnimationController!.forward();
-  }
-}
-
-Future<void> hideLoadingOverlay() async {
-  _loadingEntry?.remove();
-  _loadingEntry = null;
-}
-
 Future<void> addToOverlay(OverlayEntry entry) async {
   if (_context == null) {
     return;
@@ -257,7 +226,7 @@ Future<void> addToOverlay(OverlayEntry entry) async {
 
 Future<void> hideOverlay() async {
   await _overlayAnimationController?.reverse(from: 1);
-  isShowingOverlay.value = false;
+  _editorController?.isShowingOverlay.value = false;
   _overlayEntry?.remove();
   _overlayEntry = null;
 }

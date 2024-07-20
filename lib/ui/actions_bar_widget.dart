@@ -25,10 +25,9 @@ class _ActionsBarWidgetState extends State<ActionsBarWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
-        vertical: 8,
+        vertical: 16,
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           if (widget.editorController.isContainsVideo)
             BaseIconButton(

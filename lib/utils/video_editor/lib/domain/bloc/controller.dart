@@ -96,8 +96,23 @@ class VideoEditorController extends ChangeNotifier {
         assert(maxDuration > minDuration,
             'The maximum duration must be bigger than the minimum duration'),
         assert(
-          defaultCoverThumbnailQuality > 0 &&
-              defaultCoverThumbnailQuality <= 100,
+          defaultCoverThumbnailQuality > 0 && defaultCoverThumbnailQuality <= 100,
+          'defaultCoverThumbnailQuality should be between 0 and 100',
+        );
+
+  VideoEditorController.network(
+    this.file, {
+    this.maxDuration = const Duration(seconds: 30),
+    this.minDuration = Duration.zero,
+    this.cropStyle = const CropGridStyle(),
+    TrimSliderStyle? trimStyle,
+    this.defaultCoverThumbnailQuality = 10,
+  })  : _video = VideoPlayerController.network(file.path),
+        trimStyle = trimStyle ?? const TrimSliderStyle(),
+        assert(maxDuration > minDuration,
+            'The maximum duration must be bigger than the minimum duration'),
+        assert(
+          defaultCoverThumbnailQuality > 0 && defaultCoverThumbnailQuality <= 100,
           'defaultCoverThumbnailQuality should be between 0 and 100',
         );
 
@@ -137,8 +152,7 @@ class VideoEditorController extends ChangeNotifier {
   }
 
   // Selected cover value
-  final ValueNotifier<CoverData?> _selectedCover =
-      ValueNotifier<CoverData?>(null);
+  final ValueNotifier<CoverData?> _selectedCover = ValueNotifier<CoverData?>(null);
 
   /// Get the [VideoPlayerController]
   VideoPlayerController get video => _video;
@@ -232,10 +246,8 @@ class VideoEditorController extends ChangeNotifier {
         height: newSize.height,
       );
 
-      _minCrop =
-          Offset(centerCrop.left / videoWidth, centerCrop.top / videoHeight);
-      _maxCrop = Offset(
-          centerCrop.right / videoWidth, centerCrop.bottom / videoHeight);
+      _minCrop = Offset(centerCrop.left / videoWidth, centerCrop.top / videoHeight);
+      _maxCrop = Offset(centerCrop.right / videoWidth, centerCrop.bottom / videoHeight);
       notifyListeners();
     }
   }
@@ -274,8 +286,7 @@ class VideoEditorController extends ChangeNotifier {
 
     // Trim straight away when maxDuration is lower than video duration
     if (maxDuration < videoDuration) {
-      updateTrim(
-          0.0, maxDuration.inMilliseconds / videoDuration.inMilliseconds);
+      updateTrim(0.0, maxDuration.inMilliseconds / videoDuration.inMilliseconds);
     } else {
       _updateTrimRange();
     }
@@ -331,8 +342,7 @@ class VideoEditorController extends ChangeNotifier {
   ///
   /// Arguments range are [Offset.zero] to `Offset(1.0, 1.0)`.
   void updateCrop(Offset min, Offset max) {
-    assert(min < max,
-        'Minimum crop value ($min) cannot be bigger and maximum crop value ($max)');
+    assert(min < max, 'Minimum crop value ($min) cannot be bigger and maximum crop value ($max)');
 
     _minCrop = min;
     _maxCrop = max;
@@ -350,12 +360,11 @@ class VideoEditorController extends ChangeNotifier {
   ///
   /// Arguments range are `0.0` to `1.0`.
   void updateTrim(double min, double max) {
-    assert(min < max,
-        'Minimum trim value ($min) cannot be bigger and maximum trim value ($max)');
+    assert(min < max, 'Minimum trim value ($min) cannot be bigger and maximum trim value ($max)');
 
     // check that the new params does not cause a wrong duration
-    final Duration newDuration = Duration(
-        milliseconds: (videoDuration.inMilliseconds * (max - min)).toInt());
+    final Duration newDuration =
+        Duration(milliseconds: (videoDuration.inMilliseconds * (max - min)).toInt());
     assert(newDuration <= maxDuration && newDuration >= minDuration,
         'Trim duration ($newDuration) cannot be bigger than $maxDuration or smaller than $minDuration');
 
@@ -415,8 +424,7 @@ class VideoEditorController extends ChangeNotifier {
   /// Get the [trimPosition], which is the videoPosition in the trim slider
   ///
   /// Range of the param is `0.0` to `1.0`.
-  double get trimPosition =>
-      videoPosition.inMilliseconds / videoDuration.inMilliseconds;
+  double get trimPosition => videoPosition.inMilliseconds / videoDuration.inMilliseconds;
 
   //-----------//
   //VIDEO COVER//

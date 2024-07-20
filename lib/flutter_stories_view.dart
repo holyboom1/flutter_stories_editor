@@ -8,64 +8,54 @@ import 'utils/color_filters/colorfilter_generator.dart';
 import 'utils/color_filters/presets.dart';
 
 /// FlutterStoriesViewer
-class FlutterStoriesViewer extends StatefulWidget {
+class FlutterStoriesViewer extends StatelessWidget {
   /// Top bar config
   final StoryModel storyModel;
+
+  /// Callback when the viewer is ready
+  final Function(bool isReady)? onReady;
 
   /// FlutterStoriesViewer
   const FlutterStoriesViewer({
     Key? key,
     required this.storyModel,
+    this.onReady,
   }) : super(key: key);
 
   @override
-  State<FlutterStoriesViewer> createState() => _FlutterStoriesViewerState();
-}
-
-class _FlutterStoriesViewerState extends State<FlutterStoriesViewer> {
-  @override
   Widget build(BuildContext context) {
     return AspectRatio(
+      key: ValueKey<String>(storyModel.id),
       aspectRatio: 9 / 16.5,
       child: Container(
+        key: ValueKey<String>(storyModel.id),
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: <Color>[...widget.storyModel.paletteColors],
+            colors: <Color>[...storyModel.paletteColors],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
         child: ColorFiltered(
+          key: ValueKey<String>(storyModel.id),
           colorFilter: ColorFilter.matrix(presetFiltersList
                   .firstWhereOrNull(
-                    (ColorFilterGenerator e) =>
-                        e.name == widget.storyModel.colorFilter,
+                    (ColorFilterGenerator e) => e.name == storyModel.colorFilter,
                   )
                   ?.matrix ??
               PresetFilters.none.matrix),
           child: LayoutBuilder(
+            key: ValueKey<String>(storyModel.id),
             builder: (BuildContext context, BoxConstraints constraints) {
               return Stack(
+                key: ValueKey<String>(storyModel.id),
                 children: <Widget>[
-                  // if (widget.storyModel.storyItemFile != null)
-                  //   if (widget.storyModel.isVideoIncluded)
-                  //     Container(
-                  //       width: constraints.maxWidth,
-                  //       height: constraints.maxHeight,
-                  //       color: Colors.red,
-                  //     )
-                  //   else if (widget.storyModel.storyItemFile != null)
-                  //     Image.file(File(widget.storyModel.storyItemFile!.path))
-                  //   else
-                  //     AppImage(
-                  //       image: widget.storyModel.storyItemUrl,
-                  //       fit: BoxFit.cover,
-                  //     ),
-                  ...widget.storyModel.elements.map(
+                  ...storyModel.elements.map(
                     (StoryElement e) {
                       return StoryElementWidget(
                         storyElement: e,
+                        key: ValueKey<int>(e.id),
                         screen: constraints.biggest,
                         isEditing: false,
                         editorController: EditorController(),
