@@ -64,7 +64,13 @@ class _FlutterStoriesEditorState extends State<FlutterStoriesEditor> {
   @override
   void initState() {
     super.initState();
+
     _editorController = widget.controller ?? EditorController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override

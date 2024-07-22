@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:advanced_media_picker/advanced_media_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -103,6 +105,7 @@ Future<void> showTextOverlay({
 Future<void> showVideoOverlay({
   required XFile videoFile,
   required EditorController editorController,
+  required Completer<bool> completer,
   String uniqueId = '',
 }) async {
   if (_overlayAnimationController == null) {
@@ -126,6 +129,7 @@ Future<void> showVideoOverlay({
               file: videoFile,
               uniqueId: uniqueId,
               screen: MediaQuery.of(context).size,
+              completer: completer,
             ),
           );
         },
@@ -143,7 +147,10 @@ Future<void> showAudioOverlay({
   String? audioUrl,
   required EditorController editorController,
   String uniqueId = '',
-  Widget customWidget = const SizedBox(),
+  Widget Function(BuildContext context, Function() onPlay, Function() onPause,
+          ValueNotifier<bool> isPlay)?
+      customWidgetBuilder,
+  required Completer<bool> completer,
 }) async {
   assert(audioFile != null || audioUrl != null);
   if (_overlayAnimationController == null) {
@@ -168,7 +175,8 @@ Future<void> showAudioOverlay({
               url: audioUrl,
               uniqueId: uniqueId,
               screen: MediaQuery.of(context).size,
-              customWidget: customWidget,
+              customWidgetBuilder: customWidgetBuilder,
+              completer: completer,
             ),
           );
         },

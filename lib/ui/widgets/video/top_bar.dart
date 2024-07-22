@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../models/editor_controller.dart';
@@ -10,11 +12,13 @@ import '../base_icon_button.dart';
 class VideoTopBar extends StatelessWidget {
   final StoryElement storyElement;
   final EditorController editorController;
+  final Completer<bool> completer;
 
   const VideoTopBar({
     super.key,
     required this.storyElement,
     required this.editorController,
+    required this.completer,
   });
 
   @override
@@ -39,8 +43,8 @@ class VideoTopBar extends StatelessWidget {
               withText: true,
               onPressed: () async {
                 await hideOverlay();
-
-                storyElement.videoController?.dispose();
+                completer.complete(false);
+                unawaited(storyElement.videoController?.dispose());
               },
             ),
             const Spacer(),
@@ -55,6 +59,7 @@ class VideoTopBar extends StatelessWidget {
               withText: true,
               onPressed: () {
                 editorController.assets.addAsset(storyElement);
+                completer.complete(true);
                 hideOverlay();
               },
             ),

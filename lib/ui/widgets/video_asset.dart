@@ -12,12 +12,14 @@ class VideoAsset extends StatefulWidget {
   final bool isEditing;
   final Size screen;
   final EditorController editorController;
+  final Function(bool isInited, Duration currnetPosition)? onVideoEvent;
 
   const VideoAsset({
     required this.storyElement,
     required this.screen,
     required this.isEditing,
     required this.editorController,
+    this.onVideoEvent,
     super.key,
   });
 
@@ -47,6 +49,14 @@ class _VideoAssetState extends State<VideoAsset> {
     initController();
   }
 
+  void videoListener() {
+    widget.onVideoEvent?.call(
+      widget.storyElement.videoController?.video.value.isInitialized ?? false,
+      widget.storyElement.videoController?.video.value.position ??
+          Duration.zero,
+    );
+  }
+
   Future<void> initController() async {
     final double videoWidth;
     final double videoHeight;
@@ -54,6 +64,7 @@ class _VideoAssetState extends State<VideoAsset> {
       widget.storyElement.videoController =
           VideoEditorController.network(XFile(widget.storyElement.value));
       await widget.storyElement.videoController!.initialize();
+      widget.storyElement.videoController?.video.addListener(videoListener);
       isControllerInitialized = true;
       videoWidth = widget.storyElement.videoController?.videoWidth ?? 0;
       videoHeight = widget.storyElement.videoController?.videoHeight ?? 0;
@@ -73,9 +84,11 @@ class _VideoAssetState extends State<VideoAsset> {
       videoWidth = widget.storyElement.videoController!.videoWidth;
       videoHeight = widget.storyElement.videoController!.videoHeight;
       topVideoCropPercent = widget.storyElement.videoController!.minCrop.dy;
-      bottomVideoCropPercent = 1 - widget.storyElement.videoController!.maxCrop.dy;
+      bottomVideoCropPercent =
+          1 - widget.storyElement.videoController!.maxCrop.dy;
       leftVideoCropPercent = widget.storyElement.videoController!.minCrop.dx;
-      rightVideoCropPercent = 1 - widget.storyElement.videoController!.maxCrop.dx;
+      rightVideoCropPercent =
+          1 - widget.storyElement.videoController!.maxCrop.dx;
       containerWidth = widget.screen.width;
       containerHeight = containerWidth * (videoHeight / videoWidth);
       leftCropContainer = leftVideoCropPercent * containerWidth;
@@ -83,10 +96,10 @@ class _VideoAssetState extends State<VideoAsset> {
       rightCropContainer = rightVideoCropPercent * containerWidth;
       bottomCropContainer = bottomVideoCropPercent * containerHeight;
 
-      final double w =
-          (widget.screen.width - (containerWidth - leftCropContainer - rightCropContainer)) /
-              2 /
-              widget.screen.width;
+      final double w = (widget.screen.width -
+              (containerWidth - leftCropContainer - rightCropContainer)) /
+          2 /
+          widget.screen.width;
       final double h = (widget.screen.height -
               ((containerHeight - topCropContainer - bottomCropContainer) *
                   (widget.storyElement.videoController!.videoHeight /
@@ -99,13 +112,19 @@ class _VideoAssetState extends State<VideoAsset> {
   }
 
   @override
+  void dispose() {
+    widget.storyElement.videoController?.video.removeListener(videoListener);
+    widget.storyElement.videoController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (!isControllerInitialized) {
       return Container(
         key: widget.key,
       );
     }
-    print('#Print# : BaseStoryElement');
 
     return BaseStoryElement(
       key: widget.key,
@@ -138,12 +157,5 @@ class _VideoAssetState extends State<VideoAsset> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    print('#Print# : dispose}');
-    widget.storyElement.videoController?.dispose();
-    super.dispose();
   }
 }

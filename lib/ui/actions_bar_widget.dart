@@ -29,7 +29,8 @@ class _ActionsBarWidgetState extends State<ActionsBarWidget> {
       ),
       child: Column(
         children: <Widget>[
-          if (widget.editorController.isContainsVideo)
+          if (widget.editorController.isContainsVideo &&
+              !widget.editorController.isContainsAudio)
             BaseIconButton(
               isCircle: false,
               onPressed: () {

@@ -18,6 +18,7 @@ class VideoOverlay extends StatefulWidget {
   final Size screen;
   final EditorController editorController;
   final String? uniqueId;
+  final Completer<bool> completer;
 
   const VideoOverlay({
     super.key,
@@ -25,6 +26,7 @@ class VideoOverlay extends StatefulWidget {
     required this.screen,
     required this.editorController,
     this.uniqueId,
+    required this.completer,
   });
 
   @override
@@ -102,6 +104,7 @@ class _VideoOverlayState extends State<VideoOverlay> {
                 VideoTopBar(
                   editorController: widget.editorController,
                   storyElement: storyElement,
+                  completer: widget.completer,
                 ),
               if (!storyElement.videoController!.isCropping)
                 VideoActionsBar(

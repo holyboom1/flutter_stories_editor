@@ -11,6 +11,7 @@ import '../utils/extensions.dart';
 import '../utils/overlay_util.dart';
 import '../utils/video_editor/lib/domain/entities/crop_style.dart';
 import '../utils/video_editor/lib/domain/entities/trim_style.dart';
+import '../utils/video_utils.dart';
 import 'item_type_enum.dart';
 import 'story_element.dart';
 import 'story_model.dart';
@@ -75,10 +76,10 @@ final class EditorController {
       lineColor: Color(0xFFEB671B),
     ),
     this.maxVideoDuration = const Duration(seconds: 30),
-    this.minVideoDuration = const Duration(seconds: 1),
+    this.minVideoDuration = const Duration(seconds: 5),
     this.onElementDeleted,
     this.maxAudioDuration = const Duration(seconds: 30),
-    this.minAudioDuration = const Duration(seconds: 1),
+    this.minAudioDuration = const Duration(seconds: 5),
   }) : _storyModel = StoryModel(id: storyId);
 
   /// _isAvailableToAddVideo
@@ -123,38 +124,96 @@ final class EditorController {
 
   /// Complete editing and return the story model
   Future<StoryModel> complete() async {
+    assets.value.forEach((StoryElement element) {
+      element.layerIndex = assets.value.indexOf(element);
+    });
+
+    assets.value.forEach((StoryElement element) {
+      element.videoController?.video.pause();
+      element.audioController?.pause();
+    });
     final StoryModel result;
     final bool isContainsVideo =
         assets.value.any((StoryElement element) => element.type == ItemType.video);
-    final bool isContainsImage =
-        assets.value.any((StoryElement element) => element.type == ItemType.image);
     storyModel.colorFilter = selectedFilter.value.name;
     if (isContainsVideo) {
       storyModel.isVideoIncluded = true;
     }
-    if (isContainsImage) {}
     final List<StoryElement> elements = <StoryElement>[...assets.value];
-    elements.forEach((StoryElement element) {
-      element.layerIndex = elements.indexOf(element);
-    });
-    result = storyModel.copyWith(
-      elements: elements,
-    );
+
+    bool isAudioIncluded = false;
+    bool isVideoIncluded = false;
+    bool isImageIncluded = false;
 
     await Future.forEach(elements, (StoryElement element) async {
       if (element.type == ItemType.video) {
+        isVideoIncluded = true;
         if (element.videoController != null) {
+          storyModel.videoDuration =
+              element.videoController!.trimmedDuration.inMilliseconds.toDouble();
           element.elementFile =
               await CompressService.trimVideoAndCompress(element.videoController!);
         }
       } else if (element.type == ItemType.image) {
+        isImageIncluded = true;
         element.elementFile = await CompressService.compressImage(XFile(element.value));
+      } else if (!storyModel.isVideoIncluded && element.type == ItemType.audio) {
+        isAudioIncluded = true;
+        storyModel.videoDuration = element.elementDuration.toDouble();
+      } else if (element.type == ItemType.audio) {
+        isAudioIncluded = true;
       }
     });
 
+    if (isAudioIncluded && isVideoIncluded) {
+      final StoryElement? videoElement = elements.firstWhereOrNull(
+        (StoryElement element) => element.type == ItemType.video,
+      );
+      final StoryElement? audioElement = elements.firstWhereOrNull(
+        (StoryElement element) => element.type == ItemType.audio,
+      );
+      if (audioElement != null && videoElement != null) {
+        final XFile videoWithNewAudio = await VideoUtils.addAudioToVideo(
+          audioPath: audioElement.elementFile!.path,
+          videoPath: videoElement.elementFile!.path,
+        );
+        videoElement.elementFile = videoWithNewAudio;
+        videoElement.value = videoWithNewAudio.path;
+        elements.removeWhere((StoryElement element) => element.id == audioElement.id);
+      }
+    } else if (isAudioIncluded && isImageIncluded) {
+      final StoryElement? audioElement = elements.firstWhereOrNull(
+        (StoryElement element) => element.type == ItemType.audio,
+      );
+      final StoryElement? imageElement = elements.firstWhereOrNull(
+        (StoryElement element) => element.type == ItemType.image,
+      );
+      if (audioElement != null && imageElement != null) {
+        final XFile videoWithNewAudio = await VideoUtils.addAudioImage(
+          audioPath: audioElement.elementFile!.path,
+          imagePath: imageElement.elementFile!.path,
+        );
+        imageElement.elementFile = videoWithNewAudio;
+        imageElement.type = ItemType.video;
+        imageElement.value = videoWithNewAudio.path;
+        elements.removeWhere((StoryElement element) => element.id == audioElement.id);
+        storyModel.isVideoIncluded = true;
+      }
+    }
+    result = storyModel.copyWith(
+      elements: elements,
+    );
     assets.value.clear();
     selectedFilter.value = PresetFilters.none;
     selectedItem.value = null;
+
+    Future.delayed(const Duration(seconds: 5), () {
+      assets.value.forEach((StoryElement element) {
+        element.videoController?.dispose();
+        element.audioController?.dispose();
+      });
+    });
+    debugPrint('storyModel :${result.toJson()}');
     return result;
   }
 
@@ -173,13 +232,16 @@ final class EditorController {
   }
 
   /// Add Custom file widget asset
-  void addCustomAsset({
+  Future<bool> addCustomAsset({
     XFile? file,
     String? url,
     required CustomAssetType type,
     String uniqueId = '',
-    Widget customWidget = const SizedBox(),
-  }) {
+    Widget Function(BuildContext context, Function() onPlay, Function() onPause,
+            ValueNotifier<bool> isPlay)?
+        customWidgetBuilder,
+  }) async {
+    final Completer<bool> completer = Completer<bool>();
     assert(file != null || url != null);
     switch (type) {
       case CustomAssetType.image:
@@ -191,26 +253,30 @@ final class EditorController {
             customWidgetUniqueID: uniqueId,
           ),
         );
+        completer.complete(true);
         break;
       case CustomAssetType.video:
         if (file != null && _isAvailableToAddVideo) {
-          showVideoOverlay(
+          unawaited(showVideoOverlay(
             videoFile: file,
             editorController: this,
             uniqueId: uniqueId,
-          );
+            completer: completer,
+          ));
         }
         break;
       case CustomAssetType.audio:
-        showAudioOverlay(
+        unawaited(showAudioOverlay(
           audioFile: file,
           audioUrl: url,
           editorController: this,
           uniqueId: uniqueId,
-          customWidget: customWidget,
-        );
+          customWidgetBuilder: customWidgetBuilder,
+          completer: completer,
+        ));
         break;
     }
+    return completer.future;
   }
 
   /// Add custom widget to assets
@@ -243,14 +309,40 @@ final class EditorController {
 
   /// Remove element from assets
   void removeElement(StoryElement element) {
+    element.audioController?.stop();
+    element.videoController?.video.pause();
+    element.audioController?.dispose();
+    element.videoController?.dispose();
     assets.removeAsset(element);
     onElementDeleted?.call(element);
+  }
+
+  /// Remove element from assets
+  void removeElementByUniqueID(String uniqueID) {
+    final StoryElement? element = assets.value.firstWhereOrNull(
+      (StoryElement element) => element.customWidgetUniqueID == uniqueID,
+    );
+    element?.audioController?.stop();
+    element?.videoController?.video.pause();
+    element?.audioController?.dispose();
+    element?.videoController?.dispose();
+    if (element != null) {
+      assets.removeAsset(element);
+      onElementDeleted?.call(element);
+    }
   }
 
   /// Check if the assets contains video
   bool get isContainsVideo =>
       assets.value.firstWhereOrNull(
         (StoryElement element) => element.type == ItemType.video,
+      ) !=
+      null;
+
+  /// Check if the assets contains audio
+  bool get isContainsAudio =>
+      assets.value.firstWhereOrNull(
+        (StoryElement element) => element.type == ItemType.audio,
       ) !=
       null;
 
@@ -269,5 +361,18 @@ final class EditorController {
         videoElement.isVideoMuted = true;
       }
     }
+  }
+
+  /// Dispose the controller
+  void dispose() {
+    assets.value.forEach((StoryElement element) {
+      element.videoController?.video.pause();
+      element.videoController?.dispose();
+    });
+    assets.dispose();
+    selectedItem.dispose();
+    selectedFilter.dispose();
+    isShowingOverlay.dispose();
+    audioIsPlaying.dispose();
   }
 }

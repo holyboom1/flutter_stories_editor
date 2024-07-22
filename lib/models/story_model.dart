@@ -13,9 +13,6 @@ final class StoryModel {
   /// Is video included in the story
   bool _isVideoIncluded;
 
-  /// Video progress position
-  ValueNotifier<double> videoProgressPosition = ValueNotifier<double>(0);
-
   /// Video duration
   double _videoDuration;
 
@@ -104,14 +101,22 @@ final class StoryModel {
     return StoryModel(
       id: json['id'] as String,
       isVideoIncluded: json['isVideoIncluded'] as bool,
-      videoDuration: json['videoDuration'] as double,
+      videoDuration: double.tryParse(json['videoDuration'].toString()) ?? 0,
     )
       ..elements = (json['elements'] as List<dynamic>)
           .map((dynamic e) => StoryElement.fromJson(e as Map<String, dynamic>))
           .toList()
-      ..colorFilter = json['colorFiler'] as String
+      ..colorFilter = json['colorFilter'] as String
       ..paletteColors = (json['paletteColors'] as List<dynamic>)
           .map((dynamic e) => Color(e as int))
           .toList();
+  }
+
+  /// Dispose
+  void dispose() {
+    elements.forEach((StoryElement element) {
+      element.videoController?.video.pause();
+      element.videoController?.dispose();
+    });
   }
 }

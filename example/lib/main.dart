@@ -26,21 +26,66 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        floatingActionButton: IconButton(
-          onPressed: () async {
-            // final ByteData audio = await rootBundle.load('assets/test_mp3.mp3');
-            // final Uint8List audioBytes = audio.buffer.asUint8List();
-            // final XFile file = XFile.fromData(audioBytes,
-            //     name: 'my_text.txt', mimeType: 'audio/mp3');
-            // editorController.addCustomAsset(
-            //     type: CustomAssetType.audio, file: file);
-            //
-            editorController.addCustomAsset(
-                type: CustomAssetType.audio,
-                url:
-                    'https://storage.googleapis.com/jiggl-bucket/backend/files/2024/05/03/11173305733636.mp3');
-          },
-          icon: const Icon(Icons.audiotrack),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+              onPressed: () async {
+                // final ByteData audio = await rootBundle.load('assets/test_mp3.mp3');
+                // final Uint8List audioBytes = audio.buffer.asUint8List();
+                // final XFile file = XFile.fromData(audioBytes,
+                //     name: 'my_text.txt', mimeType: 'audio/mp3');
+                // editorController.addCustomAsset(
+                //     type: CustomAssetType.audio, file: file);
+                //
+                editorController.addCustomAsset(
+                    type: CustomAssetType.audio,
+                    url:
+                        'https://storage.googleapis.com/jiggl-bucket/backend/files/2024/05/03/11173305733636.mp3');
+              },
+              icon: const Icon(Icons.audiotrack),
+            ),
+            IconButton(
+              onPressed: () async {
+                // final ByteData audio = await rootBundle.load('assets/test_mp3.mp3');
+                // final Uint8List audioBytes = audio.buffer.asUint8List();
+                // final XFile file = XFile.fromData(audioBytes,
+                //     name: 'my_text.txt', mimeType: 'audio/mp3');
+                // editorController.addCustomAsset(
+                //     type: CustomAssetType.audio, file: file);
+                //
+                editorController.removeElement(editorController.assets.value.last);
+              },
+              icon: const Icon(Icons.delete),
+            ),
+            IconButton(
+              onPressed: () async {
+                // final ByteData audio = await rootBundle.load('assets/test_mp3.mp3');
+                // final Uint8List audioBytes = audio.buffer.asUint8List();
+                // final XFile file = XFile.fromData(audioBytes,
+                //     name: 'my_text.txt', mimeType: 'audio/mp3');
+                // editorController.addCustomAsset(
+                //     type: CustomAssetType.audio, file: file);
+                //
+                editorController.addCustomAsset(
+                    type: CustomAssetType.image,
+                    url:
+                        'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/2048px-Instagram_icon.png');
+              },
+              icon: const Icon(Icons.image),
+            ),
+            IconButton(
+              onPressed: () async {
+                if (storyModel == null) {
+                  storyModel = await editorController.complete();
+                } else {
+                  storyModel = null;
+                }
+                setState(() {});
+              },
+              icon: const Icon(Icons.check),
+            ),
+          ],
         ),
         body: SafeArea(
           child: Column(

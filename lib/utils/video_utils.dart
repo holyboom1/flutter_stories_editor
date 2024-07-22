@@ -68,6 +68,74 @@ class VideoUtils {
       onStatistics: onStatistics,
     );
   }
+
+  static Future<XFile> addAudioToVideo({
+    void Function(FFmpegStatistics)? onStatistics,
+    VideoExportFormat outputFormat = VideoExportFormat.mp4,
+    String audioPath = '',
+    String videoPath = '',
+  }) async {
+    final String outputPath = kIsWeb
+        ? webOutputPath(outputFormat)
+        : await ioOutputPath(videoPath, outputFormat);
+
+    final String execute =
+        '-i $videoPath -i $audioPath -map 0:v -map 1:a -c:v copy -shortest -y $outputPath';
+    debugPrint('run export video command : [$execute]');
+
+    return const FFmpegExport().executeFFmpegIO(
+      execute: execute,
+      outputPath: outputPath,
+      outputMimeType: outputFormat.mimeType,
+      onStatistics: onStatistics,
+    );
+  }
+
+  static Future<XFile> addAudioImage({
+    void Function(FFmpegStatistics)? onStatistics,
+    VideoExportFormat outputFormat = VideoExportFormat.mp4,
+    String audioPath = '',
+    String imagePath = '',
+  }) async {
+    final String outputPath = kIsWeb
+        ? webOutputPath(outputFormat)
+        : await ioOutputPath(imagePath, outputFormat);
+
+    String duration = '0';
+    final Completer<void> completer = Completer<void>();
+
+    await FFmpegKit.executeAsync('-i $audioPath -hide_banner',
+        (FFmpegSession session) async {
+      final String? output = await session.getOutput();
+      duration = extractDuration(output ?? '') ?? '';
+      completer.complete();
+    });
+    await completer.future;
+
+    final String videoPath = outputPath.replaceAll('.mp4', '_video.mp4');
+
+    await const FFmpegExport().executeFFmpegIO(
+      execute:
+          '-loop 1 -i $imagePath -c:v libx264 -t $duration -pix_fmt yuv420p $videoPath',
+      outputPath: outputPath,
+      outputMimeType: outputFormat.mimeType,
+      onStatistics: onStatistics,
+    );
+
+    return const FFmpegExport().executeFFmpegIO(
+      execute:
+          '-i $videoPath -i $audioPath -c:v copy -c:a aac -shortest $outputPath',
+      outputPath: outputPath,
+      outputMimeType: outputFormat.mimeType,
+      onStatistics: onStatistics,
+    );
+  }
+
+  static String? extractDuration(String output) {
+    final RegExp regex = RegExp(r'Duration: (\d{2}:\d{2}:\d{2}\.\d{2})');
+    final RegExpMatch? match = regex.firstMatch(output);
+    return match?.group(1);
+  }
 }
 
 class FFmpegExport {

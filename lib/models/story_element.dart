@@ -1,4 +1,5 @@
 import 'package:advanced_media_picker/advanced_media_picker.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/extensions.dart';
@@ -8,19 +9,22 @@ import 'item_type_enum.dart';
 /// A class that represents a story element.
 class StoryElement {
   /// The unique identifier of the element.
-  final int id;
+  final String id;
 
   /// Element key.
   final GlobalKey key = GlobalKey();
 
   /// Element type.
-  final ItemType type;
+  ItemType type;
 
   /// Element file.
   XFile? elementFile;
 
   /// Element value.
   String value = '';
+
+  /// Element duration.
+  int elementDuration = 0;
 
   /// Element container color.
   Color containerColor;
@@ -61,6 +65,9 @@ class StoryElement {
   /// Video controller.
   VideoEditorController? videoController;
 
+  /// Audio controller.
+  AudioPlayer? audioController;
+
   /// Hover delete indicator.
   ValueNotifier<bool> hoverDelete = ValueNotifier<bool>(false);
 
@@ -72,7 +79,7 @@ class StoryElement {
 
   /// Creates a new story element.
   StoryElement({
-    int? id,
+    String? id,
     this.layerIndex = 0,
     required this.type,
     this.value = '',
@@ -92,7 +99,7 @@ class StoryElement {
     this.customWidgetPayload = '',
     this.customWidgetUniqueID = '',
     this.isVideoMuted = false,
-  }) : id = id ?? DateTime.now().millisecondsSinceEpoch;
+  }) : id = id ?? UniqueKey().toString();
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -114,12 +121,13 @@ class StoryElement {
   factory StoryElement.fromJson(Map<String, dynamic> json) {
     return StoryElement(
       layerIndex: json['layerIndex'] as int,
-      id: int.tryParse(json['id']) ?? DateTime.now().millisecondsSinceEpoch,
+      id: json['id'],
       type: ItemType.fromString(json['type']),
       value: json['value'] as String,
       containerColor: Color(json['containerColor']),
-      textStyle: const TextStyle()..fromJson(json['textStyle'] as Map<String, dynamic>),
-      textAlign: TextAlign.values[int.tryParse(json['textAlign']) ?? 0],
+      textStyle: const TextStyle()
+        ..fromJson(json['textStyle'] as Map<String, dynamic>),
+      textAlign: TextAlign.values[json['textAlign']],
       position: Offset.zero.fromJson(json['position'] as Map<String, double>),
       scale: json['scale'] as double,
       rotation: json['rotation'] as double,

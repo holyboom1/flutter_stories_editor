@@ -1,3 +1,51 @@
+## 0.0.25
+
+* Bugs fix
+
+## 0.0.24
+
+* Bugs fix
+
+## 0.0.23
+
+* Bugs fix
+
+## 0.0.22
+
+* Bugs fix
+
+## 0.0.21
+
+* Bugs fix
+
+## 0.0.20
+
+* Bugs fix
+
+## 0.0.19
+
+* Bugs fix
+
+## 0.0.18
+
+* Bugs fix
+
+## 0.0.17
+
+* Bugs fix
+
+## 0.0.16
+
+* Bugs fix
+ 
+## 0.0.15
+
+* Bugs fix
+
+## 0.0.14
+
+* Bugs fix
+
 ## 0.0.13
 
 * Added ability to control audio

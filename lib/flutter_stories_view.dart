@@ -8,57 +8,70 @@ import 'utils/color_filters/colorfilter_generator.dart';
 import 'utils/color_filters/presets.dart';
 
 /// FlutterStoriesViewer
-class FlutterStoriesViewer extends StatelessWidget {
+class FlutterStoriesViewer extends StatefulWidget {
   /// Top bar config
   final StoryModel storyModel;
 
-  /// Callback when the viewer is ready
-  final Function(bool isReady)? onReady;
+  /// Callback when the viewer is ready and video duration is changed
+  final Function(bool isInited, Duration currnetPosition)? onVideoEvent;
 
   /// FlutterStoriesViewer
   const FlutterStoriesViewer({
     Key? key,
     required this.storyModel,
-    this.onReady,
+    this.onVideoEvent,
   }) : super(key: key);
+
+  @override
+  State<FlutterStoriesViewer> createState() => _FlutterStoriesViewerState();
+}
+
+class _FlutterStoriesViewerState extends State<FlutterStoriesViewer> {
+  @override
+  void dispose() {
+    widget.storyModel.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      key: ValueKey<String>(storyModel.id),
+      key: ValueKey<String>(widget.storyModel.id),
       aspectRatio: 9 / 16.5,
       child: Container(
-        key: ValueKey<String>(storyModel.id),
+        key: ValueKey<String>(widget.storyModel.id),
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: <Color>[...storyModel.paletteColors],
+            colors: <Color>[...widget.storyModel.paletteColors],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
         child: ColorFiltered(
-          key: ValueKey<String>(storyModel.id),
+          key: ValueKey<String>(widget.storyModel.id),
           colorFilter: ColorFilter.matrix(presetFiltersList
                   .firstWhereOrNull(
-                    (ColorFilterGenerator e) => e.name == storyModel.colorFilter,
+                    (ColorFilterGenerator e) =>
+                        e.name == widget.storyModel.colorFilter,
                   )
                   ?.matrix ??
               PresetFilters.none.matrix),
           child: LayoutBuilder(
-            key: ValueKey<String>(storyModel.id),
+            key: ValueKey<String>(widget.storyModel.id),
             builder: (BuildContext context, BoxConstraints constraints) {
               return Stack(
-                key: ValueKey<String>(storyModel.id),
+                key: ValueKey<String>(widget.storyModel.id),
                 children: <Widget>[
-                  ...storyModel.elements.map(
+                  ...widget.storyModel.elements.map(
                     (StoryElement e) {
                       return StoryElementWidget(
                         storyElement: e,
-                        key: ValueKey<int>(e.id),
+                        key: ValueKey<String>(e.id),
                         screen: constraints.biggest,
                         isEditing: false,
                         editorController: EditorController(),
+                        onVideoEvent: widget.onVideoEvent,
                       );
                     },
                   ).toList()

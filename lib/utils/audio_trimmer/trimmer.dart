@@ -176,7 +176,7 @@ class AudioTrimmer {
     int? scaleGIF,
     String? audioFolderName,
     String? audioFileName,
-    StorageDir? storageDir,
+    StorageDir storageDir = StorageDir.temporaryDirectory,
   }) async {
     final String audioPath = currentAudioFile!.path;
     final String audioName = basename(audioPath).split('.')[0];
@@ -184,7 +184,7 @@ class AudioTrimmer {
     String command;
 
     // Formatting Date and Time
-    final String dateTime = DateTime.now().toIso8601String();
+    final String dateTime = DateTime.now().millisecondsSinceEpoch.toString();
 
     // String _resultString;
     String outputPath;
@@ -194,9 +194,9 @@ class AudioTrimmer {
     debugPrint('DateTime: $dateTime');
     debugPrint('Formatted: $formattedDateTime');
 
-    audioFolderName ??= 'Trimmer';
+    audioFolderName ??= 'trimmer';
 
-    audioFileName ??= '${audioName}_trimmed:$formattedDateTime';
+    audioFileName ??= '${audioName}_trimmed_$formattedDateTime';
 
     audioFileName = audioFileName.replaceAll(' ', '_');
 
@@ -238,6 +238,8 @@ class AudioTrimmer {
     }
 
     outputPath = '$path$audioFileName$outputFormatString';
+
+    print('#Print# : $outputPath');
 
     command += '"$outputPath"';
 
