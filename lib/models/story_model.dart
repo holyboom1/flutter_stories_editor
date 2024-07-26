@@ -81,6 +81,8 @@ final class StoryModel {
     )
       ..elements = elements ?? _elements
       ..colorFilter = colorFiler ?? _colorFiler
+      ..isVideoIncluded = isVideoIncluded
+      ..videoDuration = _videoDuration
       ..paletteColors = paletteColors ?? _paletteColors;
   }
 
@@ -117,6 +119,8 @@ final class StoryModel {
     elements.forEach((StoryElement element) {
       element.videoController?.video.pause();
       element.videoController?.dispose();
+      element.videoControllerView?.pause();
+      element.videoControllerView?.dispose();
     });
   }
 }

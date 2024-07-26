@@ -2,6 +2,7 @@ enum ItemType {
   text,
   image,
   video,
+  imageVideo,
   audio,
   widget,
   none;
@@ -12,6 +13,8 @@ enum ItemType {
         return ItemType.text;
       case 'image':
         return ItemType.image;
+      case 'imageVideo':
+        return ItemType.imageVideo;
       case 'video':
         return ItemType.video;
       case 'audio':
@@ -30,6 +33,8 @@ enum ItemType {
         return 'text';
       case ItemType.image:
         return 'image';
+      case ItemType.imageVideo:
+        return 'imageVideo';
       case ItemType.video:
         return 'video';
       case ItemType.audio:

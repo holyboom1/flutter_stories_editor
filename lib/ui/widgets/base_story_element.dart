@@ -72,13 +72,10 @@ class _BaseStoryElementState extends State<BaseStoryElement> {
                     widget.editorController.editText(widget.storyElement);
                     break;
                   case ItemType.image:
-                    break;
+                  case ItemType.imageVideo:
                   case ItemType.video:
-                    break;
                   case ItemType.audio:
-                    break;
                   case ItemType.widget:
-                    break;
                   case ItemType.none:
                     break;
                 }

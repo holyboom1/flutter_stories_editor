@@ -9,34 +9,79 @@ void main() {
 }
 
 final StoryModel story2 = StoryModel.fromJson({
-  'id': '01J37EP2CE8FYXYATVPTXX394C',
-  'elements': [
+  "id": "01J3MMFRJ1TX6RFQ6S5E62Y21H",
+  "author": {
+    "id": "01J3CP3APSF8TMCREP3PDRB7T7",
+    "pseudonym": "Cat",
+    "bio": null,
+    "avatar":
+        "https://storage.googleapis.com/jiggl-bucket/performer/image/01J3CP3APS11P5V2KTMCWT6VRT2024_07_22_07_39_35.png",
+    "ownerId": "01J3CNY2TF67ZT24QGS0A89TSK",
+    "countStories": 7,
+    "hasFollowed": null,
+    "hasFollowing": null
+  },
+  "createdAt": "2024-07-25T09:45:20.705356Z",
+  "updatedAt": null,
+  "colorFilter": "None",
+  "isVideoIncluded": true,
+  "videoDuration": 30000,
+  "paletteColors": [4278190080, 4278190080],
+  "isViewed": true,
+  "isLiked": false,
+  "countLikes": 0,
+  "elements": [
     {
-      'layerIndex': 0,
-      'id': '1721458883568767',
-      'type': 'video',
-      'value':
-          'https://storage.googleapis.com/jiggl-bucket/01J37EP410PM7M6NYRR225KJX62024_07_20_06_53_49.mp4',
-      'containerColor': 4294967295,
-      'textStyle': {
-        'color': 4294967295,
-        'fontSize': null,
-        'letterSpacing': null,
-        'fontWeight': 3,
-        'fontStyle': 0
+      "id": "01J3MMFT3BGJM37V1Z3YRD8BY6",
+      "layerIndex": 0,
+      "storyId": "01J3MMFRJ1TX6RFQ6S5E62Y21H",
+      "createdAt": "2024-07-25T09:45:22.283192Z",
+      "updatedAt": null,
+      "type": "imageVideo",
+      "value":
+          "https://storage.googleapis.com/jiggl-bucket/01J3MMFSXKVWQ5YB13T5K5541M2024_07_25_09_45_22.mp4",
+      "containerColor": 4278190080,
+      "textStyle": {
+        "color": 4294967295,
+        "fontSize": 16.0,
+        "fontStyle": 0,
+        "fontFamily": "",
+        "fontWeight": 3,
+        "letterSpacing": 1.0
       },
-      'textAlign': 2,
-      'position': {'dx': 0.0, 'dy': 0.38417849946776156},
-      'scale': 1.0,
-      'rotation': 0.0,
-      'customWidgetId': '',
-      'isVideoMuted': false
+      "textAlign": 2,
+      "position": {"dx": 0.25, "dy": 0.24144079885877318},
+      "scale": 1.0,
+      "rotation": 0.0,
+      "customWidgetId": "",
+      "customWidgetPayload": ""
+    },
+    {
+      "id": "01J3MMFT3B9HBM3TMNFT0ZW7H9",
+      "layerIndex": 2,
+      "storyId": "01J3MMFRJ1TX6RFQ6S5E62Y21H",
+      "createdAt": "2024-07-25T09:45:22.283198Z",
+      "updatedAt": null,
+      "type": "widget",
+      "value": "",
+      "containerColor": 4278190080,
+      "textStyle": {
+        "color": 4294967295,
+        "fontSize": 16.0,
+        "fontStyle": 0,
+        "fontFamily": "",
+        "fontWeight": 3,
+        "letterSpacing": 1.0
+      },
+      "textAlign": 2,
+      "position": {"dx": 0.20080574171537055, "dy": 0.5809557774607703},
+      "scale": 1.0,
+      "rotation": 0.0,
+      "customWidgetId": "track",
+      "customWidgetPayload":
+          "{\"id\":\"01J3KNPEY8EHMWAF37YDHD8Z0J\",\"name\":\"Lost in the echo\",\"file\":\"https://storage.googleapis.com/jiggl-bucket/backend/files/2024/07/25/00471407377294.mp3\",\"cover\":\"https://storage.googleapis.com/jiggl-bucket/backend/files/2024/07/25/00471507629292.jpeg\",\"author\":{\"id\":\"01J3KN0JMH78XN0GRBV6M4EQYB\",\"pseudonym\":\"Duke\",\"avatar\":\"https://storage.googleapis.com/jiggl-bucket/performer/image/01J3KN0JMHEBT0V7XG27N8YTHD2024_07_25_00_35_17.png\",\"bio\":\"Name: Duke Cassidy\\r\\nAge: 25 years\\r\\nOrigin: Seattle, Washington, USA\\r\\n\\r\\nBiography: Singer and musician who grew up in the family of a famous rock musician and an opera singer. Surrounded from childhood by the world of music and glamor, he absorbed his father's rebellious spirit and his mother's kindness, which shaped his strong character and confidence. He travels extensively, plays guitar and keyboards, performs and continues to inspire millions with his music and life story. Duke is currently actively invo\"}}"
     }
-  ],
-  'colorFilter': 'None',
-  'isVideoIncluded': false,
-  'videoDuration': 0.0,
-  'paletteColors': [4279902242, 4286348638],
+  ]
 });
 final StoryModel story1 = StoryModel.fromJson({
   "id": "01J37XP08HYZZC79MZEQK16MXK",

@@ -80,7 +80,7 @@ class VideoEditorController extends ChangeNotifier {
   /// The [file] argument must not be null.
   VideoEditorController.file(
     this.file, {
-    this.maxDuration = Duration.zero,
+    this.maxDuration = const Duration(seconds: 60),
     this.minDuration = Duration.zero,
     this.cropStyle = const CropGridStyle(),
     TrimSliderStyle? trimStyle,
@@ -89,7 +89,6 @@ class VideoEditorController extends ChangeNotifier {
             ? VideoPlayerController.network(file.path)
             : VideoPlayerController.file(
                 File(
-                  // https://github.com/flutter/flutter/issues/40429#issuecomment-549746165
                   Platform.isIOS ? Uri.encodeFull(file.path) : file.path,
                 ),
               ),
@@ -104,7 +103,7 @@ class VideoEditorController extends ChangeNotifier {
 
   VideoEditorController.network(
     this.file, {
-    this.maxDuration = const Duration(seconds: 30),
+    this.maxDuration = const Duration(seconds: 60),
     this.minDuration = Duration.zero,
     this.cropStyle = const CropGridStyle(),
     TrimSliderStyle? trimStyle,

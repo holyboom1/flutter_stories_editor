@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import '../../../constants.dart';
 
 class TextFontSelector extends StatefulWidget {
   final Size screen;
@@ -16,8 +17,6 @@ class TextFontSelector extends StatefulWidget {
 }
 
 class _TextFontSelectorState extends State<TextFontSelector> {
-  Map<String, Function> fonts = GoogleFonts.asMap();
-
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -30,7 +29,7 @@ class _TextFontSelectorState extends State<TextFontSelector> {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           shrinkWrap: true,
-          itemCount: fonts.length + 2,
+          itemCount: Constants.fonts.length + 2,
           separatorBuilder: (BuildContext context, int index) {
             return const SizedBox(width: 0);
           },
@@ -38,12 +37,11 @@ class _TextFontSelectorState extends State<TextFontSelector> {
             if (index == 0) {
               return const SizedBox(width: 8);
             }
-            if (index == fonts.length + 1) {
+            if (index == Constants.fonts.length + 1) {
               return const SizedBox(width: 8);
             }
 
-            final TextStyle font =
-                fonts[fonts.keys.elementAt(index - 1)]!.call();
+            final TextStyle font = Constants.fonts[index - 1];
 
             return InkWell(
               borderRadius: BorderRadius.circular(30),

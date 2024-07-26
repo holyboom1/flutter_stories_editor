@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import 'flutter_stories_editor.dart';
+import 'models/item_type_enum.dart';
 import 'models/story_element.dart';
 import 'ui/widgets/story_element.dart';
 import 'utils/color_filters/colorfilter_generator.dart';
@@ -12,6 +13,9 @@ class FlutterStoriesViewer extends StatefulWidget {
   /// Top bar config
   final StoryModel storyModel;
 
+  /// Loading widget
+  final Widget? loadingWidget;
+
   /// Callback when the viewer is ready and video duration is changed
   final Function(bool isInited, Duration currnetPosition)? onVideoEvent;
 
@@ -20,6 +24,7 @@ class FlutterStoriesViewer extends StatefulWidget {
     Key? key,
     required this.storyModel,
     this.onVideoEvent,
+    this.loadingWidget,
   }) : super(key: key);
 
   @override
@@ -29,8 +34,34 @@ class FlutterStoriesViewer extends StatefulWidget {
 class _FlutterStoriesViewerState extends State<FlutterStoriesViewer> {
   @override
   void dispose() {
+    isLoaded = false;
     widget.storyModel.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    bool containsVideo = widget.storyModel.elements.any(
+      (StoryElement e) =>
+          e.type == ItemType.video || e.type == ItemType.imageVideo,
+    );
+    if (!containsVideo) {
+      setState(() {
+        isLoaded = true;
+      });
+    }
+  }
+
+  bool isLoaded = false;
+
+  void onVideoEvent(bool isInited, Duration currentPosition) {
+    widget.onVideoEvent?.call(isInited, currentPosition);
+    if (!isLoaded && currentPosition > Duration.zero) {
+      setState(() {
+        isLoaded = true;
+      });
+    }
   }
 
   @override
@@ -71,10 +102,13 @@ class _FlutterStoriesViewerState extends State<FlutterStoriesViewer> {
                         screen: constraints.biggest,
                         isEditing: false,
                         editorController: EditorController(),
-                        onVideoEvent: widget.onVideoEvent,
+                        onVideoEvent: onVideoEvent,
                       );
                     },
-                  ).toList()
+                  ).toList(),
+                  if (!isLoaded)
+                    widget.loadingWidget ??
+                        const Center(child: CircularProgressIndicator())
                 ],
               );
             },

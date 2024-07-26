@@ -43,9 +43,8 @@ class VideoUtils {
     final String inputPath = kIsWeb
         ? webInputPath(FileFormat.fromMimeType(controller.file.mimeType))
         : controller.file.path;
-    final String outputPath = kIsWeb
-        ? webOutputPath(outputFormat)
-        : await ioOutputPath(inputPath, outputFormat);
+    final String outputPath =
+        kIsWeb ? webOutputPath(outputFormat) : await ioOutputPath(inputPath, outputFormat);
 
     final VideoFFmpegConfig config = controller.createVideoFFmpegConfig();
     final String execute = config.createExportCommand(
@@ -53,8 +52,7 @@ class VideoUtils {
       outputPath: outputPath,
       outputFormat: outputFormat,
       scale: scale,
-      customInstruction:
-          customInstruction + (controller.isVideoMuted ? ' -an' : ''),
+      customInstruction: customInstruction + (controller.isVideoMuted ? ' -an' : ''),
       preset: preset,
       isFiltersEnabled: isFiltersEnabled,
     );
@@ -75,9 +73,8 @@ class VideoUtils {
     String audioPath = '',
     String videoPath = '',
   }) async {
-    final String outputPath = kIsWeb
-        ? webOutputPath(outputFormat)
-        : await ioOutputPath(videoPath, outputFormat);
+    final String outputPath =
+        kIsWeb ? webOutputPath(outputFormat) : await ioOutputPath(videoPath, outputFormat);
 
     final String execute =
         '-i $videoPath -i $audioPath -map 0:v -map 1:a -c:v copy -shortest -y $outputPath';
@@ -97,15 +94,13 @@ class VideoUtils {
     String audioPath = '',
     String imagePath = '',
   }) async {
-    final String outputPath = kIsWeb
-        ? webOutputPath(outputFormat)
-        : await ioOutputPath(imagePath, outputFormat);
+    final String outputPath =
+        kIsWeb ? webOutputPath(outputFormat) : await ioOutputPath(imagePath, outputFormat);
 
-    String duration = '0';
+    String duration = '00:00:30.00';
     final Completer<void> completer = Completer<void>();
 
-    await FFmpegKit.executeAsync('-i $audioPath -hide_banner',
-        (FFmpegSession session) async {
+    await FFmpegKit.executeAsync('-i $audioPath -hide_banner', (FFmpegSession session) async {
       final String? output = await session.getOutput();
       duration = extractDuration(output ?? '') ?? '';
       completer.complete();
@@ -116,15 +111,14 @@ class VideoUtils {
 
     await const FFmpegExport().executeFFmpegIO(
       execute:
-          '-loop 1 -i $imagePath -c:v libx264 -t $duration -pix_fmt yuv420p $videoPath',
+          '-loop 1 -i $imagePath -c:v h264_videotoolbox -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -crf 32 -t $duration $videoPath',
       outputPath: outputPath,
       outputMimeType: outputFormat.mimeType,
       onStatistics: onStatistics,
     );
 
     return const FFmpegExport().executeFFmpegIO(
-      execute:
-          '-i $videoPath -i $audioPath -c:v copy -c:a aac -shortest $outputPath',
+      execute: '-i $videoPath -i $audioPath -c:v copy -c:a aac -shortest $outputPath',
       outputPath: outputPath,
       outputMimeType: outputFormat.mimeType,
       onStatistics: onStatistics,
@@ -148,7 +142,7 @@ class FFmpegExport {
     void Function(FFmpegStatistics)? onStatistics,
   }) {
     final Completer<XFile> completer = Completer<XFile>();
-
+    debugPrint('FFmpeg command :${execute}');
     FFmpegKit.executeAsync(
       execute,
       (FFmpegSession session) async {
@@ -232,9 +226,7 @@ class FFmpegStatistics {
   }
 
   double getProgress(int videoDurationMs) {
-    return videoDurationMs <= 0.0
-        ? 0.0
-        : (time / videoDurationMs).clamp(0.0, 1.0);
+    return videoDurationMs <= 0.0 ? 0.0 : (time / videoDurationMs).clamp(0.0, 1.0);
   }
 
   static int _timeToMs(String timeString) {

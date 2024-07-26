@@ -1,10 +1,10 @@
 // import 'package:cached_video_player/cached_video_player.dart';
+import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../flutter_stories_editor.dart';
 import '../../models/story_element.dart';
-import '../../utils/video_editor/lib/domain/bloc/controller.dart';
 import 'base_story_element.dart';
 
 class VideoAsset extends StatefulWidget {
@@ -51,9 +51,8 @@ class _VideoAssetState extends State<VideoAsset> {
 
   void videoListener() {
     widget.onVideoEvent?.call(
-      widget.storyElement.videoController?.video.value.isInitialized ?? false,
-      widget.storyElement.videoController?.video.value.position ??
-          Duration.zero,
+      widget.storyElement.videoControllerView?.value.isInitialized ?? false,
+      widget.storyElement.videoControllerView?.value.position ?? Duration.zero,
     );
   }
 
@@ -61,17 +60,24 @@ class _VideoAssetState extends State<VideoAsset> {
     final double videoWidth;
     final double videoHeight;
     if (!widget.isEditing) {
-      widget.storyElement.videoController =
-          VideoEditorController.network(XFile(widget.storyElement.value));
-      await widget.storyElement.videoController!.initialize();
-      widget.storyElement.videoController?.video.addListener(videoListener);
+      widget.storyElement.videoControllerView =
+          CachedVideoPlayerPlusController.networkUrl(
+        Uri.parse(
+          widget.storyElement.value,
+        ),
+        invalidateCacheIfOlderThan: const Duration(days: 1),
+      );
+      await widget.storyElement.videoControllerView?.initialize();
+      widget.storyElement.videoControllerView?.addListener(videoListener);
       isControllerInitialized = true;
-      videoWidth = widget.storyElement.videoController?.videoWidth ?? 0;
-      videoHeight = widget.storyElement.videoController?.videoHeight ?? 0;
+      videoWidth =
+          widget.storyElement.videoControllerView?.value.size.width ?? 0;
+      videoHeight =
+          widget.storyElement.videoControllerView?.value.size.height ?? 0;
       containerWidth = widget.screen.width;
       containerHeight = containerWidth * (videoHeight / videoWidth);
-      await widget.storyElement.videoController?.video.setLooping(true);
-      await widget.storyElement.videoController?.video.play();
+      await widget.storyElement.videoControllerView?.setLooping(true);
+      await widget.storyElement.videoControllerView?.play();
     } else {
       if (widget.storyElement.videoController != null &&
           !widget.storyElement.videoController!.initialized) {
@@ -101,11 +107,10 @@ class _VideoAssetState extends State<VideoAsset> {
           2 /
           widget.screen.width;
       final double h = (widget.screen.height -
-              ((containerHeight - topCropContainer - bottomCropContainer) *
-                  (widget.storyElement.videoController!.videoHeight /
-                      widget.storyElement.videoController!.videoWidth))) /
+              (containerHeight - topCropContainer - bottomCropContainer)) /
           2 /
           widget.screen.height;
+
       widget.storyElement.position = Offset(w, h);
     }
     setState(() {});
@@ -115,6 +120,8 @@ class _VideoAssetState extends State<VideoAsset> {
   void dispose() {
     widget.storyElement.videoController?.video.removeListener(videoListener);
     widget.storyElement.videoController?.dispose();
+    widget.storyElement.videoControllerView?.removeListener(videoListener);
+    widget.storyElement.videoControllerView?.dispose();
     super.dispose();
   }
 
@@ -147,10 +154,13 @@ class _VideoAssetState extends State<VideoAsset> {
               child: SizedBox(
                 height: containerHeight,
                 width: containerWidth,
-                child: VideoPlayer(
-                  widget.storyElement.videoController!.video,
-                  key: widget.key,
-                ),
+                child: !widget.isEditing
+                    ? CachedVideoPlayerPlus(
+                        widget.storyElement.videoControllerView!)
+                    : VideoPlayer(
+                        widget.storyElement.videoController!.video,
+                        key: widget.key,
+                      ),
               ),
             ),
           ],

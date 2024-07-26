@@ -1,5 +1,6 @@
 import 'package:advanced_media_picker/advanced_media_picker.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/extensions.dart';
@@ -64,6 +65,7 @@ class StoryElement {
 
   /// Video controller.
   VideoEditorController? videoController;
+  CachedVideoPlayerPlusController? videoControllerView;
 
   /// Audio controller.
   AudioPlayer? audioController;
@@ -99,7 +101,8 @@ class StoryElement {
     this.customWidgetPayload = '',
     this.customWidgetUniqueID = '',
     this.isVideoMuted = false,
-  }) : id = id ?? UniqueKey().toString();
+    this.elementFile,
+  }) : id = id ?? UniqueKey().hashCode.toString();
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -125,14 +128,13 @@ class StoryElement {
       type: ItemType.fromString(json['type']),
       value: json['value'] as String,
       containerColor: Color(json['containerColor']),
-      textStyle: const TextStyle()
-        ..fromJson(json['textStyle'] as Map<String, dynamic>),
+      textStyle: const TextStyle()..fromJson(json['textStyle'] as Map<String, dynamic>),
       textAlign: TextAlign.values[json['textAlign']],
       position: Offset.zero.fromJson(json['position'] as Map<String, double>),
       scale: json['scale'] as double,
       rotation: json['rotation'] as double,
       customWidgetId: json['customWidgetId'] as String,
-      isVideoMuted: json['isVideoMuted'] as bool,
+      isVideoMuted: json['isVideoMuted'] as bool? ?? false,
     );
   }
 }

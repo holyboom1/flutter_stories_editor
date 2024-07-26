@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:advanced_media_picker/advanced_media_picker.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../utils/color_filters/colorfilter_generator.dart';
 import '../utils/color_filters/presets.dart';
@@ -24,6 +27,15 @@ enum CustomAssetType {
 
 /// Top bar widget controller if not provided by the user it will use the default one
 final class EditorController {
+  /// Picker Stule
+  ///
+  final bool isNeedToShowCameraPicker;
+  final bool isNeedVideoCameraPicker;
+  final PickerStyle? stylePicker;
+  final CameraStyle? cameraStylePicker;
+
+  ///
+
   /// Trim slider style
   final TrimSliderStyle trimSliderStyle;
 
@@ -41,7 +53,8 @@ final class EditorController {
   Duration minAudioDuration;
 
   /// Selected item notifier
-  final ValueNotifier<StoryElement?> selectedItem = ValueNotifier<StoryElement?>(null);
+  final ValueNotifier<StoryElement?> selectedItem =
+      ValueNotifier<StoryElement?>(null);
 
   /// Selected filter notifier
   final ValueNotifier<ColorFilterGenerator> selectedFilter =
@@ -80,6 +93,10 @@ final class EditorController {
     this.onElementDeleted,
     this.maxAudioDuration = const Duration(seconds: 30),
     this.minAudioDuration = const Duration(seconds: 5),
+    this.isNeedToShowCameraPicker = true,
+    this.isNeedVideoCameraPicker = true,
+    this.stylePicker,
+    this.cameraStylePicker,
   }) : _storyModel = StoryModel(id: storyId);
 
   /// _isAvailableToAddVideo
@@ -95,14 +112,20 @@ final class EditorController {
     final List<XFile> result = await AdvancedMediaPicker.openPicker(
       controller: pickerController,
       context: context,
-      style: PickerStyle(
-        titleWidget: const SizedBox(),
-        backgroundColor: Colors.black,
-        borderRadius: BorderRadius.circular(16),
-        typeSelectionWidget: const SizedBox.shrink(),
-        selectIconBackgroundColor: Colors.transparent,
-      ),
-      allowedTypes: _isAvailableToAddVideo ? PickerAssetType.imageAndVideo : PickerAssetType.image,
+      cameraStyle: cameraStylePicker ?? CameraStyle(),
+      style: stylePicker ??
+          PickerStyle(
+            titleWidget: const SizedBox(),
+            backgroundColor: Colors.black,
+            borderRadius: BorderRadius.circular(16),
+            typeSelectionWidget: const SizedBox.shrink(),
+            selectIconBackgroundColor: Colors.transparent,
+          ),
+      isNeedToShowCamera: isNeedToShowCameraPicker,
+      isNeedVideoCamera: isNeedVideoCameraPicker,
+      allowedTypes: _isAvailableToAddVideo
+          ? PickerAssetType.imageAndVideo
+          : PickerAssetType.image,
       selectionLimit: 1,
     );
     if (result.isNotEmpty) {
@@ -133,33 +156,50 @@ final class EditorController {
       element.audioController?.pause();
     });
     final StoryModel result;
-    final bool isContainsVideo =
-        assets.value.any((StoryElement element) => element.type == ItemType.video);
+    final bool isContainsVideo = assets.value
+        .any((StoryElement element) => element.type == ItemType.video);
     storyModel.colorFilter = selectedFilter.value.name;
     if (isContainsVideo) {
       storyModel.isVideoIncluded = true;
     }
     final List<StoryElement> elements = <StoryElement>[...assets.value];
 
+    final DateTime startTime = DateTime.now();
+    print('#Comptression started# : ${startTime.toIso8601String()}');
     bool isAudioIncluded = false;
     bool isVideoIncluded = false;
     bool isImageIncluded = false;
 
     await Future.forEach(elements, (StoryElement element) async {
+      final String filePath = '${element.elementFile?.path}';
+      print('#element.elementFile?# : ${filePath}');
+      print('#element.type?# : ${element.type}');
+      final File file = File(filePath);
+
+      if (await file.exists()) {
+        final int sizeInBytes = await file.length();
+        print('element.elementFile? : ${sizeInBytes / (1024 * 1024)} MB');
+      } else {
+        print('element.elementFile? : File does not exist');
+      }
+
       if (element.type == ItemType.video) {
         isVideoIncluded = true;
         if (element.videoController != null) {
-          storyModel.videoDuration =
-              element.videoController!.trimmedDuration.inMilliseconds.toDouble();
-          element.elementFile =
-              await CompressService.trimVideoAndCompress(element.videoController!);
+          storyModel.videoDuration = element
+              .videoController!.trimmedDuration.inMilliseconds
+              .toDouble();
+          element.elementFile = await CompressService.trimVideoAndCompress(
+              element.videoController!);
         }
       } else if (element.type == ItemType.image) {
         isImageIncluded = true;
-        element.elementFile = await CompressService.compressImage(XFile(element.value));
-      } else if (!storyModel.isVideoIncluded && element.type == ItemType.audio) {
+        element.elementFile =
+            await CompressService.compressImage(XFile(element.value));
+      } else if (!storyModel.isVideoIncluded &&
+          element.type == ItemType.audio) {
         isAudioIncluded = true;
-        storyModel.videoDuration = element.elementDuration.toDouble();
+        storyModel.videoDuration = element.elementDuration + 0.0;
       } else if (element.type == ItemType.audio) {
         isAudioIncluded = true;
       }
@@ -179,7 +219,8 @@ final class EditorController {
         );
         videoElement.elementFile = videoWithNewAudio;
         videoElement.value = videoWithNewAudio.path;
-        elements.removeWhere((StoryElement element) => element.id == audioElement.id);
+        elements.removeWhere(
+            (StoryElement element) => element.id == audioElement.id);
       }
     } else if (isAudioIncluded && isImageIncluded) {
       final StoryElement? audioElement = elements.firstWhereOrNull(
@@ -189,30 +230,63 @@ final class EditorController {
         (StoryElement element) => element.type == ItemType.image,
       );
       if (audioElement != null && imageElement != null) {
+        if (imageElement.elementFile!.path.isNetworkImage()) {
+          final HttpClient httpClient = HttpClient();
+          try {
+            final Directory cacheDir = await getTemporaryDirectory();
+            final File imageFile = File(
+                '${cacheDir.path}/${DateTime.now().millisecondsSinceEpoch}.png');
+            final HttpClientRequest request = await httpClient
+                .getUrl(Uri.parse(imageElement.elementFile!.path));
+            final HttpClientResponse response = await request.close();
+            if (response.statusCode == 200) {
+              final Uint8List bytes =
+                  await consolidateHttpClientResponseBytes(response);
+              await imageFile.writeAsBytes(bytes);
+              imageElement.elementFile = XFile(imageFile.path);
+            } else {}
+          } catch (ex) {
+            print(ex);
+          } finally {
+            httpClient.close();
+          }
+        }
         final XFile videoWithNewAudio = await VideoUtils.addAudioImage(
           audioPath: audioElement.elementFile!.path,
           imagePath: imageElement.elementFile!.path,
         );
         imageElement.elementFile = videoWithNewAudio;
-        imageElement.type = ItemType.video;
+        imageElement.type = ItemType.imageVideo;
         imageElement.value = videoWithNewAudio.path;
-        elements.removeWhere((StoryElement element) => element.id == audioElement.id);
+        elements.removeWhere(
+            (StoryElement element) => element.id == audioElement.id);
         storyModel.isVideoIncluded = true;
       }
     }
     result = storyModel.copyWith(
       elements: elements,
     );
+    result.isVideoIncluded = isVideoIncluded || isAudioIncluded;
     assets.value.clear();
     selectedFilter.value = PresetFilters.none;
     selectedItem.value = null;
 
+    if (result.paletteColors.length == 1) {
+      result.paletteColors.add(result.paletteColors.first);
+    }
     Future.delayed(const Duration(seconds: 5), () {
       assets.value.forEach((StoryElement element) {
         element.videoController?.dispose();
+        element.videoControllerView?.dispose();
         element.audioController?.dispose();
       });
     });
+
+    final DateTime endTime = DateTime.now();
+    print('#Comptression end# : ${endTime.toIso8601String()}');
+    print(
+        '#Comptression Duration# : ${endTime.difference(startTime).inSeconds} seconds');
+
     debugPrint('storyModel :${result.toJson()}');
     return result;
   }
@@ -250,6 +324,7 @@ final class EditorController {
             type: ItemType.image,
             position: const Offset(0.25, 0.25),
             value: file?.path ?? url ?? '',
+            elementFile: file ?? XFile(url ?? ''),
             customWidgetUniqueID: uniqueId,
           ),
         );
@@ -313,6 +388,8 @@ final class EditorController {
     element.videoController?.video.pause();
     element.audioController?.dispose();
     element.videoController?.dispose();
+    element.videoControllerView?.pause();
+    element.videoControllerView?.dispose();
     assets.removeAsset(element);
     onElementDeleted?.call(element);
   }
@@ -326,6 +403,8 @@ final class EditorController {
     element?.videoController?.video.pause();
     element?.audioController?.dispose();
     element?.videoController?.dispose();
+    element?.videoControllerView?.pause();
+    element?.videoControllerView?.dispose();
     if (element != null) {
       assets.removeAsset(element);
       onElementDeleted?.call(element);
@@ -368,6 +447,8 @@ final class EditorController {
     assets.value.forEach((StoryElement element) {
       element.videoController?.video.pause();
       element.videoController?.dispose();
+      element.videoControllerView?.pause();
+      element.videoControllerView?.dispose();
     });
     assets.dispose();
     selectedItem.dispose();

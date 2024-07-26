@@ -56,41 +56,6 @@ extension ValueAssetsList on ValueNotifier<List<StoryElement>> {
   }
 }
 
-extension ColorExtension on Color {
-  Color get getTextColor {
-    int d = 0;
-
-    // Counting the perceptive luminance - human eye favors green ..
-    final double luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
-
-    if (luminance > 0.5) {
-      d = 0; // bright  - black font
-    } else {
-      d = 255; // dark  - white font
-    }
-
-    return Color.fromARGB(alpha, d, d, d);
-  }
-
-  Map<String, int> get getRGB {
-    return <String, int>{
-      'r': red,
-      'g': green,
-      'b': blue,
-      'a': alpha,
-    };
-  }
-
-  Color fromRGB(Map<String, int> rgb) {
-    return Color.fromARGB(
-      rgb['a'] ?? 0,
-      rgb['r'] ?? 0,
-      rgb['g'] ?? 0,
-      rgb['b'] ?? 0,
-    );
-  }
-}
-
 extension TextStyleExtension on TextStyle {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{

@@ -1,3 +1,64 @@
+## 0.0.41
+
+* Bugs fix
+
+
+## 0.0.40
+
+* Bugs fix
+
+## 0.0.39
+
+* Bugs fix
+
+## 0.0.38
+
+* Added cachedVideoPlayer to video assets in the view
+
+## 0.0.37
+
+* Bugs fix
+ 
+## 0.0.36
+
+* Bugs fix
+
+## 0.0.35
+
+* Bugs fix
+
+## 0.0.34
+
+* Added loading widget to the view
+
+## 0.0.32
+
+* Compression fix
+
+## 0.0.31
+
+* Bugs fix
+
+## 0.0.30
+
+* Bugs fix
+
+## 0.0.29
+
+* Bugs fix
+
+## 0.0.28
+
+* Bugs fix
+
+## 0.0.27
+
+* Added new fonts
+
+## 0.0.26
+
+* Bugs fix
+
 ## 0.0.25
 
 * Bugs fix

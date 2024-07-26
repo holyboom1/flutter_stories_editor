@@ -24,9 +24,8 @@ class AudioOverlay extends StatefulWidget {
   final Size screen;
   final EditorController editorController;
   final String? uniqueId;
-  final Widget Function(
-          BuildContext context, Function() onPlay, Function() onPause, ValueNotifier<bool> isPlay)?
-      customWidgetBuilder;
+  final Widget Function(BuildContext context, Function() onPlay,
+      Function() onPause, ValueNotifier<bool> isPlay)? customWidgetBuilder;
   final Completer<bool> completer;
 
   const AudioOverlay({
@@ -82,7 +81,8 @@ class _AudioOverlayState extends State<AudioOverlay> {
   bool isControllerInitialized = false;
 
   void muteVideo({bool unMute = false}) {
-    final StoryElement? video = widget.editorController.assets.value.firstWhereOrNull(
+    final StoryElement? video =
+        widget.editorController.assets.value.firstWhereOrNull(
       (StoryElement element) {
         return element.type == ItemType.video;
       },
@@ -104,10 +104,12 @@ class _AudioOverlayState extends State<AudioOverlay> {
     if (widget.file == null) {
       final HttpClient httpClient = HttpClient();
       try {
-        final HttpClientRequest request = await httpClient.getUrl(Uri.parse(widget.url!));
+        final HttpClientRequest request =
+            await httpClient.getUrl(Uri.parse(widget.url!));
         final HttpClientResponse response = await request.close();
         if (response.statusCode == 200) {
-          final Uint8List bytes = await consolidateHttpClientResponseBytes(response);
+          final Uint8List bytes =
+              await consolidateHttpClientResponseBytes(response);
           await audioFile.writeAsBytes(bytes);
         } else {}
       } catch (ex) {
@@ -150,7 +152,8 @@ class _AudioOverlayState extends State<AudioOverlay> {
     );
     await completer.future;
 
-    final StoryElement? prewAudio = widget.editorController.assets.value.firstWhereOrNull(
+    final StoryElement? prewAudio =
+        widget.editorController.assets.value.firstWhereOrNull(
       (StoryElement element) {
         return element.type == ItemType.audio;
       },
@@ -178,7 +181,8 @@ class _AudioOverlayState extends State<AudioOverlay> {
     _endValue = end;
     _trimmer.audioPlayer?.seek(start);
 
-    final StoryElement? video = widget.editorController.assets.value.firstWhereOrNull(
+    final StoryElement? video =
+        widget.editorController.assets.value.firstWhereOrNull(
       (StoryElement element) {
         return element.type == ItemType.video;
       },
@@ -212,8 +216,10 @@ class _AudioOverlayState extends State<AudioOverlay> {
                         trimmer: _trimmer,
                         height: 56.0,
                         width: widget.screen.width * 0.8,
-                        maxAudioLength: widget.editorController.maxAudioDuration,
-                        minAudioLength: widget.editorController.minAudioDuration,
+                        maxAudioLength:
+                            widget.editorController.maxAudioDuration,
+                        minAudioLength:
+                            widget.editorController.minAudioDuration,
                         onTrim: onTrim,
                       ),
                     ),

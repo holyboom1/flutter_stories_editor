@@ -54,7 +54,8 @@ class _MyAppState extends State<MyApp> {
                 // editorController.addCustomAsset(
                 //     type: CustomAssetType.audio, file: file);
                 //
-                editorController.removeElement(editorController.assets.value.last);
+                editorController
+                    .removeElement(editorController.assets.value.last);
               },
               icon: const Icon(Icons.delete),
             ),

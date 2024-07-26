@@ -7,6 +7,7 @@ import 'audio_asset.dart';
 import 'image_asset.dart';
 import 'text/text_asset.dart';
 import 'video_asset.dart';
+import 'video_image_asset.dart';
 import 'widget_asset.dart';
 
 class StoryElementWidget extends StatelessWidget {
@@ -52,6 +53,14 @@ class StoryElementWidget extends StatelessWidget {
           screen: screen,
           isEditing: isEditing,
           editorController: editorController,
+        );
+      case ItemType.imageVideo:
+        return VideoImageAsset(
+          storyElement: storyElement,
+          screen: screen,
+          isEditing: isEditing,
+          editorController: editorController,
+          onVideoEvent: onVideoEvent,
         );
       case ItemType.audio:
         return AudioAsset(
