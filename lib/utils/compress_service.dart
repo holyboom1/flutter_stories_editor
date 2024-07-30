@@ -30,14 +30,12 @@ class CompressService {
     if (file.path.isNetworkImage()) {
       final HttpClient httpClient = HttpClient();
       try {
-        final File imageFile = File(
-            '${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.png');
-        final HttpClientRequest request =
-            await httpClient.getUrl(Uri.parse(file.path));
+        final File imageFile =
+            File('${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.png');
+        final HttpClientRequest request = await httpClient.getUrl(Uri.parse(file.path));
         final HttpClientResponse response = await request.close();
         if (response.statusCode == 200) {
-          final Uint8List bytes =
-              await consolidateHttpClientResponseBytes(response);
+          final Uint8List bytes = await consolidateHttpClientResponseBytes(response);
           await imageFile.writeAsBytes(bytes);
           fileLocal = XFile(imageFile.path);
         } else {}
@@ -57,8 +55,8 @@ class CompressService {
       return null;
     }
     final String cacheDir = await getCacheDirectory();
-    final XFile compressedFile = XFile.fromData(result,
-        path: '$cacheDir/${DateTime.now().millisecondsSinceEpoch}.png');
+    final XFile compressedFile =
+        XFile.fromData(result, path: '$cacheDir/${DateTime.now().millisecondsSinceEpoch}.png');
     await compressedFile.saveTo(compressedFile.path);
     return compressedFile;
   }
@@ -72,25 +70,23 @@ class CompressService {
     try {
       video = await VideoUtils.exportVideo(
         onStatistics: (FFmpegStatistics stats) {
-          exportingProgress.value =
-              stats.getProgress(controller.trimmedDuration.inMilliseconds);
+          exportingProgress.value = stats.getProgress(controller.trimmedDuration.inMilliseconds);
         },
         preset: VideoExportPreset.ultrafast,
         customInstruction:
-            '-c:v h264_videotoolbox -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -crf 32 -r 30 -hls_list_size 5 -hls_time 5 -threads 10 ',
+            '-c:v h264_videotoolbox -vf "scale=1920:-2" -b:v 4000k -r 30 -hls_list_size 5 -hls_time 5 -threads 10 ',
         controller: controller,
       );
     } catch (e) {
       log(e.toString());
     }
-    await video?.saveTo(
-        '${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.mp4');
+    await video
+        ?.saveTo('${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.mp4');
     return video;
   }
 
   /// Trim video and compress video
-  static Future<XFile?> trimVideoAndCompress(
-      VideoEditorController controller) async {
+  static Future<XFile?> trimVideoAndCompress(VideoEditorController controller) async {
     final ValueNotifier<double> exportingProgress = ValueNotifier<double>(0.0);
     XFile? video;
     try {
@@ -98,8 +94,7 @@ class CompressService {
         onStatistics: (FFmpegStatistics stats) {
           print(
               '#FFmpegStatistics# : ${stats.getProgress(controller.trimmedDuration.inMilliseconds)}');
-          exportingProgress.value =
-              stats.getProgress(controller.trimmedDuration.inMilliseconds);
+          exportingProgress.value = stats.getProgress(controller.trimmedDuration.inMilliseconds);
         },
         // 'vf': f'scale={scale}',
         // 'c:v': 'libx264',
@@ -115,7 +110,7 @@ class CompressService {
         preset: VideoExportPreset.ultrafast,
         controller: controller,
         customInstruction:
-            '-c:v h264_videotoolbox -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -crf 32 -r 30 -hls_list_size 5 -hls_time 5 -threads 10 ',
+            '-c:v h264_videotoolbox -vf "scale=1920:-2" -b:v 4000k  -r 30 -hls_list_size 5 -hls_time 5 -threads 10 ',
       );
     } catch (e) {
       log(e.toString());
@@ -135,14 +130,12 @@ class CompressService {
     if (path.isNetworkImage()) {
       final HttpClient httpClient = HttpClient();
       try {
-        final File audioPath = File(
-            '${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.mp3');
-        final HttpClientRequest request =
-            await httpClient.getUrl(Uri.parse(path));
+        final File audioPath =
+            File('${await getCacheDirectory()}/${DateTime.now().millisecondsSinceEpoch}.mp3');
+        final HttpClientRequest request = await httpClient.getUrl(Uri.parse(path));
         final HttpClientResponse response = await request.close();
         if (response.statusCode == 200) {
-          final Uint8List bytes =
-              await consolidateHttpClientResponseBytes(response);
+          final Uint8List bytes = await consolidateHttpClientResponseBytes(response);
           await audioPath.writeAsBytes(bytes);
           fileLocal = XFile(audioPath.path);
         } else {}
@@ -160,8 +153,7 @@ class CompressService {
         (FFmpegSession session) async {
           final String? output = await session.getOutput();
           if (output != null) {
-            final RegExp durationRegExp =
-                RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
+            final RegExp durationRegExp = RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
             final RegExpMatch? match = durationRegExp.firstMatch(output);
             if (match != null) {
               final int hours = int.parse(match.group(1)!);

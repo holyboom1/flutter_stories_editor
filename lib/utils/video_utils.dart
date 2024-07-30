@@ -111,7 +111,7 @@ class VideoUtils {
 
     await const FFmpegExport().executeFFmpegIO(
       execute:
-          '-loop 1 -i $imagePath -c:v h264_videotoolbox -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -crf 32 -t $duration $videoPath',
+          '-loop 1 -i $imagePath -c:v h264_videotoolbox -vf "scale=1920:-2" -b:v 4000k -t $duration $videoPath',
       outputPath: outputPath,
       outputMimeType: outputFormat.mimeType,
       onStatistics: onStatistics,
