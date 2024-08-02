@@ -25,11 +25,7 @@ class WidgetAsset extends StatelessWidget {
       isEditing: isEditing,
       storyElement: storyElement,
       screen: screen,
-      child: Container(
-        margin: const EdgeInsets.all(20),
-        padding: const EdgeInsets.all(8),
-        child: storyElement.child,
-      ),
+      child: storyElement.child,
     );
   }
 }
