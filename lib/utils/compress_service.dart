@@ -72,9 +72,9 @@ class CompressService {
         onStatistics: (FFmpegStatistics stats) {
           exportingProgress.value = stats.getProgress(controller.trimmedDuration.inMilliseconds);
         },
-        preset: VideoExportPreset.ultrafast,
+        preset: VideoExportPreset.superfast,
         customInstruction:
-            '-c:v h264_videotoolbox -vf "scale=1920:-2" -b:v 4000k -r 30 -hls_list_size 5 -hls_time 5 -threads 10 ',
+            '-vf "scale=720:-2" -b:v 3000k -r 30 -hls_list_size 5 -hls_time 5 -threads 5 ',
         controller: controller,
       );
     } catch (e) {
@@ -107,10 +107,10 @@ class CompressService {
         // "hls_list_size": 5, "hls_time": 5,
         /// -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2"
         /// -vf scale=1280:-2
-        preset: VideoExportPreset.ultrafast,
+        preset: VideoExportPreset.superfast,
         controller: controller,
         customInstruction:
-            '-c:v h264_videotoolbox -vf "scale=1920:-2" -b:v 4000k  -r 30 -hls_list_size 5 -hls_time 5 -threads 10 ',
+            '-vf "scale=720:-2" -b:v 3000k -r 30 -hls_list_size 5 -hls_time 5 -threads 5 ',
       );
     } catch (e) {
       log(e.toString());
