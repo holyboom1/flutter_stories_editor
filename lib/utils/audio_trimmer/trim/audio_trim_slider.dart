@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../trimmer.dart';
+import '../utils/duration_style.dart';
 
 enum _TrimBoundaries { left, right, inside, progress }
 
@@ -185,26 +186,66 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 12),
+        DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6),
           ),
-          clipBehavior: Clip.hardEdge,
-          child: bars(
-            width: widget.width - 24,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+            child: ValueListenableBuilder<double>(
+              valueListenable: _audioStartPos,
+              builder:
+                  (BuildContext context, double startPosValue, Widget? child) {
+                return ValueListenableBuilder<double>(
+                  valueListenable: _audioEndPos,
+                  builder: (BuildContext context, double endPosValue,
+                      Widget? child) {
+                    return Text(
+                      Duration(
+                              milliseconds: ((endPosValue - startPosValue) /
+                                      audioScaleFactor)
+                                  .round())
+                          .format(DurationStyle.FORMAT_HH_MM_SS),
+                      style: const TextStyle(
+                        color: Color(0xFFEB671B),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ),
-        TrimSlider(
-          height: widget.height,
-          width: widget.width,
-          audioStartPos: _audioStartPos,
-          audioEndPos: _audioEndPos,
-          minTrimLength: minTrimLength,
-          maxTrimLength: maxTrimLength,
-          onTrim: onTrim,
+        const SizedBox(height: 8),
+        Stack(
+          children: <Widget>[
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: bars(
+                width: widget.width - 24,
+              ),
+            ),
+            TrimSlider(
+              height: widget.height,
+              width: widget.width,
+              audioStartPos: _audioStartPos,
+              audioEndPos: _audioEndPos,
+              minTrimLength: minTrimLength,
+              maxTrimLength: maxTrimLength,
+              onTrim: onTrim,
+            ),
+          ],
         ),
       ],
     );
