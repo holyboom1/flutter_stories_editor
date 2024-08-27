@@ -38,15 +38,16 @@ class _AudioAssetState extends State<AudioAsset> {
     final File audioFile = File(widget.storyElement.value);
 
     if (Platform.isIOS) {
-      await widget.storyElement.audioController
-          ?.setSourceDeviceFile(audioFile.path);
+      if (audioFile.path.contains('http')) {
+        await widget.storyElement.audioController?.setSourceUrl(audioFile.path);
+      } else {
+        await widget.storyElement.audioController?.setSourceDeviceFile(audioFile.path);
+      }
     } else if (Platform.isAndroid) {
-      await widget.storyElement.audioController
-          ?.setSourceBytes(audioFile.readAsBytesSync());
+      await widget.storyElement.audioController?.setSourceBytes(audioFile.readAsBytesSync());
     }
 
-    final StoryElement? video =
-        widget.editorController.assets.value.firstWhereOrNull(
+    final StoryElement? video = widget.editorController.assets.value.firstWhereOrNull(
       (StoryElement element) {
         return element.type == ItemType.video;
       },
@@ -54,13 +55,11 @@ class _AudioAssetState extends State<AudioAsset> {
     videoEditorController = video?.videoController;
     if (videoEditorController != null) {
       await widget.storyElement.audioController?.seek(Duration.zero);
-      unawaited(videoEditorController?.video
-          .seekTo(videoEditorController!.startTrim));
+      unawaited(videoEditorController?.video.seekTo(videoEditorController!.startTrim));
       unawaited(widget.storyElement.audioController?.resume());
       videoEditorController?.isLooped.addListener(videoListener);
     } else {
-      unawaited(widget.storyElement.audioController
-          ?.setReleaseMode(ReleaseMode.loop));
+      unawaited(widget.storyElement.audioController?.setReleaseMode(ReleaseMode.loop));
       unawaited(widget.storyElement.audioController?.resume());
     }
   }

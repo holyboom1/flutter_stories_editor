@@ -266,7 +266,7 @@ final class EditorController {
     result = storyModel.copyWith(
       elements: elements,
     );
-    result.isVideoIncluded = isVideoIncluded || isAudioIncluded;
+    result.isVideoIncluded = isVideoIncluded;
     assets.value.clear();
     selectedFilter.value = PresetFilters.none;
     selectedItem.value = null;
