@@ -14,7 +14,7 @@ dependencies:
   cross_file: ^0.3.4+1
   cached_network_image: ^3.3.1
   flutter_svg: ^2.0.10+1
-  advanced_media_picker: ^0.0.13
+  advanced_media_picker: ^0.0.16
   collection: ^1.18.0
   matrix2d: ^1.0.4
 

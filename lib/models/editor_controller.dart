@@ -33,6 +33,7 @@ final class EditorController {
   final bool isNeedVideoCameraPicker;
   final PickerStyle? stylePicker;
   final CameraStyle? cameraStylePicker;
+  final VoidCallback? onCameraPermissionDeniedCallback;
 
   ///
 
@@ -97,6 +98,7 @@ final class EditorController {
     this.isNeedVideoCameraPicker = true,
     this.stylePicker,
     this.cameraStylePicker,
+    this.onCameraPermissionDeniedCallback,
   }) : _storyModel = StoryModel(id: storyId);
 
   /// _isAvailableToAddVideo
@@ -127,6 +129,7 @@ final class EditorController {
           ? PickerAssetType.imageAndVideo
           : PickerAssetType.image,
       selectionLimit: 1,
+      onCameraPermissionDeniedCallback: onCameraPermissionDeniedCallback,
     );
     if (result.isNotEmpty) {
       final XFile file = result.first;
