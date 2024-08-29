@@ -129,11 +129,24 @@ class _AudioOverlayState extends State<AudioOverlay> {
     _trimmer.audioPlayer?.onPlayerStateChanged.listen((PlayerState state) {
       if (state == PlayerState.playing) {
         isPlay.value = true;
+      }
+      if (state == PlayerState.completed) {
+        _trimmer.audioPlayer?.seek(_startValue);
+        _trimmer.audioPlayer?.resume();
       } else {
         isPlay.value = false;
       }
     });
 
+    final StoryElement? video =
+        widget.editorController.assets.value.firstWhereOrNull(
+      (StoryElement element) {
+        return element.type == ItemType.video;
+      },
+    );
+    if (video != null) {
+      await video.videoController?.video.seekTo(Duration.zero);
+    }
     setState(() {});
   }
 
@@ -211,11 +224,11 @@ class _AudioOverlayState extends State<AudioOverlay> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     SizedBox(
-                      width: widget.screen.width * 0.8,
+                      width: widget.screen.width * 0.9,
                       child: AudioTrimSlider(
                         trimmer: _trimmer,
                         height: 56.0,
-                        width: widget.screen.width * 0.8,
+                        width: widget.screen.width * 0.9,
                         maxAudioLength:
                             widget.editorController.maxAudioDuration,
                         minAudioLength:

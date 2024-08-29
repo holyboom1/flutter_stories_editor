@@ -315,9 +315,10 @@ class VideoEditorController extends ChangeNotifier {
 
   void _videoListener() {
     final Duration position = videoPosition;
-    if (position < _trimStart || position > _trimEnd) {
+    if (position < _trimStart ||
+        position >= _trimEnd - const Duration(milliseconds: 500)) {
       _video.seekTo(_trimStart);
-      isLooped.value++;
+      isLooped.value = isLooped.value + 1;
     }
   }
 

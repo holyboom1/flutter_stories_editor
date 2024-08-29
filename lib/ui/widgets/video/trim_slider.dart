@@ -14,6 +14,7 @@ class TrimSliderWidget extends StatelessWidget {
   }) : _controller = controller;
 
   final ValueNotifier<Rect> _rectNotifier = ValueNotifier<Rect>(Rect.zero);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -34,29 +35,33 @@ class TrimSliderWidget extends StatelessWidget {
                 children: <Widget>[
                   ValueListenableBuilder<Rect>(
                     valueListenable: _rectNotifier,
-                    builder: (BuildContext context, Rect value, Widget? child) {
-                      return Positioned(
-                        left: value.left + (value.right - value.left) / 2 - 35,
-                        child: Container(
-                          width: 70,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                          child: Center(
-                            child: Text(
-                              formatter(pos),
-                              style: const TextStyle(
-                                color: Color(0xFFE75A22),
-                                fontSize: 12,
-                                fontFamily: 'SF Pro Display',
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                    child: Container(
+                      width: 70,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
+                      child: Center(
+                        child: Text(
+                          formatter(pos),
+                          style: const TextStyle(
+                            color: Color(0xFFE75A22),
+                            fontSize: 12,
+                            fontFamily: 'SF Pro Display',
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
+                      ),
+                    ),
+                    builder: (BuildContext context, Rect value, Widget? child) {
+                      final double leftPadding = value.left == 0
+                          ? MediaQuery.of(context).size.width / 2
+                          : value.left + (value.right - value.left) / 2;
+                      return Positioned(
+                        left: leftPadding - 35,
+                        child: child!,
                       );
                     },
                   ),

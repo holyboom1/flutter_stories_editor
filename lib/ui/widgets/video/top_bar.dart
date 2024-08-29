@@ -59,6 +59,11 @@ class VideoTopBar extends StatelessWidget {
               withText: true,
               onPressed: () {
                 editorController.assets.addAsset(storyElement);
+                if (storyElement.videoController != null) {
+                  editorController.maxAudioDuration =
+                      storyElement.videoController!.endTrim -
+                          storyElement.videoController!.startTrim;
+                }
                 completer.complete(true);
                 hideOverlay();
               },

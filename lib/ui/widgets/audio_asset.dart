@@ -66,6 +66,7 @@ class _AudioAssetState extends State<AudioAsset> {
 
   Future<void> videoListener() async {
     await widget.storyElement.audioController?.seek(Duration.zero);
+    unawaited(widget.storyElement.audioController?.resume());
   }
 
   VideoEditorController? videoEditorController;

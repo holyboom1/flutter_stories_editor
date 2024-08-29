@@ -38,7 +38,6 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
   final ValueNotifier<double> _audioStartPos = ValueNotifier<double>(0.0);
   final ValueNotifier<double> _audioEndPos = ValueNotifier<double>(0.0);
   final ValueNotifier<int> _currentPosition = ValueNotifier<int>(0);
-  final ValueNotifier<int> _audioDuration = ValueNotifier<int>(0);
 
   AudioPlayer get audioPlayerController => widget.trimmer.audioPlayer!;
 
@@ -98,19 +97,18 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
             audioPlayerController.state == PlayerState.playing;
         if (isPlaying) {
           _currentPosition.value = event.inMilliseconds;
-          if (_currentPosition.value >
-              (_audioEndPos.value - 24) / audioScaleFactor) {
-            await audioPlayerController.seek(Duration(
-                microseconds:
-                    (_audioStartPos.value / audioScaleFactor).toInt()));
+          if (_currentPosition.value > _audioEndPos.value / audioScaleFactor) {
+            await audioPlayerController.seek(
+              Duration(
+                  milliseconds:
+                      (_audioStartPos.value / audioScaleFactor).toInt()),
+            );
           } else {}
         }
       });
 
       unawaited(audioPlayerController.setVolume(1.0));
-      _audioDuration.value =
-          (await audioPlayerController.getDuration())!.inMilliseconds;
-      await audioPlayerController.seek(const Duration());
+      await audioPlayerController.seek(Duration.zero);
 
       await audioPlayerController.resume();
     }
@@ -210,7 +208,7 @@ class _AudioTrimSliderState extends State<AudioTrimSlider> {
                               milliseconds: ((endPosValue - startPosValue) /
                                       audioScaleFactor)
                                   .round())
-                          .format(DurationStyle.FORMAT_HH_MM_SS),
+                          .format(DurationStyle.FORMAT_MM_SS_MS),
                       style: const TextStyle(
                         color: Color(0xFFEB671B),
                         fontSize: 12,
@@ -277,20 +275,20 @@ class TrimSlider extends StatefulWidget {
 }
 
 class _TrimSliderState extends State<TrimSlider> {
-  double startPostion = 0;
-  double endPostion = 0;
+  double startPosition = 0;
+  double endPosition = 0;
 
   @override
   void initState() {
     super.initState();
-    endPostion = widget.audioEndPos.value;
-    startPostion = widget.audioStartPos.value;
+    endPosition = widget.audioEndPos.value;
+    startPosition = widget.audioStartPos.value;
     widget.audioStartPos.addListener(() {
-      startPostion = widget.audioStartPos.value;
+      startPosition = widget.audioStartPos.value;
       setState(() {});
     });
     widget.audioEndPos.addListener(() {
-      endPostion = widget.audioEndPos.value;
+      endPosition = widget.audioEndPos.value;
       setState(() {});
     });
   }
@@ -305,39 +303,39 @@ class _TrimSliderState extends State<TrimSlider> {
     final double position = details.globalPosition.dx - lastPosition.dx;
     lastPosition = details.globalPosition;
     if (boundary == _TrimBoundaries.left) {
-      final double newPostion = widget.audioStartPos.value + position;
-      if (newPostion < 0) {
+      final double newPosition = widget.audioStartPos.value + position;
+      if (newPosition < 0) {
         widget.audioStartPos.value = 0;
-      } else if (newPostion > endPostion) {
-        widget.audioStartPos.value = endPostion;
+      } else if (newPosition > endPosition) {
+        widget.audioStartPos.value = endPosition;
       } else {
-        if (widget.audioEndPos.value - newPostion < widget.minTrimLength) {
+        if (widget.audioEndPos.value - newPosition < widget.minTrimLength) {
           return;
         }
 
-        if (widget.audioEndPos.value - newPostion > widget.maxTrimLength) {
+        if (widget.audioEndPos.value - newPosition > widget.maxTrimLength) {
           return;
         }
 
-        widget.audioStartPos.value = newPostion;
+        widget.audioStartPos.value = newPosition;
       }
     } else if (boundary == _TrimBoundaries.right) {
-      final double newPostion = widget.audioEndPos.value + position;
+      final double newPosition = widget.audioEndPos.value + position;
 
-      if (newPostion > widget.width) {
+      if (newPosition > widget.width) {
         widget.audioEndPos.value = widget.width;
-      } else if (newPostion < startPostion) {
-        widget.audioEndPos.value = startPostion;
+      } else if (newPosition < startPosition) {
+        widget.audioEndPos.value = startPosition;
       } else {
-        if (newPostion - widget.audioStartPos.value < widget.minTrimLength) {
+        if (newPosition - widget.audioStartPos.value < widget.minTrimLength) {
           return;
         }
 
-        if (newPostion - widget.audioStartPos.value > widget.maxTrimLength) {
+        if (newPosition - widget.audioStartPos.value > widget.maxTrimLength) {
           return;
         }
 
-        widget.audioEndPos.value = newPostion;
+        widget.audioEndPos.value = newPosition;
       }
     }
     if (boundary == _TrimBoundaries.inside) {
@@ -379,12 +377,12 @@ class _TrimSliderState extends State<TrimSlider> {
                   bottomLeft: Radius.circular(12),
                 ),
               ),
-              width: startPostion,
+              width: startPosition,
               height: widget.height,
             ),
           ),
           Positioned(
-            left: endPostion - 12,
+            left: endPosition - 12,
             right: 12,
             child: Container(
               width: widget.width,
@@ -399,7 +397,7 @@ class _TrimSliderState extends State<TrimSlider> {
             ),
           ),
           Positioned(
-            left: startPostion + 12,
+            left: startPosition + 12,
             child: GestureDetector(
               onHorizontalDragStart: _startDrag,
               onHorizontalDragUpdate: (DragUpdateDetails details) {
@@ -407,14 +405,14 @@ class _TrimSliderState extends State<TrimSlider> {
               },
               onHorizontalDragEnd: _endDrag,
               child: Container(
-                width: widget.width - (endPostion - startPostion - 24),
+                width: widget.width - (endPosition - startPosition - 24),
                 height: widget.height,
                 color: Colors.transparent,
               ),
             ),
           ),
           Positioned(
-            left: startPostion,
+            left: startPosition,
             child: ClipPath(
               clipper: TransparentCenterClipper(
                 paddingLeft: 12,
@@ -423,7 +421,7 @@ class _TrimSliderState extends State<TrimSlider> {
                 borderRadius: 12,
               ),
               child: Container(
-                width: endPostion - startPostion,
+                width: endPosition - startPosition,
                 height: widget.height,
                 color: const Color(0xFFEB671B),
                 child: Stack(
@@ -454,7 +452,7 @@ class _TrimSliderState extends State<TrimSlider> {
                       ),
                     ),
                     Positioned(
-                      left: (endPostion - startPostion) - 12,
+                      left: endPosition - startPosition - 12,
                       child: GestureDetector(
                         onHorizontalDragStart: _startDrag,
                         onHorizontalDragUpdate: (DragUpdateDetails details) {
