@@ -333,7 +333,7 @@ class _TrimSliderState extends State<TrimSlider>
         leftTouch = leftTouch.expandToInclude(
             Rect.fromLTWH(_rect.left, 0, _edgesTouchMargin, 1));
         rightTouch = rightTouch.expandToInclude(Rect.fromLTWH(
-            _rect.right - _edgesTouchMargin, 0, _edgesTouchMargin, 1));
+            _rect.right - _edgesTouchMargin * 2, 0, _edgesTouchMargin, 1));
       }
 
       if (leftTouch.contains(pos)) {
