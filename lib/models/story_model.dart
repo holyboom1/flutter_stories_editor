@@ -99,7 +99,7 @@ final class StoryModel {
   }
 
   /// Create story model from json
-  factory StoryModel.fromJson(Map<String, dynamic> json) {
+  StoryModel fromJson(Map<String, dynamic> json) {
     return StoryModel(
       id: json['id'] as String,
       isVideoIncluded: json['isVideoIncluded'] as bool,
